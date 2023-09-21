@@ -8,9 +8,25 @@
             "type": "chrome",
             "request": "launch",
             "name": "Open index.html",
-            "preLaunchTask": "run app",
+            // "preLaunchTask": "run app",
             "url": "http://localhost:3000/",
             "webRoot": "${workspaceFolder}/client"
+        },
+        {
+            "name": "Launch via NPM",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/client",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script", "dev"
+            ],
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Launch",
+            "configurations": ["Launch via NPM", "Open index.html"]
         }
     ]
 }
