@@ -3,30 +3,29 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Launch",
+            "configurations": ["Run npm dev script", "Open chrome"]
+        }
+    ],
     "configurations": [
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Open index.html",
-            // "preLaunchTask": "run app",
+            "name": "Open chrome",
             "url": "http://localhost:3000/",
             "webRoot": "${workspaceFolder}/client"
         },
         {
-            "name": "Launch via NPM",
+            "name": "Run npm dev script",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceRoot}/client",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
-                "run-script", "dev"
+                "run-script", "dev:debug"
             ],
-        }
-    ],
-    "compounds": [
-        {
-            "name": "Launch",
-            "configurations": ["Launch via NPM", "Open index.html"]
         }
     ]
 }
