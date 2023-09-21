@@ -1,2 +1,2 @@
-let message: string = 'Hello Web test';
+let message: string = 'Hello Web';
 document.body.innerHTML = message;
