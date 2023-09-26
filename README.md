@@ -2,6 +2,7 @@
 
 ## Client
 The client directory has the code related to the visualization of the algorithm.
+First you need to install the projects packages. Cd into the ``client`` directory and run npm i.
 
 To run the front end in debug mode open the repository in vscode, go to 'Run and Debug' (⇧⌘D/Ctrl+⇧+D), and choose the launch option called 'Launch'.
 
