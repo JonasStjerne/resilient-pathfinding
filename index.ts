@@ -1,5 +1,4 @@
-let message: string = 'Hello Web test';
-document.body.innerHTML = message;
-
-//import { makeGrid } from "./algo";
-//makeGrid();
+import algoInit from "./algo/index.js";
+import clientInit from "./client/index.js";
+algoInit()
+clientInit()

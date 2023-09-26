@@ -1,4 +1,6 @@
-
+export default function algoInit() {
+    makeGrid()
+}
 //Type definitions
 type cellType = "road"|"water"
 type gridType = node[][]
@@ -30,7 +32,7 @@ class edge{
 const gridSize = 50
 const grid = new Array(gridSize)
 
-export function makeGrid() : gridType{
+export function makeGrid(){
     for(let x = 0; x < gridSize; x++){
         grid[x] = new Array(gridSize);
     }
@@ -40,32 +42,6 @@ export function makeGrid() : gridType{
             grid[x][y]= new node(x,y, 'road')
         }
     }
+    console.log(grid)
+}
 
-    // Set the edges of the grid
-    for (let x = 0; x < gridSize; x++){
-        for(let y = 0; y < gridSize; y++){
-                         
-            // Set left edge
-            if (x != 0){
-                grid[x][y].edges.push(grid[x-1][y])
-            }
-            
-            //Set right neighbor
-            if(x != (gridSize-1)){
-                grid[x][y].edges.push(grid[x+1][y])
-            }
-            
-            //Set upper neighbor
-            if(y != 0){
-                grid[x][y].edges.push(grid[x][y-1])
-            }
-            
-            //Set lower neighbor
-            if (y != (gridSize - 1)){
-                grid[x][y].edges.push(grid[x][y+1])
-            }
-        }
-    }
-
-    return grid
-} 
