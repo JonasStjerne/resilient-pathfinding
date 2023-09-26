@@ -1,3 +1,6 @@
+export default function algoInit() {
+    makeGrid()
+}
 //Type definitions
 type cellType = "road"|"water"
 
@@ -28,7 +31,7 @@ class edge{
 const gridSize = 50
 const grid = new Array(gridSize)
 
-export function makeGrid(){
+function makeGrid() {
     for(let x = 0; x < gridSize; x++){
         grid[x] = new Array(gridSize);
     }
@@ -40,4 +43,5 @@ export function makeGrid(){
     }
     console.log(grid)
 }
+
 
