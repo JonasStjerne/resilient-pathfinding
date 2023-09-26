@@ -5,7 +5,7 @@ export default function clientInit(grid: gridType) {
 }
 
 const canvasSize = 500;
-const gridNumber = 10;
+// const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 
 export const drawGrid = (canvasSize: number, grid: gridType) => {
@@ -48,9 +48,10 @@ export const drawGrid = (canvasSize: number, grid: gridType) => {
 		ctx.lineTo(canvasSize, y);
 		ctx.stroke();
 	}
+	drawObstacles(grid);
 };
 
-function drawSquareInGrid(col: number, row: number, color: string) {
+function drawSquareInGrid(col: number, row: number, color: string, gridNumber: number) {
 	const ctx = canvas.getContext("2d")!;
 
 	// Calculate the size of each grid cell
@@ -63,4 +64,15 @@ function drawSquareInGrid(col: number, row: number, color: string) {
 	// Draw a black square in the specified grid cell
 	ctx.fillStyle = color; // Set fill color to color
 	ctx.fillRect(x, y, cellSize, cellSize);
+}
+
+const drawObstacles = (grid: gridType) => {
+	const gridLength = grid.length;
+	for (let x = 0; x < gridLength; x++) {
+		for (let y = 0; y < gridLength; y++) {
+			if (grid[x][y].type == "water") {
+				drawSquareInGrid(x,y,"#3260a8", gridLength)
+			}
+		}
+	}
 }
