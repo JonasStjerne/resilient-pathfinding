@@ -19,13 +19,13 @@
             "request": "launch",
             "name": "Open chrome",
             "url": "http://localhost:3000/",
-            "webRoot": "${workspaceFolder}/client"
+            "webRoot": "${workspaceFolder}"
         },
         {
             "name": "Run npm dev script",
             "type": "node",
             "request": "launch",
-            "cwd": "${workspaceRoot}/client",
+            "cwd": "${workspaceRoot}",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run-script", "dev:debug"
@@ -35,7 +35,7 @@
             "name": "Run npm windows script",
             "type": "node",
             "request": "launch",
-            "cwd": "${workspaceRoot}/client",
+            "cwd": "${workspaceRoot}",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run-script", "start:windows"
