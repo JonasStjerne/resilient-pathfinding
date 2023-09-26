@@ -1,9 +1,10 @@
 export default function algoInit() {
-    makeGrid()
+    const grid = makeGrid()
+    return grid;
 }
 //Type definitions
 type cellType = "road"|"water"
-type gridType = node[][]
+export type gridType = node[][]
 
 class node{
     x: number;
