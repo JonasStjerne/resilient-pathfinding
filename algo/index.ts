@@ -72,12 +72,32 @@ export function makeGrid(): gridType{
     }
 
     // Make test grid hardcode
+    grid[0][2].type = "water"
+    grid[0][4].type = "water"
+    grid[0][6].type = "water"
+    grid[0][8].type = "water"
     grid[1][0].type = "water"
-    grid[1][1].type = "water"
-    grid[2][1].type = "water"
-    grid[1][3].type = "water"
-    grid[2][3].type = "water"
-    grid[3][3].type = "water"
+    grid[1][2].type = "water"
+    grid[1][5].type = "water"
+    grid[2][6].type = "water"
+    grid[2][7].type = "water"
+    grid[2][8].type = "water"
+    grid[3][4].type = "water"
+    grid[3][5].type = "water"
+    grid[4][1].type = "water"
+    grid[4][3].type = "water"
+    grid[4][7].type = "water"
+    grid[5][0].type = "water"
+    grid[6][6].type = "water"
+    grid[6][8].type = "water"
+    grid[7][4].type = "water"
+    grid[7][6].type = "water"
+    grid[8][7].type = "water"
+    grid[9][3].type = "water"
+    grid[9][4].type = "water"
+    grid[9][8].type = "water"
+    grid[9][6].type = "water"
+
     return grid satisfies gridType
 }
 
