@@ -30,10 +30,10 @@ class edge{
 }
 
 // Create Grid
-const gridSize = 50
+const gridSize = 10;
 const grid = new Array(gridSize)
 
-export function makeGrid(){
+export function makeGrid(): gridType{
     for(let x = 0; x < gridSize; x++){
         grid[x] = new Array(gridSize);
     }
@@ -70,5 +70,14 @@ export function makeGrid(){
             
         }
     }
+
+    // Make test grid hardcode
+    grid[1][0].type = "water"
+    grid[1][1].type = "water"
+    grid[2][1].type = "water"
+    grid[1][3].type = "water"
+    grid[2][3].type = "water"
+    grid[3][3].type = "water"
+    return grid satisfies gridType
 }
 
