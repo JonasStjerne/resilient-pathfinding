@@ -1,6 +1,6 @@
-import { gridType } from "../algo/index";
+import { grid } from "../algo/index";
 
-export default function clientInit(grid: gridType) {
+export default function clientInit(grid: grid) {
     drawGrid(canvasSize, grid);
 }
 
@@ -8,7 +8,7 @@ const canvasSize = 500;
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 
-export const drawGrid = (canvasSize: number, grid: gridType) => {
+export const drawGrid = (canvasSize: number, grid: grid) => {
 	// Get the canvas element by its ID
 	const gridSize = grid.length;
 
@@ -66,7 +66,7 @@ function drawSquareInGrid(col: number, row: number, color: string, gridNumber: n
 	ctx.fillRect(x, y, cellSize, cellSize);
 }
 
-const drawObstacles = (grid: gridType) => {
+const drawObstacles = (grid: grid) => {
 	const gridLength = grid.length;
 	for (let x = 0; x < gridLength; x++) {
 		for (let y = 0; y < gridLength; y++) {
