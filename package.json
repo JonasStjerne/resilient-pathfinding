@@ -9,7 +9,8 @@
     "bs:watch": "browser-sync --server 'index.html' --files './dist/**/*.js'--no-open",
     "start:windows": "concurrently \"npm run ts:watch\" \"npm run bs:watch\"",
     "dev:debug": "tsc -w & browser-sync --server 'index.html' --files './dist/**/*.js' --no-open",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
