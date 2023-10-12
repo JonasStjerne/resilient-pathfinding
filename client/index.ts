@@ -1,5 +1,22 @@
 import { grid } from "../algo/models/Grid";
 
+const wallBtn = document.getElementById("wall" satisfies drawType)!;
+const startBtn = document.getElementById("start" satisfies drawType)!;
+const goalBtn = document.getElementById("goal" satisfies drawType)!;
+wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
+startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
+goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
+
+type drawType = "wall" | "start" | "goal";
+
+let selectedType: drawType = "wall";
+function selectDrawType(id: drawType) {
+	[wallBtn, startBtn, goalBtn].forEach((elm) => elm.classList.remove("selected"));
+	selectedType = id;
+	document.getElementById(id)!.classList.add("selected");
+}
+
+
 export default function clientInit(grid: grid) {
   drawGrid(canvasSize, grid);
 }
@@ -49,6 +66,7 @@ export const drawGrid = (canvasSize: number, grid: grid) => {
     ctx.stroke();
   }
   drawObstacles(grid);
+  enableContinuousDrawing(canvas, gridSize);
   // drawIds(grid);
 };
 
@@ -98,3 +116,44 @@ export const drawIds = (grid: grid) => {
     }
   }
 };
+
+function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) {
+	const ctx = canvas.getContext("2d")!;
+	let isDrawing = false;
+
+	// Calculate the size of each grid cell
+	const cellSize = canvas.width / gridNumber;
+
+	// Function to draw a black square in the cell at the given row and column
+	function draw(row: number, col: number) {
+		if (selectedType === "wall") {
+			ctx.fillStyle = "#000";
+		} // Set fill color to black
+		if (selectedType === "start") {
+			ctx.fillStyle = "#4dff00";
+		}
+		if (selectedType === "goal") {
+			ctx.fillStyle = "#ff0000";
+		}
+		ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+	}
+
+	canvas.addEventListener("mousedown", (event) => {
+		isDrawing = true;
+		const col = Math.floor(event.offsetX / cellSize);
+		const row = Math.floor(event.offsetY / cellSize);
+		draw(row, col);
+	});
+
+	canvas.addEventListener("mousemove", (event) => {
+		if (isDrawing) {
+			const col = Math.floor(event.offsetX / cellSize);
+			const row = Math.floor(event.offsetY / cellSize);
+			draw(row, col);
+		}
+	});
+
+	canvas.addEventListener("mouseup", () => {
+		isDrawing = false;
+	});
+}

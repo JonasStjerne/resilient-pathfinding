@@ -1,0 +1,17 @@
+body {
+    background-color: beige;
+}
+
+canvas {
+    background-color: white;
+}
+
+.selected#wall {
+    background-color: grey;
+}
+.selected#start {
+    background-color: lightgreen;
+}
+.selected#goal {
+    background-color: lightcoral;
+}
