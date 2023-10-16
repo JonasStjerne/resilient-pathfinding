@@ -1,6 +1,7 @@
-import { grid } from "../algo/grid.js";
+import search from "../algo/AStarSearch.js";
+import { grid, setTypeOfNode } from "../algo/grid.js";
 import { Grid } from "../algo/models/Grid.js";
-import { NodeType } from "../algo/models/Node.js";
+import { Node, NodeType } from "../algo/models/Node.js";
 
 export default function clientInit() {
   drawGrid(canvasSize, grid);
@@ -10,13 +11,17 @@ export default function clientInit() {
 const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
 const waterBtn = document.getElementById("water" satisfies drawType)!;
+const runAlgoBtn = document.getElementById("run-algo")!;
 // wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
 waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
+runAlgoBtn.addEventListener("click", () => runPathFinding());
 
 type drawType = "start" | "goal" | "water";
 type color = "blue" | "black" | "green" | "red" | "white";
+export let startNode: Pick<Node, "x" | "y"> | null = null;
+export let  endNode: Pick<Node, "x" | "y"> | null = null;
 
 const colorMap: Record<color, string> = {
   "black":"#000",
@@ -33,6 +38,8 @@ const drawTypeToColor: Record<NodeType, color> = {
   "water": "blue"
   }
 
+  const cellPadding = 2;
+
 let selectedType: drawType = "water";
 function selectDrawType(id: drawType) {
 	[startBtn, goalBtn, waterBtn].forEach((elm) => elm.classList.remove("selected"));
@@ -40,10 +47,13 @@ function selectDrawType(id: drawType) {
 	document.getElementById(id)!.classList.add("selected");
 }
 
+
 const canvasSize = 500;
 
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
+const ctx = canvas.getContext("2d")!;
+
 
 export const drawGrid = (canvasSize: number, grid: Grid) => {
   // Get the canvas element by its ID
@@ -54,8 +64,6 @@ export const drawGrid = (canvasSize: number, grid: Grid) => {
     console.error("Canvas element not found.");
     return;
   }
-
-  const ctx = canvas.getContext("2d")!;
 
   // Calculate the size of each grid cell
   const cellSize = canvasSize / gridSize;
@@ -85,7 +93,7 @@ export const drawGrid = (canvasSize: number, grid: Grid) => {
     ctx.lineTo(canvasSize, y);
     ctx.stroke();
   }
-  drawObstacles();
+  // drawObstacles();
   enableContinuousDrawing(canvas, gridSize);
   drawIds();
 };
@@ -93,28 +101,40 @@ export const drawGrid = (canvasSize: number, grid: Grid) => {
 function drawSquareInGrid(
   col: number,
   row: number,
-  color: color,
-  gridNumber: number
+  type: NodeType,
 ) {
   const ctx = canvas.getContext("2d")!;
+  const hexColor = colorMap[drawTypeToColor[type]];
 
   // Calculate the size of each grid cell
-  const cellSize = canvas.width / gridNumber;
+  const cellSize = canvas.width / grid.length;
 
   // Calculate the coordinates of the top-left corner of the grid cell
   const x = col * cellSize;
   const y = row * cellSize;
 
   // Draw a black square in the specified grid cell
-  ctx.fillStyle = colorMap[color]; // Set fill color to color
-  ctx.fillRect(x, y, cellSize, cellSize);
-}
+  ctx.fillStyle = hexColor; // Set fill color to color
+  ctx.fillRect(x + cellPadding/2, y + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
+  setTypeOfNode({x: col, y: row}, type)
 
+  //There can only be one start and goal. Delete the previous start/finish if exists
+  if(type == "goal" && endNode) {
+    setTypeOfNode({x: endNode.x, y: endNode.y}, "road")
+    drawSquareInGrid(endNode.x, endNode.y, "road")
+  } else if(type == "start" && startNode) {
+    setTypeOfNode({x: startNode.x, y: startNode.y}, "road")
+    drawSquareInGrid(startNode.x, startNode.y, "road")
+  }
+
+  type == "start" ? startNode = {x: col, y: row} : null
+  type == "goal" ? endNode = {x: col, y: row} : null
+}
 const drawObstacles = () => {
   const gridLength = grid.length;
   for (let x = 0; x < gridLength; x++) {
     for (let y = 0; y < gridLength; y++) {
-        drawSquareInGrid(x, y, drawTypeToColor[grid[x][y].type], gridLength);
+        drawSquareInGrid(x, y, grid[x][y].type);
     }
   }
 };
@@ -145,20 +165,41 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 		isDrawing = true;
 		const col = Math.floor(event.offsetX / cellSize);
 		const row = Math.floor(event.offsetY / cellSize);
-		drawSquareInGrid(col, row, drawTypeToColor[selectedType], gridNumber);
+    console.log({col, row}, selectedType)
+		drawSquareInGrid(col, row, selectedType);
 	});
 
 	canvas.addEventListener("mousemove", (event) => {
 		if (isDrawing && ["wall", "water"].includes(selectedType)) {
 			const col = Math.floor(event.offsetX / cellSize);
 			const row = Math.floor(event.offsetY / cellSize);
-			drawSquareInGrid(col, row, drawTypeToColor[selectedType], gridNumber);
+			drawSquareInGrid(col, row, selectedType);
 		}
 	});
 
 	canvas.addEventListener("mouseup", () => {
 		isDrawing = false;
 	});
+}
+
+function runPathFinding() {
+  console.log("Ran")
+  if (!startNode || !endNode) {return}
+  console.log("Ran2")
+
+  const nodes = grid.flat();
+  const path = search(startNode, endNode, grid);
+  const cellSize = canvas.width / grid.length;
+
+  nodes.forEach((node) => {
+    if (path.includes(node.id)) {
+      // Calculate the size of each grid cell
+      console.log("cell size ", cellSize);
+      const gridLength = grid.length;
+      ctx.fillStyle = "yellow"; // Set the fill color
+      ctx.fillRect(node.x * cellSize, node.y * cellSize, cellSize, cellSize);
+    }
+  });
 }
 
 

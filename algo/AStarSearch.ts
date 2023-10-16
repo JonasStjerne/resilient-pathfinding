@@ -1,7 +1,7 @@
 import { Grid } from "./models/Grid";
 import { Node } from "./models/Node";
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
 }

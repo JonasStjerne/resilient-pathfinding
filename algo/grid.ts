@@ -5,8 +5,6 @@ import { Node, NodeType } from "./models/Node.js";
 // Create Grid
 const gridSize = 10;
 export const grid: Grid = new Array(gridSize);
-export let startNode = { x: 8, y: 8 };
-export let  endNode = { x: 0, y: 3 };
 
 export function makeGrid(): Grid {
   for (let x = 0; x < gridSize; x++) {
@@ -84,6 +82,7 @@ const getRiskNode = (node: Node, windDirection: number) => {
   };
 
   export function setTypeOfNode(coordinates: Pick<Node, "x" | "y">, type: NodeType) {
+    console.log({coordinates})
     grid[coordinates.x][coordinates.y].type = type;
   }
 
