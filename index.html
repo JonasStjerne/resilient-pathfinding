@@ -28,13 +28,22 @@
         //]]></script>
     </head>
     <body>
-        <canvas id="canvas"></canvas>
-        <div class="controls">
-          <label for="customRange2" class="form-label">Risk factor</label>
-          <input type="range" class="form-range" min="0" max="10" id="risk-factor">
-          <button id="wall" class="selected btn btn-secondary">Wall</button>
-          <button id="start" class="btn btn-success">Start</button>
-          <button id="goal" class="btn btn-danger">Goal</button>
-        </div>
+        <main class="content">
+          <canvas id="canvas"></canvas>
+          <div class="controls">
+            <label for="customRange2" class="form-label">Risk factor</label>
+            <input type="range" class="form-range" min="0" max="10" id="risk-factor">
+            <p>Select draw type</p>
+            <div class="btn-group draw-type" role="group">
+              <button id="start" class="btn btn-success">Start</button>
+              <button id="water" class="selected btn btn-primary ">Water</button>
+              <button id="wall" class="selected btn btn-secondary ">Wall</button>
+              <button id="goal" class="btn btn-danger">Goal</button>
+            </div>
+            <div class="mt-5">
+              <button class="btn btn-success">Run algorithm ></button>
+            </div>
+          </div>
+        </main>
     </body>
 </html>

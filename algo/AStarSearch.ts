@@ -1,5 +1,5 @@
-import { grid } from "./models/Grid";
-import node from "./models/Node";
+import { Grid } from "./models/Grid";
+import { Node } from "./models/Node";
 
 interface Position {
   x: number;
@@ -20,7 +20,7 @@ interface NodeIdAndDistanceTuple {
   distance: number | undefined;
 }
 
-const search = (startPos: Position, endPos: Position, graph: grid) => {
+const search = (startPos: Position, endPos: Position, graph: Grid) => {
   const searchTable: SearchTable = {};
   graph.forEach((graphRow) =>
     graphRow.forEach((graphCol) => {
@@ -28,8 +28,8 @@ const search = (startPos: Position, endPos: Position, graph: grid) => {
     })
   );
 
-  let openList: Array<node> = [];
-  const closedList: Array<node> = [];
+  let openList: Array<Node> = [];
+  const closedList: Array<Node> = [];
   let currentNode = graph[startPos.x][startPos.y];
   let destinationNode = graph[endPos.x][endPos.y];
   const h =

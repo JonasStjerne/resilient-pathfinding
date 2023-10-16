@@ -1,31 +1,51 @@
-import { grid } from "../algo/models/Grid";
+import { grid } from "../algo/grid.js";
+import { Grid } from "../algo/models/Grid.js";
+import { NodeType } from "../algo/models/Node.js";
 
-const wallBtn = document.getElementById("wall" satisfies drawType)!;
+export default function clientInit() {
+  drawGrid(canvasSize, grid);
+}
+
+// const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
-wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
+const waterBtn = document.getElementById("water" satisfies drawType)!;
+// wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
+waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
 
-type drawType = "wall" | "start" | "goal";
+type drawType = "start" | "goal" | "water";
+type color = "blue" | "black" | "green" | "red" | "white";
 
-let selectedType: drawType = "wall";
+const colorMap: Record<color, string> = {
+  "black":"#000",
+  "blue": "#3260a8",
+  "green":"#4dff00",
+  "red":"#ff0000",
+  "white": "#ffffff"
+}
+
+const drawTypeToColor: Record<NodeType, color> = {
+  "road": "white",
+  "start": "green",
+  "goal": "red",
+  "water": "blue"
+  }
+
+let selectedType: drawType = "water";
 function selectDrawType(id: drawType) {
-	[wallBtn, startBtn, goalBtn].forEach((elm) => elm.classList.remove("selected"));
+	[startBtn, goalBtn, waterBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;
 	document.getElementById(id)!.classList.add("selected");
 }
 
-
-export default function clientInit(grid: grid) {
-  drawGrid(canvasSize, grid);
-}
-
 const canvasSize = 500;
+
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 
-export const drawGrid = (canvasSize: number, grid: grid) => {
+export const drawGrid = (canvasSize: number, grid: Grid) => {
   // Get the canvas element by its ID
   const gridSize = grid.length;
 
@@ -48,7 +68,7 @@ export const drawGrid = (canvasSize: number, grid: grid) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw the grid
-  ctx.strokeStyle = "red"; // Set grid line color to black
+  ctx.strokeStyle = "black"; // Set grid line color to black
 
   // Vertical lines
   for (let x = 0; x <= canvasSize; x += cellSize) {
@@ -65,15 +85,15 @@ export const drawGrid = (canvasSize: number, grid: grid) => {
     ctx.lineTo(canvasSize, y);
     ctx.stroke();
   }
-  drawObstacles(grid);
+  drawObstacles();
   enableContinuousDrawing(canvas, gridSize);
-  // drawIds(grid);
+  drawIds();
 };
 
 function drawSquareInGrid(
   col: number,
   row: number,
-  color: string,
+  color: color,
   gridNumber: number
 ) {
   const ctx = canvas.getContext("2d")!;
@@ -86,22 +106,20 @@ function drawSquareInGrid(
   const y = row * cellSize;
 
   // Draw a black square in the specified grid cell
-  ctx.fillStyle = color; // Set fill color to color
+  ctx.fillStyle = colorMap[color]; // Set fill color to color
   ctx.fillRect(x, y, cellSize, cellSize);
 }
 
-const drawObstacles = (grid: grid) => {
+const drawObstacles = () => {
   const gridLength = grid.length;
   for (let x = 0; x < gridLength; x++) {
     for (let y = 0; y < gridLength; y++) {
-      if (grid[x][y].type == "water") {
-        drawSquareInGrid(x, y, "#3260a8", gridLength);
-      }
+        drawSquareInGrid(x, y, drawTypeToColor[grid[x][y].type], gridLength);
     }
   }
 };
 
-export const drawIds = (grid: grid) => {
+export const drawIds = () => {
   const ctx = canvas.getContext("2d")!;
 
   // Calculate the size of each grid cell
@@ -127,14 +145,14 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 		isDrawing = true;
 		const col = Math.floor(event.offsetX / cellSize);
 		const row = Math.floor(event.offsetY / cellSize);
-		draw(row, col, gridNumber);
+		drawSquareInGrid(col, row, drawTypeToColor[selectedType], gridNumber);
 	});
 
 	canvas.addEventListener("mousemove", (event) => {
-		if (isDrawing && selectedType == "wall") {
+		if (isDrawing && ["wall", "water"].includes(selectedType)) {
 			const col = Math.floor(event.offsetX / cellSize);
 			const row = Math.floor(event.offsetY / cellSize);
-			draw(row, col, gridNumber);
+			drawSquareInGrid(col, row, drawTypeToColor[selectedType], gridNumber);
 		}
 	});
 
@@ -145,21 +163,3 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 
 
 	// Function to draw a square in the cell at the given row and column
-	function draw(row: number, col: number, gridNumber: number) {
-    const cellSize = canvas.width / gridNumber;
-    const ctx = canvas.getContext("2d")!;
-		if (selectedType === "wall") {
-			ctx.fillStyle = "#000";
-		}
-		if (selectedType === "start") {
-			ctx.fillStyle = "#4dff00";
-		}
-		if (selectedType === "goal") {
-			ctx.fillStyle = "#ff0000";
-		}
-		ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-	}
-
-  function removeTypeFromGrid(type: drawType) {
-    
-  }

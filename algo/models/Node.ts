@@ -1,22 +1,21 @@
-import edge from "./Edge.js";
+import { Edge } from "./Edge.js";
 
 //Type definitions
-type nodeType = "road" | "water";
+export type NodeType = "road" | "water" | "goal" | "start";
 
-class node {
+export class Node {
   static _id: number = 0;
   id: number;
   x: number;
   y: number;
-  edges: edge[] = [];
-  type: nodeType;
+  edges: Edge[] = [];
+  type: NodeType;
 
-  constructor(x: number, y: number, type: nodeType) {
-    this.id = node._id++;
+  constructor(x: number, y: number, type: NodeType) {
+    this.id = Node._id++;
     this.type = type;
     this.x = x;
     this.y = y;
   }
 }
 
-export default node;
