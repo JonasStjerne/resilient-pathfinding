@@ -1,5 +1,12 @@
 body {
     background-color: beige;
+    display: flex;
+
+}
+
+.controls {
+    background-color: white;
+    padding: 2rem;
 }
 
 canvas {

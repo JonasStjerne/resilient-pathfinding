@@ -118,17 +118,39 @@ export const drawIds = (grid: grid) => {
 };
 
 function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) {
-	const ctx = canvas.getContext("2d")!;
 	let isDrawing = false;
 
 	// Calculate the size of each grid cell
 	const cellSize = canvas.width / gridNumber;
 
-	// Function to draw a black square in the cell at the given row and column
-	function draw(row: number, col: number) {
+	canvas.addEventListener("mousedown", (event) => {
+		isDrawing = true;
+		const col = Math.floor(event.offsetX / cellSize);
+		const row = Math.floor(event.offsetY / cellSize);
+		draw(row, col, gridNumber);
+	});
+
+	canvas.addEventListener("mousemove", (event) => {
+		if (isDrawing && selectedType == "wall") {
+			const col = Math.floor(event.offsetX / cellSize);
+			const row = Math.floor(event.offsetY / cellSize);
+			draw(row, col, gridNumber);
+		}
+	});
+
+	canvas.addEventListener("mouseup", () => {
+		isDrawing = false;
+	});
+}
+
+
+	// Function to draw a square in the cell at the given row and column
+	function draw(row: number, col: number, gridNumber: number) {
+    const cellSize = canvas.width / gridNumber;
+    const ctx = canvas.getContext("2d")!;
 		if (selectedType === "wall") {
 			ctx.fillStyle = "#000";
-		} // Set fill color to black
+		}
 		if (selectedType === "start") {
 			ctx.fillStyle = "#4dff00";
 		}
@@ -138,22 +160,6 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 		ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
 	}
 
-	canvas.addEventListener("mousedown", (event) => {
-		isDrawing = true;
-		const col = Math.floor(event.offsetX / cellSize);
-		const row = Math.floor(event.offsetY / cellSize);
-		draw(row, col);
-	});
-
-	canvas.addEventListener("mousemove", (event) => {
-		if (isDrawing) {
-			const col = Math.floor(event.offsetX / cellSize);
-			const row = Math.floor(event.offsetY / cellSize);
-			draw(row, col);
-		}
-	});
-
-	canvas.addEventListener("mouseup", () => {
-		isDrawing = false;
-	});
-}
+  function removeTypeFromGrid(type: drawType) {
+    
+  }
