@@ -72,6 +72,8 @@ const canvasSize = 500;
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 const ctx = canvas.getContext("2d")!;
+const gridSize = grid.length;
+const cellSize = canvasSize / gridSize;
 
 
 export function drawGrid() {
@@ -117,6 +119,7 @@ export function drawGrid() {
   showIdValues ? drawIds() : null;
   showMuValues ? drawMuValues() : null;
   showDisturbances ? drawAllDisturbances() : null;
+  drawEdgeArrow(grid[0][1], grid[0][0])
 };
 
 function drawSquareInGrid(
@@ -285,3 +288,79 @@ function posToCanvasCoordinates(col: number, row: number) {
   const pos = {x: col * cellSize + cellSize/2, y: row * cellSize + cellSize/2}
   return pos
 }
+
+function getDirectionOfNode(fromNode: Node, toNode: Node) {
+  const diffPos = {x: (fromNode.x - toNode.x), y: (fromNode.y - toNode.y)};
+  const direction = offsetMap[JSON.stringify(diffPos)]
+  console.log(direction);
+  return direction;
+}
+type direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+const offsetMap: Record<string, direction> = {
+	'{"x":0,"y":1}' : "top",
+  '{"x":1,"y":0}' : "right",
+  '{"x":0,"y":-1}' : "bottom",
+  '{"x":-1,"y" 0}' : "left",
+  '{"x":-1,"y" 1}' : "top-left",
+  '{"x":1,"y":1}' : "top-right",
+  '{"x":-1,"y" -1}' : "bottom-left",
+	'{"x":1,"y":-1}' : "bottom-right",
+};
+
+//This function draws small triangles if a graph is only one directional or a thicker line if theres no edges connecting two nodes
+function drawDirectedGraphs() {
+  const gridLength = grid.length;
+  for (let x = 0; x < gridLength; x++) {
+    for (let y = 0; y < gridLength; y++) {
+      const ownEdges = grid[x][y].edges;
+      
+      if (y < gridLength - 1) {
+        const belowEdges = grid[x][y - 1].edges;
+        const nodeHasEdgeToBelow = !!ownEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == y - 1);
+        const nodeBelowHasEdgeToNode =belowEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == y + 1);
+      
+        (nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x][y + 1]) : null;
+
+    }
+  }
+}
+  // grid.forEach((col, colIndex) => col.forEach((colEl, rowIndex) => {
+  //   //Check right cell if not end of array
+  //   if (rowIndex < col.length - 1) {
+  //     //Three cases
+  //     //Both have edge to each other
+  //     //Below has to above
+  //     //Above have to below
+  //     //If colEl has edge to grid[colIndex][rowIndex+1] and 
+  //   }
+  //   //Check bottom cell if not end of array
+  // }));
+}
+
+function drawEdgeArrow(fromNode: Node, toNode: Node) {
+  console.log("Ran")
+  const direction = getDirectionOfNode(fromNode, toNode);
+  const fromNodePos = posToCanvasCoordinates(fromNode.x, fromNode.y);
+  const arrowOffsetValue = directionToEdgeArrowOffset[direction];
+  const edgeArrowWidth = 20;
+  const arrowPosition = {x: fromNodePos.x + arrowOffsetValue.x, y: fromNode.y + arrowOffsetValue.y};
+
+
+  var path=new Path2D();
+  path.moveTo(arrowPosition.x+edgeArrowWidth/2,arrowPosition.y);
+  path.lineTo((arrowPosition.x),arrowPosition.y+edgeArrowHeight);
+  path.lineTo((arrowPosition.x-edgeArrowWidth/2),arrowPosition.y);
+  ctx.fill(path);
+}
+const edgeArrowHeight = 20;
+//Im sorry for this mess :O
+const directionToEdgeArrowOffset: Record<direction, {x: number, y: number}> = {
+  top: { x: 0, y: cellSize/2 - edgeArrowHeight/2 },
+	right: { x: cellSize/2 - edgeArrowHeight/2, y: 0 },
+	bottom: { x: 0, y: -cellSize/2 + edgeArrowHeight/2},
+	left: { x: -cellSize/2 + edgeArrowHeight/2, y: 0 },
+	"top-left": { x: -cellSize/2 + edgeArrowHeight/2, y:  cellSize/2 - edgeArrowHeight/2},
+	"top-right": { x: cellSize/2 - edgeArrowHeight/2, y: cellSize/2 - edgeArrowHeight/2 },
+	"bottom-left": { x: -cellSize/2 + edgeArrowHeight/2, y: -cellSize/2 + edgeArrowHeight/2 },
+	"bottom-right": { x: cellSize/2 - edgeArrowHeight/2, y: -cellSize/2 + edgeArrowHeight/2 },
+};

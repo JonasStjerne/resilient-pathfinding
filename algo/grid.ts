@@ -81,7 +81,6 @@ const getRiskNode = (node: Node, windDirection: number) => {
   };
 
   export function setTypeOfNode(coordinates: Pick<Node, "x" | "y">, type: NodeType) {
-    console.log({coordinates})
     grid[coordinates.x][coordinates.y].type = type;
   }
 
