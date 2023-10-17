@@ -26,7 +26,7 @@ goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType
 waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
 roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
 
-runAlgoBtn.addEventListener("click", drawGrid);
+runAlgoBtn.addEventListener("click", runPathFinding);
 
 showMuCheckbox.addEventListener("click", () => {showMuValues = !showMuValues; drawGrid()});
 let showMuValues = false;
@@ -216,8 +216,7 @@ function runPathFinding() {
   if (!startNode || !endNode) {return}
 
   //Redraw the grid to remove previous pathfinding path
-  drawObstacles()
-  drawIds()
+  drawGrid()
 
   const nodes = grid.flat();
   console.log("calling search with", {startNode, endNode, grid})
