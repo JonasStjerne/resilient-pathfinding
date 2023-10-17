@@ -42,7 +42,7 @@ const drawTypeToColor: Record<NodeType, color> = {
   "water": "blue"
   }
 
-  const cellPadding = 2;
+const cellPadding = 2;
 
 let selectedType: drawType = "water";
 function selectDrawType(id: drawType) {
@@ -195,7 +195,12 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 }
 
 function runPathFinding() {
+  //Ony run if theres a start and goal
   if (!startNode || !endNode) {return}
+
+  //Redraw the grid to remove previous pathfinding path
+  drawObstacles()
+  drawIds()
 
   const nodes = grid.flat();
   console.log("calling search with", {startNode, endNode, grid})
@@ -206,7 +211,7 @@ function runPathFinding() {
     if (path.includes(node.id)) {
       // Calculate the size of each grid cell
       ctx.fillStyle = "yellow"; // Set the fill color
-      ctx.fillRect(node.x * cellSize, node.y * cellSize, cellSize, cellSize);
+      ctx.fillRect(node.x * cellSize + cellPadding/2 , node.y * cellSize + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
     }
   });
 }
