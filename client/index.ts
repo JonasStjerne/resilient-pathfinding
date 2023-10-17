@@ -198,6 +198,7 @@ function runPathFinding() {
   if (!startNode || !endNode) {return}
 
   const nodes = grid.flat();
+  console.log("calling search with", {startNode, endNode, grid})
   const path = search(startNode, endNode, grid);
   const cellSize = canvas.width / grid.length;
 
