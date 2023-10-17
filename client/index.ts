@@ -207,8 +207,11 @@ function runPathFinding() {
   const path = search(startNode, endNode, grid);
   const cellSize = canvas.width / grid.length;
 
+  //Keep the start and end node to preserve the colors
+  const pathWithoutEnds = path.slice(1, -1)
+
   nodes.forEach((node) => {
-    if (path.includes(node.id)) {
+    if (pathWithoutEnds.includes(node.id)) {
       // Calculate the size of each grid cell
       ctx.fillStyle = "yellow"; // Set the fill color
       ctx.fillRect(node.x * cellSize + cellPadding/2 , node.y * cellSize + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);

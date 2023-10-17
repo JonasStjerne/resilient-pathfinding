@@ -110,7 +110,6 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
   path.push(graph[startPos.x][startPos.y].id);
   // reverse path and log
   path = path.reverse();
-  console.log(path);
   return path;
 };
 
