@@ -1,10 +1,11 @@
 import search from "../algo/AStarSearch.js";
 import { grid, setTypeOfNode } from "../algo/grid.js";
-import { Grid } from "../algo/models/Grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
 
 export default function clientInit() {
-  drawGrid(canvasSize, grid);
+  drawGrid();
+  enableContinuousDrawing(canvas, grid.length);
+  // drawDisturbance(grid[0][5], grid[0][6])
 }
 
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
@@ -14,13 +15,27 @@ const waterBtn = document.getElementById("water" satisfies drawType)!;
 const roadBtn = document.getElementById("road" satisfies drawType)!;
 
 const runAlgoBtn = document.getElementById("run-algo")!;
+
+const showMuCheckbox = document.getElementById("show-mu")!;
+const showIdsCheckbox = document.getElementById("show-node-id")!;
+const showDisturbancesCheckbox = document.getElementById("show-disturbances")!;
+
 // wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
 waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
 roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
 
-runAlgoBtn.addEventListener("click", runPathFinding);
+runAlgoBtn.addEventListener("click", drawGrid);
+
+showMuCheckbox.addEventListener("click", () => {showMuValues = !showMuValues; drawGrid()});
+let showMuValues = false;
+
+showIdsCheckbox.addEventListener("click", () => {showIdValues = !showIdValues; drawGrid()});
+let showIdValues = false;
+
+showDisturbancesCheckbox.addEventListener("click", () => {showDisturbances = !showDisturbances; drawGrid()});
+let showDisturbances = false;
 
 type drawType = "start" | "goal" | "water" | "road";
 type color = "blue" | "black" | "green" | "red" | "white";
@@ -59,7 +74,7 @@ const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 const ctx = canvas.getContext("2d")!;
 
 
-export const drawGrid = (canvasSize: number, grid: Grid) => {
+export function drawGrid() {
   // Get the canvas element by its ID
   const gridSize = grid.length;
 
@@ -97,9 +112,11 @@ export const drawGrid = (canvasSize: number, grid: Grid) => {
     ctx.lineTo(canvasSize, y);
     ctx.stroke();
   }
-  // drawObstacles();
-  enableContinuousDrawing(canvas, gridSize);
-  drawIds();
+
+  drawObstacles()
+  showIdValues ? drawIds() : null;
+  showMuValues ? drawMuValues() : null;
+  showDisturbances ? drawAllDisturbances() : null;
 };
 
 function drawSquareInGrid(
@@ -151,7 +168,7 @@ const drawObstacles = () => {
   }
 };
 
-export const drawIds = () => {
+function drawIds() {
   const ctx = canvas.getContext("2d")!;
 
   // Calculate the size of each grid cell
@@ -219,3 +236,53 @@ function runPathFinding() {
   });
 }
 
+function drawMuValues() {
+  ctx.font = "14px Arial";
+  ctx.fillStyle = "black"
+  const cellSize = canvas.width / grid.length;
+  grid.forEach((col, colIndex) => col.forEach((colEl, rowIndex) => ctx.fillText(colEl.mue.toString() , colIndex * cellSize + cellSize/2 - 10, rowIndex * cellSize + cellSize/2 + 10)));
+}
+
+function drawAllDisturbances() {
+  grid.forEach(col => col.forEach(node => {
+    if (node.distEdges) {
+      node.distEdges.forEach(distEdge => {
+        drawDisturbance(node, distEdge.adjacent);
+      })
+    }
+  }))
+}
+
+function drawDisturbance(fromNode: Node, toNode: Node) {
+  const fromCord = posToCanvasCoordinates(fromNode.x, fromNode.y);
+  const toCord = posToCanvasCoordinates(toNode.x, toNode.y);
+  drawArrow(fromCord.x, fromCord.y, toCord.x, toCord.y);
+}
+
+// function getDirectionBetweenNodes(fromNode: Node, toNode: Node) {
+//   const 
+// }
+
+function drawArrow(fromX: number, fromY: number, toX: number, toY: number) {
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = "red";
+  ctx.beginPath();
+  var headlen = 10; // length of head in pixels
+  var dx = toX - fromX;
+  var dy = toY - fromY;
+  var angle = Math.atan2(dy, dx);
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+  ctx.stroke();
+}
+
+function posToCanvasCoordinates(col: number, row: number) {
+  const cellSize = canvas.width / grid.length;
+  const pos = {x: col * cellSize + cellSize/2, y: row * cellSize + cellSize/2}
+  return pos
+}
