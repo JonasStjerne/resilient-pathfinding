@@ -11,14 +11,18 @@ export default function clientInit() {
 const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
 const waterBtn = document.getElementById("water" satisfies drawType)!;
+const roadBtn = document.getElementById("road" satisfies drawType)!;
+
 const runAlgoBtn = document.getElementById("run-algo")!;
 // wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
 waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
-runAlgoBtn.addEventListener("click", () => runPathFinding());
+roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
 
-type drawType = "start" | "goal" | "water";
+runAlgoBtn.addEventListener("click", runPathFinding);
+
+type drawType = "start" | "goal" | "water" | "road";
 type color = "blue" | "black" | "green" | "red" | "white";
 export let startNode: Pick<Node, "x" | "y"> | null = null;
 export let  endNode: Pick<Node, "x" | "y"> | null = null;
@@ -42,7 +46,7 @@ const drawTypeToColor: Record<NodeType, color> = {
 
 let selectedType: drawType = "water";
 function selectDrawType(id: drawType) {
-	[startBtn, goalBtn, waterBtn].forEach((elm) => elm.classList.remove("selected"));
+	[startBtn, goalBtn, waterBtn, roadBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;
 	document.getElementById(id)!.classList.add("selected");
 }
@@ -118,18 +122,26 @@ function drawSquareInGrid(
   ctx.fillRect(x + cellPadding/2, y + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
   setTypeOfNode({x: col, y: row}, type)
 
-  //There can only be one start and goal. Delete the previous start/finish if exists
-  if(type == "goal" && endNode) {
+  //There can only be one start and goal. Delete the previous start/finish if exists and not in the same pos
+  if(type == "goal" && endNode && !(col == endNode.x && row == endNode.y)) {
     setTypeOfNode({x: endNode.x, y: endNode.y}, "road")
     drawSquareInGrid(endNode.x, endNode.y, "road")
-  } else if(type == "start" && startNode) {
+  } else if(type == "start" && startNode && !(col == startNode.x && row == startNode.y)) {
     setTypeOfNode({x: startNode.x, y: startNode.y}, "road")
     drawSquareInGrid(startNode.x, startNode.y, "road")
   }
 
-  type == "start" ? startNode = {x: col, y: row} : null
-  type == "goal" ? endNode = {x: col, y: row} : null
+  //If the draw type were of type start or goal save the new position of the node
+  type == "start" ? startNode = {x: col, y: row} : null;
+  type == "goal" ? endNode = {x: col, y: row} : null;
+
+  //If a cell of type start or goal gets overridden by another type unset the start and the goal
+  if (!["start", "goal"].includes(type)) {
+    (col == startNode?.x && row == startNode.y) ? startNode = null : null;
+    (col == endNode?.x && row == endNode.y) ? endNode = null : null;
+  }
 }
+
 const drawObstacles = () => {
   const gridLength = grid.length;
   for (let x = 0; x < gridLength; x++) {
@@ -183,9 +195,7 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 }
 
 function runPathFinding() {
-  console.log("Ran")
   if (!startNode || !endNode) {return}
-  console.log("Ran2")
 
   const nodes = grid.flat();
   const path = search(startNode, endNode, grid);
@@ -194,13 +204,9 @@ function runPathFinding() {
   nodes.forEach((node) => {
     if (path.includes(node.id)) {
       // Calculate the size of each grid cell
-      console.log("cell size ", cellSize);
-      const gridLength = grid.length;
       ctx.fillStyle = "yellow"; // Set the fill color
       ctx.fillRect(node.x * cellSize, node.y * cellSize, cellSize, cellSize);
     }
   });
 }
 
-
-	// Function to draw a square in the cell at the given row and column

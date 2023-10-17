@@ -18,5 +18,5 @@ body {
 }
 
 .draw-type button:not(.selected) {
-    filter: brightness(0.9);
+    filter: brightness(0.8);
 }

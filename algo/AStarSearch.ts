@@ -21,6 +21,7 @@ interface NodeIdAndDistanceTuple {
 }
 
 const search = (startPos: Position, endPos: Position, graph: Grid) => {
+  console.log({startPos, endPos})
   const searchTable: SearchTable = {};
   graph.forEach((graphRow) =>
     graphRow.forEach((graphCol) => {
@@ -103,7 +104,7 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
   // construct path backwards
   let path = [];
   let curNodeId: number | undefined = currentNode.id;
-  while (curNodeId && searchTable[curNodeId].prevNode) {
+  while (curNodeId && (searchTable[curNodeId]?.prevNode ?? false)) {
     path.push(curNodeId);
     curNodeId = searchTable[curNodeId].prevNode;
   }
