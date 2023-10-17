@@ -154,7 +154,7 @@ const Attr = (R: Node[], i:number):Node[] =>{
 }
 
 // Function to compute the mue values 
-const computeMue = (grid: Grid) => {
+export const computeMue = (grid: Grid) => {
 
     const Q_i: Node [][] = [];
     Q_i.push([]);
