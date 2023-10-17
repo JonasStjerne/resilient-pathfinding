@@ -14,6 +14,10 @@ const waterBtn = document.getElementById("water" satisfies drawType)!;
 const roadBtn = document.getElementById("road" satisfies drawType)!;
 
 const runAlgoBtn = document.getElementById("run-algo")!;
+
+const showMuCheckbox = document.getElementById("show-mu")!;
+const showIdsCheckbox = document.getElementById("show-node-id")!;
+
 // wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
@@ -21,6 +25,12 @@ waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawTy
 roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
 
 runAlgoBtn.addEventListener("click", runPathFinding);
+
+showMuCheckbox.addEventListener("click", drawMuValues);
+let showMuValues = false;
+
+showIdsCheckbox.addEventListener("click", drawIds);
+let showIdValues = false;
 
 type drawType = "start" | "goal" | "water" | "road";
 type color = "blue" | "black" | "green" | "red" | "white";
@@ -99,7 +109,8 @@ export const drawGrid = (canvasSize: number, grid: Grid) => {
   }
   // drawObstacles();
   enableContinuousDrawing(canvas, gridSize);
-  drawIds();
+  // drawIds();
+  // drawMuValues();
 };
 
 function drawSquareInGrid(
@@ -151,7 +162,7 @@ const drawObstacles = () => {
   }
 };
 
-export const drawIds = () => {
+function drawIds() {
   const ctx = canvas.getContext("2d")!;
 
   // Calculate the size of each grid cell
@@ -165,6 +176,7 @@ export const drawIds = () => {
       ctx.fillText(grid[x][y].id.toString(), x * cellSize, y * cellSize + 10);
     }
   }
+  showIdValues = !showIdValues
 };
 
 function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) {
@@ -217,5 +229,11 @@ function runPathFinding() {
       ctx.fillRect(node.x * cellSize + cellPadding/2 , node.y * cellSize + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
     }
   });
+}
+
+function drawMuValues() {
+  const cellSize = canvas.width / grid.length;
+  grid.forEach((col, colIndex) => col.forEach((colEl, rowIndex) => ctx.fillText(colEl.mue.toString() , colIndex * cellSize + cellSize/2 - 10, rowIndex * cellSize + cellSize/2 + 10)));
+  showMuValues = !showMuValues;
 }
 
