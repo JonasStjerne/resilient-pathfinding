@@ -292,7 +292,6 @@ function posToCanvasCoordinates(col: number, row: number) {
 function getDirectionOfNode(fromNode: Node, toNode: Node) {
   const diffPos = {x: (fromNode.x - toNode.x), y: (fromNode.y - toNode.y)};
   const direction = offsetMap[JSON.stringify(diffPos)]
-  console.log(direction);
   return direction;
 }
 type direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -300,15 +299,15 @@ const offsetMap: Record<string, direction> = {
 	'{"x":0,"y":1}' : "top",
   '{"x":1,"y":0}' : "right",
   '{"x":0,"y":-1}' : "bottom",
-  '{"x":-1,"y" 0}' : "left",
-  '{"x":-1,"y" 1}' : "top-left",
+  '{"x":-1,"y":0}' : "left",
+  '{"x":-1,"y":1}' : "top-left",
   '{"x":1,"y":1}' : "top-right",
-  '{"x":-1,"y" -1}' : "bottom-left",
+  '{"x":-1,"y":-1}' : "bottom-left",
 	'{"x":1,"y":-1}' : "bottom-right",
 };
 
 //This function draws small triangles if a graph is only one directional or a thicker line if theres no edges connecting two nodes
-function drawDirectedGraphs() {
+function drawDirectedEdges() {
   const gridLength = grid.length;
   for (let x = 0; x < gridLength; x++) {
     for (let y = 0; y < gridLength; y++) {
@@ -345,11 +344,12 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
   const edgeArrowWidth = 20;
   const arrowPosition = {x: fromNodePos.x + arrowOffsetValue.x, y: fromNode.y + arrowOffsetValue.y};
 
-
+  console.log("printing for", direction)
   var path=new Path2D();
-  path.moveTo(arrowPosition.x+edgeArrowWidth/2,arrowPosition.y);
-  path.lineTo((arrowPosition.x),arrowPosition.y+edgeArrowHeight);
-  path.lineTo((arrowPosition.x-edgeArrowWidth/2),arrowPosition.y);
+  ctx.fillStyle = "black";
+  path.moveTo(arrowPosition.x + edgeArrowWidth/2, arrowPosition.y + 50);
+  path.lineTo(arrowPosition.x - edgeArrowWidth/2,arrowPosition.y + 50);
+  path.lineTo((arrowPosition.x),arrowPosition.y + 50 - edgeArrowHeight);
   ctx.fill(path);
 }
 const edgeArrowHeight = 20;
