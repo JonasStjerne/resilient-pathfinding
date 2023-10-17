@@ -4,8 +4,16 @@ export class Edge {
   adjacent: Node;
   weight = 1;
 
-  constructor(adjacent: Node, weight: number) {
+  constructor(adjacent: Node, weight: number, from?:Node) {
     this.adjacent = adjacent;
-    this.weight = weight;
+        if(weight){
+            this.weight = weight;
+        }else{
+            this.weight = 1;
+        }
+         
+        if(from){
+            adjacent.incomingEdges.push(from);
+        }
   }
 }
