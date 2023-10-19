@@ -104,7 +104,7 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
   let path = [];
   let curNodeId: number | undefined = currentNode.id;
   path.push(curNodeId);
-  while (typeof curNodeId !== "undefined" && typeof searchTable[curNodeId]?.prevNode !== "undefined") {
+  while (typeof curNodeId !== "undefined" && typeof searchTable[curNodeId].prevNode !== "undefined") {
     curNodeId = searchTable[curNodeId].prevNode;
     path.push(curNodeId);
   }
