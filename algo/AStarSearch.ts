@@ -35,7 +35,10 @@ const search = (
   );
 
   // tradeoff between risk and distance
-  const w = riskTradeoff ? riskTradeoff : 0.3;
+  // 0 = only risk
+  // 1 = only distance
+  //const w = riskTradeoff ? riskTradeoff : 0.5;
+  const w = 0.4;
 
   let openList: Array<Node> = [];
   const closedList: Array<Node> = [];
@@ -62,7 +65,13 @@ const search = (
           edge.adjacent.y,
           endPos.y
         );
-        const f = g + w * h + (1 - w) * edge.adjacent.mue;
+        //const f = g + w * h + (1 - w) * edge.adjacent.mue;
+        //const f = g + (w * h + w * (1 - edge.adjacent.mue));
+
+        const f = g * w + h * (1 - w) + edge.adjacent.mue;
+        //const f = g * w + h * (1 - w) * (1 - edge.adjacent.mue);
+
+        console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
 
         const prevF = searchTable[edge.adjacent.id]?.f;
         if (!prevF || f < prevF) {
@@ -97,7 +106,7 @@ const search = (
       },
       openListNodesFValues[0]
     ); // Initialize with the first tuple
-    console.log(nodeWithLowestFValue);
+    // console.log(nodeWithLowestFValue);
     const newCurrentNode = openList.find(
       (node) => node.id === nodeWithLowestFValue.id
     );
