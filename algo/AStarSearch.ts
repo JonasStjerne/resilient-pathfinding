@@ -67,10 +67,11 @@ const search = (
         );
         //const f = g + w * h + (1 - w) * edge.adjacent.mue;
         //const f = g + (w * h + w * (1 - edge.adjacent.mue));
-
         //const f = g * w + h * (1 - w) + edge.adjacent.mue;
-        const f = g * w + h + (1 - w) * edge.adjacent.mue;
         //const f = g * w + h * (1 - w) * (1 - edge.adjacent.mue);
+
+        //const f = g * w + h + (1 - w) * edge.adjacent.mue;
+        const f = g * w + h - (1 - w) * edge.adjacent.mue;
 
         console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
 
