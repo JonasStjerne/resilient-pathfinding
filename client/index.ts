@@ -3,6 +3,10 @@ import { grid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
 
 export default function clientInit() {
+  grid[0][2].edges.slice(1,3)
+  grid[0][4].edges = [];
+  grid[1][6].edges.pop();
+  grid[0][8].edges.pop();
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
   // drawDisturbance(grid[0][5], grid[0][6])
@@ -19,6 +23,7 @@ const runAlgoBtn = document.getElementById("run-algo")!;
 const showMuCheckbox = document.getElementById("show-mu")!;
 const showIdsCheckbox = document.getElementById("show-node-id")!;
 const showDisturbancesCheckbox = document.getElementById("show-disturbances")!;
+const showDirectedEdgesCheckbox = document.getElementById("show-directed-edges")!;
 
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
@@ -35,6 +40,9 @@ let showIdValues = false;
 
 showDisturbancesCheckbox.addEventListener("click", () => {showDisturbances = !showDisturbances; drawGrid()});
 let showDisturbances = false;
+
+showDirectedEdgesCheckbox.addEventListener("click", () => {showDirectedEdges = !showDirectedEdges; drawGrid()});
+let showDirectedEdges = false;
 
 type drawType = "start" | "goal" | "water" | "road";
 type color = "blue" | "black" | "green" | "red" | "white";
@@ -118,8 +126,9 @@ export function drawGrid() {
   showIdValues ? drawIds() : null;
   showMuValues ? drawMuValues() : null;
   showDisturbances ? drawAllDisturbances() : null;
-  drawEdgeArrow(grid[0][0], grid[0][1])
-  drawEdgeArrow(grid[0][0], grid[1][0])
+  showDirectedEdges ? drawDirectedEdges() : null;
+  // drawEdgeArrow(grid[0][0], grid[0][1])
+  // drawEdgeArrow(grid[0][0], grid[1][0])
 };
 
 function drawSquareInGrid(
@@ -315,12 +324,23 @@ function drawDirectedEdges() {
       const ownEdges = grid[x][y].edges;
       
       if (y < gridLength - 1) {
-        const belowEdges = grid[x][y - 1].edges;
-        const nodeHasEdgeToBelow = !!ownEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == y - 1);
-        const nodeBelowHasEdgeToNode =belowEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == y + 1);
-      
+        const belowEdges = grid[x][y + 1].edges;
+        const nodeHasEdgeToBelow = !!ownEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == y + 1);
+        const nodeBelowHasEdgeToNode = !!belowEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == grid[x][y].y);
+        
         (nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x][y + 1]) : null;
-
+        (!nodeHasEdgeToBelow && nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y + 1], grid[x][y]) : null;
+        (!nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? console.error("Not implemented") : null
+      }
+      if (x < gridLength - 1) {
+        const rightEdges = grid[x + 1][y].edges;
+        console.log(grid[x][y], rightEdges)
+        const nodeHasEdgeToRight = !!ownEdges.find(edge => edge.adjacent.x == x + 1 && edge.adjacent.y == y);
+        const nodeRightHasEdgeToNode = !!rightEdges.find(edge => edge.adjacent.x == grid[x][y].x && edge.adjacent.y == y);
+        console.log({nodeHasEdgeToRight, nodeRightHasEdgeToNode});
+        (nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y]) : null;
+      (!nodeHasEdgeToRight && nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y], grid[x][y]) : null;
+      (!nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? console.error("Not implemented") : null
     }
   }
 }
@@ -340,9 +360,6 @@ function drawDirectedEdges() {
 function drawEdgeArrow(fromNode: Node, toNode: Node) {
   const direction = getDirectionOfNode(fromNode, toNode);
   const fromNodePos = posToCanvasCoordinates(fromNode.x, fromNode.y);
-  // const arrowOffsetValue = directionToEdgeArrowOffset["top"];
-  // const edgeArrowWidth = 20;
-  // const arrowPosition = {x: fromNodePos.x + arrowOffsetValue.x, y: fromNodePos.y + arrowOffsetValue.y};
   const [topPoint, leftPoint, rightPoint] = getEdgeArrowPointsByDirection(direction);
   
   const path = new Path2D();
@@ -350,9 +367,6 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
   path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
   path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
   path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
-  // path.moveTo(topPoint.x, topPoint.y );
-  // path.lineTo(leftPoint.x , leftPoint.y );
-  // path.lineTo(rightPoint.x , rightPoint.y );
   ctx.fill(path);
 }
 
@@ -363,7 +377,6 @@ function getEdgeArrowPointsByDirection(direction: direction) {
   }
   const A = angle * Math.PI / 180;
   const rotate = (x: number, y: number) => {return  {x: (x * Math.cos(A) - y * Math.sin(A)), y: (y * Math.cos(A) + x * Math.sin(A))}};
-  console.log((0 * Math.cos(A) - 10 * Math.sin(A)))
   const offsetPositions = [rotate(arrowDownPoints[0].x, arrowDownPoints[0].y), rotate(arrowDownPoints[1].x,arrowDownPoints[1].y), rotate(arrowDownPoints[2].x,arrowDownPoints[2].y)]
   return offsetPositions;
 }
@@ -381,14 +394,3 @@ const directionToAngleMap: Record<direction, number> = {
 
 const edgeArrowHeight = 20;
 const arrowDownPoints = [{x: 0, y: cellSize/2 + edgeArrowHeight/2},{x: -edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2},{x: +edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2}]
-//Im sorry for this mess :O
-const directionToEdgeArrowOffset: Record<direction, {x: number, y: number}> = {
-  top: { x: 0, y: - cellSize/2 - edgeArrowHeight/2},
-	right: { x: cellSize/2 - edgeArrowHeight/2, y: 0 },
-	bottom: { x: 0, y: -cellSize/2 + edgeArrowHeight/2},
-	left: { x: -cellSize/2 + edgeArrowHeight/2, y: 0 },
-	"top-left": { x: -cellSize/2 + edgeArrowHeight/2, y:  cellSize/2 - edgeArrowHeight/2},
-	"top-right": { x: cellSize/2 - edgeArrowHeight/2, y: cellSize/2 - edgeArrowHeight/2 },
-	"bottom-left": { x: -cellSize/2 + edgeArrowHeight/2, y: -cellSize/2 + edgeArrowHeight/2 },
-	"bottom-right": { x: cellSize/2 - edgeArrowHeight/2, y: -cellSize/2 + edgeArrowHeight/2 },
-};
