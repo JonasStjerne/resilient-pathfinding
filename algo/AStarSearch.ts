@@ -1,7 +1,7 @@
-import { grid } from "./models/Grid";
-import node from "./models/Node";
+import { Grid } from "./models/Grid";
+import { Node } from "./models/Node";
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
 }
@@ -20,16 +20,16 @@ interface NodeIdAndDistanceTuple {
   distance: number | undefined;
 }
 
-const search = (startPos: Position, endPos: Position, graph: grid) => {
+const search = (startPos: Position, endPos: Position, graph: Grid) => {
   const searchTable: SearchTable = {};
   graph.forEach((graphRow) =>
     graphRow.forEach((graphCol) => {
-      if (graphCol.type === "road") searchTable[graphCol.id] = {};
+      if (["road", "start", "goal"].includes(graphCol.type)) searchTable[graphCol.id] = {};
     })
   );
 
-  let openList: Array<node> = [];
-  const closedList: Array<node> = [];
+  let openList: Array<Node> = [];
+  const closedList: Array<Node> = [];
   let currentNode = graph[startPos.x][startPos.y];
   let destinationNode = graph[endPos.x][endPos.y];
   const h =
@@ -40,7 +40,7 @@ const search = (startPos: Position, endPos: Position, graph: grid) => {
   let ctr = 0; // Protection against endless loop
   while (currentNode !== destinationNode && ctr != 200) {
     const edgesFromCurrentNode = currentNode.edges.filter(
-      (ne) => ne.adjacent.type === "road"
+      (ne) =>["road", "start", "goal"].includes(ne.adjacent.type)
     );
     edgesFromCurrentNode.forEach((edge) => {
       if (
@@ -111,7 +111,6 @@ const search = (startPos: Position, endPos: Position, graph: grid) => {
   path.push(graph[startPos.x][startPos.y].id);
   // reverse path and log
   path = path.reverse();
-  console.log(path);
   return path;
 };
 

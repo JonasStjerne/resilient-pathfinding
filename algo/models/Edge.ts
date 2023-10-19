@@ -1,13 +1,19 @@
-import node from "./Node.js";
+import { Node } from "./Node.js";
 
-class edge {
-  adjacent: node;
+export class Edge {
+  adjacent: Node;
   weight = 1;
 
-  constructor(adjacent: node, weight: number) {
+  constructor(adjacent: Node, weight: number, from?:Node) {
     this.adjacent = adjacent;
-    this.weight = weight;
+        if(weight){
+            this.weight = weight;
+        }else{
+            this.weight = 1;
+        }
+         
+        if(from){
+            adjacent.incomingEdges.push(from);
+        }
   }
 }
-
-export default edge;

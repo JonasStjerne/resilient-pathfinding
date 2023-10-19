@@ -1,3 +1,3 @@
-import node from "./Node.js";
+import { Node } from "./Node.js";
 
-export type grid = node[][];
+export type Grid = Node[][];
