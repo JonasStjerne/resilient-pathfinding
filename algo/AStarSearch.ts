@@ -103,9 +103,10 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
   // construct path backwards
   let path = [];
   let curNodeId: number | undefined = currentNode.id;
-  while (curNodeId && (searchTable[curNodeId]?.prevNode ?? false)) {
-    path.push(curNodeId);
+  path.push(curNodeId);
+  while (typeof curNodeId !== "undefined" && searchTable[curNodeId].prevNode) {
     curNodeId = searchTable[curNodeId].prevNode;
+    path.push(curNodeId);
   }
   path.push(graph[startPos.x][startPos.y].id);
   // reverse path and log
