@@ -98,3 +98,25 @@ const getRiskNode = (node: Node, windDirection: number) => {
       })
     })
   }
+
+  export function addEdge(fromNode: Node, toNode: Node) {
+    if (fromNode.edges.find(edge => edge.adjacent.id == fromNode.id)) {return}
+
+    const newEdge: Edge = new Edge(toNode, 1)
+    fromNode.edges.push(newEdge);
+  }
+
+  export function deleteEdge(fromNode: Node, toNode: Node) {
+    fromNode.edges = fromNode.edges.filter(edge => edge.adjacent.id != toNode.id);
+  }
+
+  export function addDisturbance(fromNode: Node, toNode: Node) {
+    if (fromNode.distEdges.find(edge => edge.adjacent.id == fromNode.id)) {return}
+
+    const newEdge: Edge = new Edge(toNode, 1)
+    fromNode.distEdges.push(newEdge);
+  }
+
+  export function deleteDisturbance(fromNode: Node, toNode: Node) {
+    fromNode.distEdges = fromNode.distEdges.filter(edge => edge.adjacent.id != toNode.id);
+  }
