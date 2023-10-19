@@ -1,5 +1,5 @@
 import search from "../algo/AStarSearch.js";
-import { addEdge, deleteEdge, grid, setTypeOfNode } from "../algo/grid.js";
+import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
 import { ControlsData, getControlsFromLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
@@ -248,12 +248,18 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
     
     if (selectedType == "disturbance" || selectedType == "edge") {
       multiSelectedCells.push(grid[col][row]);
-      if (multiSelectedCells.length == 2) {
-        if (!checkIfNeighbor(multiSelectedCells[0], multiSelectedCells[1])) {multiSelectedCells = []; return}
-        selectedType == "disturbance" ? console.error("Not implemented") : deleteModeCheckbox.checked ? deleteEdge(multiSelectedCells[0], multiSelectedCells[1]) : addEdge(multiSelectedCells[0], multiSelectedCells[1])
-        drawGrid();
-        multiSelectedCells = [];
+      if (multiSelectedCells.length < 2) { return }
+
+      if (!checkIfNeighbor(multiSelectedCells[0], multiSelectedCells[1])) {multiSelectedCells = []; return}
+
+      if (selectedType == "disturbance") {
+        deleteModeCheckbox.checked ? deleteDisturbance(multiSelectedCells[0], multiSelectedCells[1]) : addDisturbance(multiSelectedCells[0], multiSelectedCells[1])
+      } else {
+        deleteModeCheckbox.checked ? deleteEdge(multiSelectedCells[0], multiSelectedCells[1]) : addEdge(multiSelectedCells[0], multiSelectedCells[1])
       }
+
+      drawGrid();
+      multiSelectedCells = [];
       return;
     }
 
@@ -444,6 +450,9 @@ function drawWallBetweenNodes(fromNode: Node, direction: direction) {
 }
 
 function checkIfNeighbor(fromNode: Node, toNode: Node) {
+  //If its the same node also return false
+  if (fromNode.x == toNode.x && fromNode.y == toNode.y) {return false;}
+
   const distX = fromNode.x - toNode.x;
   const distY = fromNode.y - toNode.y;
   if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {return false}
