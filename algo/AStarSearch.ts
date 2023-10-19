@@ -35,8 +35,8 @@ const search = (
   );
 
   // tradeoff between risk and distance
-  // 0 = only risk
-  // 1 = only distance
+  // 0 = only risk (take the safest path)
+  // 1 = only distance (take the shortest path)
   //const w = riskTradeoff ? riskTradeoff : 0.5;
   const w = 0.4;
 
@@ -68,7 +68,8 @@ const search = (
         //const f = g + w * h + (1 - w) * edge.adjacent.mue;
         //const f = g + (w * h + w * (1 - edge.adjacent.mue));
 
-        const f = g * w + h * (1 - w) + edge.adjacent.mue;
+        //const f = g * w + h * (1 - w) + edge.adjacent.mue;
+        const f = g * w + h + (1 - w) * edge.adjacent.mue;
         //const f = g * w + h * (1 - w) * (1 - edge.adjacent.mue);
 
         console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
