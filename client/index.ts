@@ -1,17 +1,15 @@
 import search from "../algo/AStarSearch.js";
-import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, setTypeOfNode } from "../algo/grid.js";
+import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, setGrid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
-import { ControlsData, getControlsFromLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
+import { ControlsData, getActiveGridFromLocalStorage, getControlsFromLocalStorage, saveActiveGridToLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
 export default function clientInit() {
-  //Not active for now as not working see saveService.ts
-  // const savedGrid = getActiveGridFromLocalStorage();
-  // if (savedGrid) {setGrid(savedGrid)}
-  // saveActiveGridToLocalStorage(grid);
-  grid[0][0].edges = [];
-  grid[0][1].edges = [];
-  grid[1][0].edges = [];
-  grid[2][1].edges = [];
+  const savedGrid = getActiveGridFromLocalStorage();
+  if (savedGrid) {setGrid(savedGrid)}
+  // grid[0][0].edges = [];
+  // grid[0][1].edges = [];
+  // grid[1][0].edges = [];
+  // grid[2][1].edges = [];
   setControls();
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
@@ -57,8 +55,10 @@ showDisturbancesCheckbox.addEventListener("click", () => { drawGrid()});
 showDirectedEdgesCheckbox.addEventListener("click", () => {drawGrid()});
 
 window.addEventListener("unload", () => {
-  saveControls(); 
-  // saveActiveGridToLocalStorage(grid);
+  saveControls();
+  if (grid[0][0]) {
+    saveActiveGridToLocalStorage(grid);
+  }
 });
 
 function setControls() {
@@ -166,7 +166,6 @@ export function drawGrid() {
   showMuCheckbox.checked ? drawMuValues() : null;
   showDisturbancesCheckbox.checked ? drawAllDisturbances() : null;
   showDirectedEdgesCheckbox.checked ? drawDirectedEdges() : null;
-  console.log(grid)
   // drawEdgeArrow(grid[0][0], grid[0][1])
   // drawEdgeArrow(grid[0][0], grid[1][0])
 };

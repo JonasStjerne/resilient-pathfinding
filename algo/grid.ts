@@ -85,7 +85,6 @@ const getRiskNode = (node: Node, windDirection: number) => {
   }
   export function setGrid(newGrid: Grid) {
     grid.length = 0;
-    console.log("ran")
     newGrid.forEach(col => grid.push(col));
   }
 
