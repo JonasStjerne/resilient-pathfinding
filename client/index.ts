@@ -3,10 +3,6 @@ import { grid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
 
 export default function clientInit() {
-  grid[0][2].edges.slice(1,3)
-  grid[0][4].edges = [];
-  grid[1][6].edges.pop();
-  grid[0][8].edges.pop();
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
   // drawDisturbance(grid[0][5], grid[0][6])
@@ -206,7 +202,6 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 		isDrawing = true;
 		const col = Math.floor(event.offsetX / cellSize);
 		const row = Math.floor(event.offsetY / cellSize);
-    // console.log({col, row}, selectedType)
 		drawSquareInGrid(col, row, selectedType);
 	});
 
@@ -232,12 +227,10 @@ function runPathFinding() {
 
   const nodes = grid.flat();
   const path = search(startNode, endNode, grid);
-  console.log(path)
   const cellSize = canvas.width / grid.length;
 
   //Keep the start and end node to preserve the colors
   const pathWithoutEnds = path.slice(1, -1)
-  console.log(pathWithoutEnds)
 
   nodes.forEach((node) => {
     if (pathWithoutEnds.includes(node.id)) {
@@ -299,21 +292,22 @@ function posToCanvasCoordinates(col: number, row: number) {
   return pos
 }
 
+//Function to get direction of neighboring cell
 function getDirectionOfNode(fromNode: Node, toNode: Node) {
-  const diffPos = {x: (fromNode.x - toNode.x), y: (fromNode.y - toNode.y)};
+  const diffPos = {x: (toNode.x - fromNode.x), y: (toNode.y - fromNode.y)};
   const direction = offsetMap[JSON.stringify(diffPos)]
   return direction;
 }
 type direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 const offsetMap: Record<string, direction> = {
-	'{"x":0,"y":1}' : "top",
-  '{"x":1,"y":0}' : "right",
-  '{"x":0,"y":-1}' : "bottom",
-  '{"x":-1,"y":0}' : "left",
-  '{"x":-1,"y":1}' : "top-left",
-  '{"x":1,"y":1}' : "top-right",
-  '{"x":-1,"y":-1}' : "bottom-left",
-	'{"x":1,"y":-1}' : "bottom-right",
+	'{"x":0,"y":-1}' : "top",
+  '{"x":1,"y":-1}' : "top-right",
+  '{"x":-1,"y":0}' : "right",
+	'{"x":1,"y":1}' : "bottom-right",
+  '{"x":0,"y":1}' : "bottom",
+  '{"x":-1,"y":1}' : "bottom-left",
+  '{"x":1,"y":0}' : "left",
+  '{"x":-1,"y":-1}' : "top-left",
 };
 
 //This function draws small triangles if a graph is only one directional or a thicker line if theres no edges connecting two nodes
@@ -330,33 +324,20 @@ function drawDirectedEdges() {
         
         (nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x][y + 1]) : null;
         (!nodeHasEdgeToBelow && nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y + 1], grid[x][y]) : null;
-        (!nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? console.error("Not implemented") : null
+        (!nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "bottom") : null
       }
       if (x < gridLength - 1) {
         const rightEdges = grid[x + 1][y].edges;
-        console.log(grid[x][y], rightEdges)
         const nodeHasEdgeToRight = !!ownEdges.find(edge => edge.adjacent.x == x + 1 && edge.adjacent.y == y);
         const nodeRightHasEdgeToNode = !!rightEdges.find(edge => edge.adjacent.x == grid[x][y].x && edge.adjacent.y == y);
-        console.log({nodeHasEdgeToRight, nodeRightHasEdgeToNode});
         (nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y]) : null;
-      (!nodeHasEdgeToRight && nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y], grid[x][y]) : null;
-      (!nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? console.error("Not implemented") : null
+        (!nodeHasEdgeToRight && nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y], grid[x][y]) : null;
+        (!nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "right") : null
     }
   }
 }
-  // grid.forEach((col, colIndex) => col.forEach((colEl, rowIndex) => {
-  //   //Check right cell if not end of array
-  //   if (rowIndex < col.length - 1) {
-  //     //Three cases
-  //     //Both have edge to each other
-  //     //Below has to above
-  //     //Above have to below
-  //     //If colEl has edge to grid[colIndex][rowIndex+1] and 
-  //   }
-  //   //Check bottom cell if not end of array
-  // }));
 }
-
+//grid[1][1] to grid[0][1]
 function drawEdgeArrow(fromNode: Node, toNode: Node) {
   const direction = getDirectionOfNode(fromNode, toNode);
   const fromNodePos = posToCanvasCoordinates(fromNode.x, fromNode.y);
@@ -371,10 +352,14 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
 }
 
 function getEdgeArrowPointsByDirection(direction: direction) {
+  const edgeArrowHeight = 20;
+  const arrowDownPoints = [{x: 0, y: cellSize/2 + edgeArrowHeight/2},{x: -edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2},{x: +edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2}]
   let angle = directionToAngleMap[direction];
+  
   if (angle > 180) {
     angle -= 360;
   }
+
   const A = angle * Math.PI / 180;
   const rotate = (x: number, y: number) => {return  {x: (x * Math.cos(A) - y * Math.sin(A)), y: (y * Math.cos(A) + x * Math.sin(A))}};
   const offsetPositions = [rotate(arrowDownPoints[0].x, arrowDownPoints[0].y), rotate(arrowDownPoints[1].x,arrowDownPoints[1].y), rotate(arrowDownPoints[2].x,arrowDownPoints[2].y)]
@@ -392,5 +377,12 @@ const directionToAngleMap: Record<direction, number> = {
 	"bottom-right": 45,
 }
 
-const edgeArrowHeight = 20;
-const arrowDownPoints = [{x: 0, y: cellSize/2 + edgeArrowHeight/2},{x: -edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2},{x: +edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2}]
+function drawWallBetweenNodes(fromNode: Node, direction: direction) {
+  const nodePos = posToCanvasCoordinates(fromNode.x, fromNode.y)
+  const recWidth = 5;
+  ctx.fillStyle = "black";
+  if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y + cellSize/2 - recWidth/2), cellSize, recWidth )}
+  if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
+  if (direction == "top") {ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y - cellSize/2 + recWidth/2), cellSize, recWidth )}
+  if (direction == "left") {ctx.fillRect((nodePos.x - cellSize/2 + recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
+}
