@@ -20,27 +20,32 @@ interface NodeIdAndDistanceTuple {
   distance: number | undefined;
 }
 
-const search = (startPos: Position, endPos: Position, graph: Grid) => {
+const search = (
+  startPos: Position,
+  endPos: Position,
+  graph: Grid,
+  riskTradeoff?: number
+) => {
   const searchTable: SearchTable = {};
   graph.forEach((graphRow) =>
     graphRow.forEach((graphCol) => {
-      if (["road", "start", "goal"].includes(graphCol.type)) searchTable[graphCol.id] = {};
+      if (["road", "start", "goal"].includes(graphCol.type))
+        searchTable[graphCol.id] = {};
     })
   );
+
+  // tradeoff between risk and distance
+  const w = riskTradeoff ? riskTradeoff : 0.3;
 
   let openList: Array<Node> = [];
   const closedList: Array<Node> = [];
   let currentNode = graph[startPos.x][startPos.y];
   let destinationNode = graph[endPos.x][endPos.y];
-  const h =
-    Math.max(startPos.x, endPos.x) -
-    Math.min(startPos.x, endPos.x) +
-    (Math.max(startPos.y, endPos.y) - Math.min(startPos.y, endPos.y));
-  const f = 0 + h;
   let ctr = 0; // Protection against endless loop
+
   while (currentNode !== destinationNode && ctr != 200) {
-    const edgesFromCurrentNode = currentNode.edges.filter(
-      (ne) =>["road", "start", "goal"].includes(ne.adjacent.type)
+    const edgesFromCurrentNode = currentNode.edges.filter((ne) =>
+      ["road", "start", "goal"].includes(ne.adjacent.type)
     );
     edgesFromCurrentNode.forEach((edge) => {
       if (
@@ -48,14 +53,17 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
         !openList.includes(edge.adjacent)
       ) {
         openList.push(edge.adjacent);
+
         const prevNodeG = searchTable[currentNode.id]?.g;
         const g = prevNodeG ? prevNodeG + edge.weight : edge.weight;
-        const h =
-          Math.max(edge.adjacent.x, endPos.x) -
-          Math.min(edge.adjacent.x, endPos.x) +
-          (Math.max(edge.adjacent.y, endPos.y) -
-            Math.min(edge.adjacent.y, endPos.y));
-        const f = g + h;
+        const h = manhattan(
+          edge.adjacent.x,
+          endPos.x,
+          edge.adjacent.y,
+          endPos.y
+        );
+        const f = g + w * h + (1 - w) * edge.adjacent.mue;
+
         const prevF = searchTable[edge.adjacent.id]?.f;
         if (!prevF || f < prevF) {
           searchTable[edge.adjacent.id] = {
@@ -113,5 +121,14 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
   path = path.reverse();
   return path;
 };
+
+function manhattan(
+  ajdX: number,
+  endX: number,
+  adjY: number,
+  endY: number
+): number {
+  return Math.abs(ajdX - endX) + Math.abs(adjY - endY);
+}
 
 export default search;

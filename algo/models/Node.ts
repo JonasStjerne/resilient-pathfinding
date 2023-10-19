@@ -13,7 +13,7 @@ export class Node {
   mue: number;
   incomingEdges: Node[] = [];
   distEdges: Edge[] = [];
-  incomingDistEdges: Node[] = []; 
+  incomingDistEdges: Node[] = [];
 
   constructor(x: number, y: number, type: NodeType, mue?: number) {
     this.id = Node._id++;
@@ -21,14 +21,11 @@ export class Node {
     this.x = x;
     this.y = y;
 
-    if (typeof mue == 'undefined'){
-        //negativ implies undefined
-        this.mue = -1;
-    }
-    else
-    {
-        this.mue = mue;
+    if (typeof mue == "undefined") {
+      //negativ implies undefined
+      this.mue = 1;
+    } else {
+      this.mue = mue;
     }
   }
 }
-
