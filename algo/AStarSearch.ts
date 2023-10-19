@@ -104,13 +104,13 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
   let path = [];
   let curNodeId: number | undefined = currentNode.id;
   path.push(curNodeId);
-  while (typeof curNodeId !== "undefined" && searchTable[curNodeId].prevNode) {
+  while (typeof curNodeId !== "undefined" && typeof searchTable[curNodeId].prevNode !== "undefined") {
     curNodeId = searchTable[curNodeId].prevNode;
     path.push(curNodeId);
   }
-  path.push(graph[startPos.x][startPos.y].id);
   // reverse path and log
   path = path.reverse();
+  // console.log(path);
   return path;
 };
 
