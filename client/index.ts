@@ -24,6 +24,8 @@ const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
 const waterBtn = document.getElementById("water" satisfies drawType)!;
 const roadBtn = document.getElementById("road" satisfies drawType)!;
+const edgeBtn = document.getElementById("edge" satisfies drawType)!;
+const disturbanceBtn = document.getElementById("disturbance" satisfies drawType)!;
 
 let selectedType: drawType = "water";
 const runAlgoBtn = document.getElementById("run-algo")!;
@@ -33,10 +35,14 @@ const showIdsCheckbox = <HTMLInputElement>document.getElementById("show-node-id"
 const showDisturbancesCheckbox = <HTMLInputElement>document.getElementById("show-disturbances")!;
 const showDirectedEdgesCheckbox = <HTMLInputElement>document.getElementById("show-directed-edges")!;
 
+
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
 waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
 roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
+edgeBtn.addEventListener("click", () => selectDrawType("edge" satisfies drawType));
+disturbanceBtn.addEventListener("click", () => selectDrawType("disturbance" satisfies drawType));
+
 
 runAlgoBtn.addEventListener("click", runPathFinding);
 showMuCheckbox.addEventListener("click", () => {drawGrid()});
@@ -75,7 +81,7 @@ function saveControls() {
 }
   saveControlsToLocalStorage(controlsData);
 }
-export type drawType = "start" | "goal" | "water" | "road";
+export type drawType = "start" | "goal" | "water" | "road" | "disturbance" | "edge";
 type color = "blue" | "black" | "green" | "red" | "white";
 export let startNode: Pick<Node, "x" | "y"> | null = null;
 export let  endNode: Pick<Node, "x" | "y"> | null = null;
@@ -96,7 +102,7 @@ const drawTypeToColor: Record<NodeType, color> = {
   }
 
 function selectDrawType(id: drawType) {
-	[startBtn, goalBtn, waterBtn, roadBtn].forEach((elm) => elm.classList.remove("selected"));
+	[startBtn, goalBtn, waterBtn, roadBtn, edgeBtn, disturbanceBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;
 	document.getElementById(id)!.classList.add("selected");
 }
@@ -232,6 +238,7 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 	const cellSize = canvas.width / gridNumber;
 
 	canvas.addEventListener("mousedown", (event) => {
+    if (selectedType == "disturbance" || selectedType == "edge") {return}
 		isDrawing = true;
 		const col = Math.floor(event.offsetX / cellSize);
 		const row = Math.floor(event.offsetY / cellSize);
@@ -242,7 +249,7 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 		if (isDrawing && ["wall", "water"].includes(selectedType)) {
 			const col = Math.floor(event.offsetX / cellSize);
 			const row = Math.floor(event.offsetY / cellSize);
-			drawSquareInGrid(col, row, selectedType);
+			drawSquareInGrid(col, row, <NodeType>selectedType);
 		}
 	});
 

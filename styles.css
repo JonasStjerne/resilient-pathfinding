@@ -27,3 +27,9 @@ body {
 .run-algo-container {
     align-items: end;
 }
+
+.button-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
