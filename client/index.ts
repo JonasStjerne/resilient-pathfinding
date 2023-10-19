@@ -1,12 +1,19 @@
 import search from "../algo/AStarSearch.js";
 import { grid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
+import { ControlsData, getControlsFromLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
 export default function clientInit() {
+  grid[0][0].edges = [];
+  grid[0][1].edges = [];
+  grid[1][0].edges = [];
+  grid[2][1].edges = [];
+  setControls();
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
   // drawDisturbance(grid[0][5], grid[0][6])
 }
+const cellPadding = 2;
 
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById("start" satisfies drawType)!;
@@ -14,12 +21,13 @@ const goalBtn = document.getElementById("goal" satisfies drawType)!;
 const waterBtn = document.getElementById("water" satisfies drawType)!;
 const roadBtn = document.getElementById("road" satisfies drawType)!;
 
+let selectedType: drawType = "water";
 const runAlgoBtn = document.getElementById("run-algo")!;
 
-const showMuCheckbox = document.getElementById("show-mu")!;
-const showIdsCheckbox = document.getElementById("show-node-id")!;
-const showDisturbancesCheckbox = document.getElementById("show-disturbances")!;
-const showDirectedEdgesCheckbox = document.getElementById("show-directed-edges")!;
+const showMuCheckbox = <HTMLInputElement>document.getElementById("show-mu")!;
+const showIdsCheckbox = <HTMLInputElement>document.getElementById("show-node-id")!;
+const showDisturbancesCheckbox = <HTMLInputElement>document.getElementById("show-disturbances")!;
+const showDirectedEdgesCheckbox = <HTMLInputElement>document.getElementById("show-directed-edges")!;
 
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
@@ -27,20 +35,40 @@ waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawTy
 roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
 
 runAlgoBtn.addEventListener("click", runPathFinding);
+showMuCheckbox.addEventListener("click", () => {drawGrid()});
 
-showMuCheckbox.addEventListener("click", () => {showMuValues = !showMuValues; drawGrid()});
-let showMuValues = false;
+showIdsCheckbox.addEventListener("click", () => {drawGrid()});
 
-showIdsCheckbox.addEventListener("click", () => {showIdValues = !showIdValues; drawGrid()});
-let showIdValues = false;
+showDisturbancesCheckbox.addEventListener("click", () => { drawGrid()});
 
-showDisturbancesCheckbox.addEventListener("click", () => {showDisturbances = !showDisturbances; drawGrid()});
-let showDisturbances = false;
+showDirectedEdgesCheckbox.addEventListener("click", () => {drawGrid()});
 
-showDirectedEdgesCheckbox.addEventListener("click", () => {showDirectedEdges = !showDirectedEdges; drawGrid()});
-let showDirectedEdges = false;
+window.addEventListener("unload", () => saveControls());
 
-type drawType = "start" | "goal" | "water" | "road";
+function setControls() {
+  const controls = getControlsFromLocalStorage();
+  if (!controls) {return}
+  showMuCheckbox.checked = controls.options.mu;
+  showIdsCheckbox.checked = controls.options.nodeId;
+  showDisturbancesCheckbox.checked = controls.options.disturbances;
+  showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
+  selectedType = controls.drawType
+  selectDrawType(controls.drawType);
+}
+
+function saveControls() {
+  const controlsData: ControlsData = {
+    "drawType": selectedType,
+    "options": {
+        "directedEdges": showDirectedEdgesCheckbox.checked,
+        "disturbances": showDisturbancesCheckbox.checked,
+        "mu": showMuCheckbox.checked,
+        "nodeId": showIdsCheckbox.checked
+    }
+}
+  saveControlsToLocalStorage(controlsData);
+}
+export type drawType = "start" | "goal" | "water" | "road";
 type color = "blue" | "black" | "green" | "red" | "white";
 export let startNode: Pick<Node, "x" | "y"> | null = null;
 export let  endNode: Pick<Node, "x" | "y"> | null = null;
@@ -60,9 +88,6 @@ const drawTypeToColor: Record<NodeType, color> = {
   "water": "blue"
   }
 
-const cellPadding = 2;
-
-let selectedType: drawType = "water";
 function selectDrawType(id: drawType) {
 	[startBtn, goalBtn, waterBtn, roadBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;
@@ -119,10 +144,11 @@ export function drawGrid() {
   }
 
   drawObstacles()
-  showIdValues ? drawIds() : null;
-  showMuValues ? drawMuValues() : null;
-  showDisturbances ? drawAllDisturbances() : null;
-  showDirectedEdges ? drawDirectedEdges() : null;
+  showIdsCheckbox.checked ? drawIds() : null;
+  showMuCheckbox.checked ? drawMuValues() : null;
+  showDisturbancesCheckbox.checked ? drawAllDisturbances() : null;
+  showDirectedEdgesCheckbox.checked ? drawDirectedEdges() : null;
+  console.log(grid)
   // drawEdgeArrow(grid[0][0], grid[0][1])
   // drawEdgeArrow(grid[0][0], grid[1][0])
 };
