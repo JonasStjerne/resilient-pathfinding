@@ -1,5 +1,5 @@
 import search from "../algo/AStarSearch.js";
-import { grid, setTypeOfNode } from "../algo/grid.js";
+import { addEdge, deleteEdge, grid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
 import { ControlsData, getControlsFromLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
@@ -28,12 +28,15 @@ const edgeBtn = document.getElementById("edge" satisfies drawType)!;
 const disturbanceBtn = document.getElementById("disturbance" satisfies drawType)!;
 
 let selectedType: drawType = "water";
+let multiSelectedCells: Node[] = [];
+
 const runAlgoBtn = document.getElementById("run-algo")!;
 
 const showMuCheckbox = <HTMLInputElement>document.getElementById("show-mu")!;
 const showIdsCheckbox = <HTMLInputElement>document.getElementById("show-node-id")!;
 const showDisturbancesCheckbox = <HTMLInputElement>document.getElementById("show-disturbances")!;
 const showDirectedEdgesCheckbox = <HTMLInputElement>document.getElementById("show-directed-edges")!;
+const deleteModeCheckbox = <HTMLInputElement>document.getElementById("delete-mode")!;
 
 
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
@@ -65,8 +68,8 @@ function setControls() {
   showIdsCheckbox.checked = controls.options.nodeId;
   showDisturbancesCheckbox.checked = controls.options.disturbances;
   showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
-  selectedType = controls.drawType
   selectDrawType(controls.drawType);
+  // selectedType = controls.drawType
 }
 
 function saveControls() {
@@ -102,8 +105,10 @@ const drawTypeToColor: Record<NodeType, color> = {
   }
 
 function selectDrawType(id: drawType) {
+  if (selectedType == id) {return}
 	[startBtn, goalBtn, waterBtn, roadBtn, edgeBtn, disturbanceBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;
+  if (["edge", "disturbance"].includes(id)) {multiSelectedCells = [];}
 	document.getElementById(id)!.classList.add("selected");
 }
 
@@ -238,10 +243,21 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 	const cellSize = canvas.width / gridNumber;
 
 	canvas.addEventListener("mousedown", (event) => {
-    if (selectedType == "disturbance" || selectedType == "edge") {return}
+    const col = Math.floor(event.offsetX / cellSize);
+    const row = Math.floor(event.offsetY / cellSize);
+    
+    if (selectedType == "disturbance" || selectedType == "edge") {
+      multiSelectedCells.push(grid[col][row]);
+      if (multiSelectedCells.length == 2) {
+        if (!checkIfNeighbor(multiSelectedCells[0], multiSelectedCells[1])) {multiSelectedCells = []; return}
+        selectedType == "disturbance" ? console.error("Not implemented") : deleteModeCheckbox.checked ? deleteEdge(multiSelectedCells[0], multiSelectedCells[1]) : addEdge(multiSelectedCells[0], multiSelectedCells[1])
+        drawGrid();
+        multiSelectedCells = [];
+      }
+      return;
+    }
+
 		isDrawing = true;
-		const col = Math.floor(event.offsetX / cellSize);
-		const row = Math.floor(event.offsetY / cellSize);
 		drawSquareInGrid(col, row, selectedType);
 	});
 
@@ -425,4 +441,11 @@ function drawWallBetweenNodes(fromNode: Node, direction: direction) {
   if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
   if (direction == "top") {ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y - cellSize/2 + recWidth/2), cellSize, recWidth )}
   if (direction == "left") {ctx.fillRect((nodePos.x - cellSize/2 + recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
+}
+
+function checkIfNeighbor(fromNode: Node, toNode: Node) {
+  const distX = fromNode.x - toNode.x;
+  const distY = fromNode.y - toNode.y;
+  if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {return false}
+  return true;
 }

@@ -98,3 +98,16 @@ const getRiskNode = (node: Node, windDirection: number) => {
       })
     })
   }
+
+  export function addEdge(fromNode: Node, toNode: Node) {
+    if (fromNode.edges.find(edge => edge.adjacent.id == fromNode.id)) {return}
+
+    const newEdge: Edge = new Edge(toNode, 1)
+    fromNode.edges.push(newEdge);
+  }
+
+  export function deleteEdge(fromNode: Node, toNode: Node) {
+    console.log("Deleting node edge from", {x: fromNode.x, y: fromNode.y}, {x: toNode.x, y: toNode.y})
+    fromNode.edges = fromNode.edges.filter(edge => edge.adjacent.id != toNode.id);
+    console.log(grid)
+  }
