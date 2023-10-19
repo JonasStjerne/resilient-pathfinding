@@ -89,7 +89,7 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
       },
       openListNodesFValues[0]
     ); // Initialize with the first tuple
-    console.log(nodeWithLowestFValue);
+    // console.log(nodeWithLowestFValue);
     const newCurrentNode = openList.find(
       (node) => node.id === nodeWithLowestFValue.id
     );
