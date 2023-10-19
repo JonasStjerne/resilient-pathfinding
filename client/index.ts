@@ -4,6 +4,10 @@ import { Node, NodeType } from "../algo/models/Node.js";
 import { ControlsData, getControlsFromLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
 export default function clientInit() {
+  //Not active for now as not working see saveService.ts
+  // const savedGrid = getActiveGridFromLocalStorage();
+  // if (savedGrid) {setGrid(savedGrid)}
+  // saveActiveGridToLocalStorage(grid);
   grid[0][0].edges = [];
   grid[0][1].edges = [];
   grid[1][0].edges = [];
@@ -13,8 +17,8 @@ export default function clientInit() {
   enableContinuousDrawing(canvas, grid.length);
   // drawDisturbance(grid[0][5], grid[0][6])
 }
-const cellPadding = 2;
 
+const cellPadding = 2;
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
@@ -43,7 +47,10 @@ showDisturbancesCheckbox.addEventListener("click", () => { drawGrid()});
 
 showDirectedEdgesCheckbox.addEventListener("click", () => {drawGrid()});
 
-window.addEventListener("unload", () => saveControls());
+window.addEventListener("unload", () => {
+  saveControls(); 
+  // saveActiveGridToLocalStorage(grid);
+});
 
 function setControls() {
   const controls = getControlsFromLocalStorage();

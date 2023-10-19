@@ -83,6 +83,11 @@ const getRiskNode = (node: Node, windDirection: number) => {
   export function setTypeOfNode(coordinates: Pick<Node, "x" | "y">, type: NodeType) {
     grid[coordinates.x][coordinates.y].type = type;
   }
+  export function setGrid(newGrid: Grid) {
+    grid.length = 0;
+    console.log("ran")
+    newGrid.forEach(col => grid.push(col));
+  }
 
   function removeTypeFromGrid(type: NodeType) {
     grid.forEach(column => {
