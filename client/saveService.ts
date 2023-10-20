@@ -30,21 +30,7 @@ export function getControlsFromLocalStorage() {
 
 //This doesn't work. stringify return undefined. Maybe because the grid has circular dependencies
 export function saveActiveGridToLocalStorage(grid: Grid) {
-    //Make new empty JSON safe grid
-    const jsonSafeGrid: NodeJSON[][] = new Array(grid.length);
-    grid.forEach((col, x) => jsonSafeGrid[x] = new Array(grid[0].length))
-
-    //Remove circular deps
-    grid.forEach((col, x) => col.forEach((node, y) => {
-        const safeNode: NodeJSON = {
-            ...node,
-            edges: removeCircularDepEdges(node.edges),
-            distEdges: removeCircularDepEdges(node.distEdges),
-            incomingDistEdges: node.incomingDistEdges.map(incomingDistEdge => {return {x: incomingDistEdge.x, y: incomingDistEdge.y}}),
-            incomingEdges: node.incomingEdges.map(incomingEdge => {return {x: incomingEdge.x, y: incomingEdge.y}}),
-        }
-        jsonSafeGrid[x][y] = safeNode;
-    }))
+    const jsonSafeGrid= removeNodeCircularReference(grid);
     const data = JSON.stringify(jsonSafeGrid);
     localStorage.setItem(ACTIVE_GRID_LS_KEY, data);
 }
@@ -56,22 +42,7 @@ export function getActiveGridFromLocalStorage(): Grid |undefined {
     if (!data) {return}
     const dataJSON = <NodeJSON[][]>JSON.parse(data);
 
-    //Create empty grid
-    const newGrid: Node[][] = new Array(dataJSON.length);
-    dataJSON.forEach((col, x) => newGrid[x] = new Array(dataJSON[0].length))
-
-    //Recreate nodes
-    dataJSON.forEach((col, x) => col.forEach((space, y) => {
-        newGrid[x][y] = new Node(x, y, dataJSON[x][y].type)
-    }))
-
-    //Recreate edges and disturbances
-    dataJSON.forEach((col, x) => col.forEach((node, y) => {
-        newGrid[x][y].edges = recreateEdgeCircularReference(dataJSON[x][y].edges, newGrid);
-        newGrid[x][y].distEdges = recreateEdgeCircularReference(dataJSON[x][y].distEdges, newGrid);
-        newGrid[x][y].incomingEdges = dataJSON[x][y].incomingEdges.map(nodeJson => newGrid[x][y]);
-        newGrid[x][y].incomingDistEdges = dataJSON[x][y].incomingDistEdges.map(nodeJson => newGrid[x][y])
-    }))
+    const newGrid = recreateNodeCircularReference(dataJSON)
 
     return newGrid;
 }
@@ -88,7 +59,7 @@ export function getGridsFromSavesInLocalStorage() {
 
 }
 
-function removeCircularDepEdges(edges: Edge[]): EdgeJSON[] {
+function removeCircularRefEdges(edges: Edge[]): EdgeJSON[] {
     const jsonSafeEdges: EdgeJSON[] = [];
     edges.forEach(edge => {jsonSafeEdges.push({adjacent: {x: edge.adjacent.x, y: edge.adjacent.y}, weight: edge.weight})})
     return jsonSafeEdges;
@@ -97,6 +68,46 @@ function removeCircularDepEdges(edges: Edge[]): EdgeJSON[] {
 function recreateEdgeCircularReference(edgesJson: EdgeJSON[], newGrid: Grid): Edge[] {
     const edges = edgesJson.map(edgeJson => {return {...edgeJson, adjacent: newGrid[edgeJson.adjacent.x][edgeJson.adjacent.y]}})
     return edges;
+}
+
+function removeNodeCircularReference(grid: Grid): NodeJSON[][] {
+    //Make new empty JSON safe grid
+    const jsonSafeGrid: NodeJSON[][] = new Array(grid.length);
+    grid.forEach((col, x) => jsonSafeGrid[x] = new Array(grid[0].length))
+
+    //Remove circular deps
+    grid.forEach((col, x) => col.forEach((node, y) => {
+        const safeNode: NodeJSON = {
+            ...node,
+            edges: removeCircularRefEdges(node.edges),
+            distEdges: removeCircularRefEdges(node.distEdges),
+            incomingDistEdges: node.incomingDistEdges.map(incomingDistEdge => {return {x: incomingDistEdge.x, y: incomingDistEdge.y}}),
+            incomingEdges: node.incomingEdges.map(incomingEdge => {return {x: incomingEdge.x, y: incomingEdge.y}}),
+        }
+        jsonSafeGrid[x][y] = safeNode;
+    }))
+    return jsonSafeGrid;
+}
+
+function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
+    //Create empty grid
+    const newGrid: Node[][] = new Array(jsonSafeGrid.length);
+    jsonSafeGrid.forEach((col, x) => newGrid[x] = new Array(jsonSafeGrid[0].length))
+
+    //Recreate nodes
+    jsonSafeGrid.forEach((col, x) => col.forEach((space, y) => {
+        newGrid[x][y] = new Node(x, y, jsonSafeGrid[x][y].type)
+    }))
+
+    //Recreate edges and disturbances
+    jsonSafeGrid.forEach((col, x) => col.forEach((node, y) => {
+        newGrid[x][y].edges = recreateEdgeCircularReference(jsonSafeGrid[x][y].edges, newGrid);
+        newGrid[x][y].distEdges = recreateEdgeCircularReference(jsonSafeGrid[x][y].distEdges, newGrid);
+        newGrid[x][y].incomingEdges = jsonSafeGrid[x][y].incomingEdges.map(nodeJson => newGrid[x][y]);
+        newGrid[x][y].incomingDistEdges = jsonSafeGrid[x][y].incomingDistEdges.map(nodeJson => newGrid[x][y])
+    }))
+
+    return newGrid;
 }
 
 type EdgeJSON = Omit<Edge, "adjacent"> & {"adjacent": {x: number, y: number}};
