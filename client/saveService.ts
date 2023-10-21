@@ -74,9 +74,9 @@ export function removeGridFromSavesInLocalStorage(id: number) {
     localStorage.setItem(SAVED_GRIDS_LS_KEY, newSavesJSON);
 }
 
-export function getGridsFromSavesInLocalStorage(): GridSave[] | undefined {
+export function getGridsFromSavesInLocalStorage(): GridSave[] {
     const existingSavesJSON = localStorage.getItem(SAVED_GRIDS_LS_KEY);
-    if (!existingSavesJSON) {return}
+    if (!existingSavesJSON) {return []}
 
     const existingSaves = <GridJSONSave[]>JSON.parse(existingSavesJSON);
 
