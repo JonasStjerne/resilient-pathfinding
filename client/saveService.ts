@@ -52,7 +52,7 @@ export function addGridToSavesInLocalStorage(grid: Grid, title: string) {
     const jsonSafeGrid= removeNodeCircularReference(grid);
 
     let id = 0;
-    existingSaves.forEach(savedGrid => savedGrid.id > id ? id = savedGrid.id + 1 : null);
+    existingSaves.forEach(savedGrid => savedGrid.id >= id ? id = savedGrid.id + 1 : null);
 
     const saveGrid: GridJSONSave = {title, id, grid: jsonSafeGrid};
 

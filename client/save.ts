@@ -1,9 +1,9 @@
 import { grid, setGrid } from "../algo/grid.js";
 import { drawGrid } from "./index.js";
-import { addGridToSavesInLocalStorage, getGridsFromSavesInLocalStorage } from "./saveService.js";
+import { addGridToSavesInLocalStorage, getGridsFromSavesInLocalStorage, removeGridFromSavesInLocalStorage } from "./saveService.js";
 
 export const initSaveControl = () => {
-    const saveList = <HTMLInputElement>document.getElementById("save-list")!;
+    const saveList = <HTMLSelectElement>document.getElementById("save-list")!;
     populateSavesList(saveList);
 
     const saveBtn = document.getElementById("save-grid")!;
@@ -15,6 +15,10 @@ export const initSaveControl = () => {
     const savesList = <HTMLSelectElement>document.getElementById("save-list")!;
 
     loadBtn.addEventListener("click", () => loadGridFromSaves(savesList));
+
+    const deleteBtn = document.getElementById("delete-btn")!;
+
+    deleteBtn.addEventListener("click", () => deleteGridFromSave(savesList));
     
 }
 
@@ -31,10 +35,16 @@ function validateSaveGrid(saveGridInput: HTMLInputElement) {
     setTimeout(() => {saveGridInput.classList.remove("is-valid");saveGridInput.value = "";}, 1000)
 }
 
-function populateSavesList(savesInputEl: HTMLInputElement) {
+function populateSavesList(savesInputEl: HTMLSelectElement) {
     const saves = getGridsFromSavesInLocalStorage();
 
     saves.forEach(save => savesInputEl.appendChild(generateOptionHtmlElement(save.title, save.id)))
+}
+
+function resetSavesList(savesInputEl: HTMLSelectElement) {
+    savesInputEl.childNodes.forEach((child, index) => {
+        if (index != 0) {savesInputEl.options.remove(index)}
+    })
 }
 
 function generateOptionHtmlElement(text: string, value: number) {
@@ -57,5 +67,18 @@ function loadGridFromSaves(listEl: HTMLSelectElement) {
 
     listEl.classList.remove("is-invalid")
     listEl.classList.add("is-valid")
+    setTimeout(() => {listEl.classList.remove("is-valid");}, 1000)
+}
+
+function deleteGridFromSave(listEl: HTMLSelectElement) {
+    if (listEl.value == "") {listEl.classList.add("is-invalid"); return}
+
+    removeGridFromSavesInLocalStorage(Number(listEl.value));
+    resetSavesList(listEl);
+    populateSavesList(listEl);
+    
+    listEl.classList.remove("is-invalid")
+    listEl.classList.add("is-valid")
+    listEl.selectedIndex = 0;
     setTimeout(() => {listEl.classList.remove("is-valid");}, 1000)
 }
