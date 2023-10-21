@@ -114,8 +114,11 @@ const getRiskNode = (node: Node, windDirection: number) => {
 
     const newEdge: Edge = new Edge(toNode, 1)
     fromNode.distEdges.push(newEdge);
+
+    toNode.incomingDistEdges.push(fromNode);
   }
 
   export function deleteDisturbance(fromNode: Node, toNode: Node) {
     fromNode.distEdges = fromNode.distEdges.filter(edge => edge.adjacent.id != toNode.id);
+    toNode.incomingDistEdges = toNode.incomingDistEdges.filter(node => node.id != fromNode.id)
   }
