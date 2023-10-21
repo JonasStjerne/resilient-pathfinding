@@ -1,6 +1,8 @@
 import search from "../algo/AStarSearch.js";
 import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, setGrid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
+import { computeMue } from "../algo/mue.js";
+import { initSaveControl } from "./save.js";
 import { ControlsData, getActiveGridFromLocalStorage, getControlsFromLocalStorage, saveActiveGridToLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
 export default function clientInit() {
@@ -13,6 +15,7 @@ export default function clientInit() {
   setControls();
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
+  initSaveControl()
   // drawDisturbance(grid[0][5], grid[0][6])
 }
 
@@ -303,6 +306,7 @@ function runPathFinding() {
 }
 
 function drawMuValues() {
+  computeMue(grid)
   ctx.font = "14px Arial";
   ctx.fillStyle = "black"
   const cellSize = canvas.width / grid.length;
