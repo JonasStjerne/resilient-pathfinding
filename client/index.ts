@@ -256,7 +256,7 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
       } else {
         deleteModeCheckbox.checked ? deleteEdge(multiSelectedCells[0], multiSelectedCells[1]) : addEdge(multiSelectedCells[0], multiSelectedCells[1])
       }
-
+      computeMue(grid);
       drawGrid();
       multiSelectedCells = [];
       return;

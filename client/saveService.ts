@@ -132,8 +132,8 @@ function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
     jsonSafeGrid.forEach((col, x) => col.forEach((node, y) => {
         newGrid[x][y].edges = recreateEdgeCircularReference(jsonSafeGrid[x][y].edges, newGrid);
         newGrid[x][y].distEdges = recreateEdgeCircularReference(jsonSafeGrid[x][y].distEdges, newGrid);
-        newGrid[x][y].incomingEdges = jsonSafeGrid[x][y].incomingEdges.map(nodeJson => newGrid[x][y]);
-        newGrid[x][y].incomingDistEdges = jsonSafeGrid[x][y].incomingDistEdges.map(nodeJson => newGrid[x][y])
+        newGrid[x][y].incomingEdges = jsonSafeGrid[x][y].incomingEdges.map(nodeJson => newGrid[nodeJson.x][nodeJson.y]);
+        newGrid[x][y].incomingDistEdges = jsonSafeGrid[x][y].incomingDistEdges.map(nodeJson=> newGrid[nodeJson.x][nodeJson.y])
     }))
 
     return newGrid;

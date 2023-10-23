@@ -158,7 +158,7 @@ const Attr = (R: Node[]):Node[] =>{
 
 // Function to compute the mue values 
 export const computeMue = (grid: Grid) => {
-
+    resetMu(grid);
     const Q_i: Node [][] = [];
     Q_i.push([]);
     let i: number = 0;
@@ -292,4 +292,8 @@ export const test_funktion = (): void => {
 
     computeMue(grid);
     
+}
+
+function resetMu(grid: Grid) {
+    grid.forEach(col => col.forEach(node => node.mue = -1));
 }
