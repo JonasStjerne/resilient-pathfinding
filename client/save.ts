@@ -4,12 +4,13 @@ import { addGridToSavesInLocalStorage, getGridsFromSavesInLocalStorage, removeGr
 
 export const initSaveControl = () => {
     const saveList = <HTMLSelectElement>document.getElementById("save-list")!;
+
     populateSavesList(saveList);
 
     const saveBtn = document.getElementById("save-grid")!;
     const saveGridInput = <HTMLInputElement>document.getElementById("save-grid-input")!;
 
-    saveBtn.addEventListener("click", () => validateSaveGrid(saveGridInput));
+    saveBtn.addEventListener("click", () => validateSaveGrid(saveGridInput, saveList));
     
     const loadBtn = document.getElementById("load-btn")!;
     const savesList = <HTMLSelectElement>document.getElementById("save-list")!;
@@ -22,7 +23,7 @@ export const initSaveControl = () => {
     
 }
 
-function validateSaveGrid(saveGridInput: HTMLInputElement) {
+function validateSaveGrid(saveGridInput: HTMLInputElement, savesList: HTMLSelectElement) {
     const title = saveGridInput.value;
     if (!title) {
         saveGridInput.classList.add("is-invalid");
@@ -32,10 +33,13 @@ function validateSaveGrid(saveGridInput: HTMLInputElement) {
     addGridToSavesInLocalStorage(grid, title)
     saveGridInput.classList.remove("is-invalid")
     saveGridInput.classList.add("is-valid")
+    resetSavesList(savesList);
+    populateSavesList(savesList);
     setTimeout(() => {saveGridInput.classList.remove("is-valid");saveGridInput.value = "";}, 1000)
 }
 
 function populateSavesList(savesInputEl: HTMLSelectElement) {
+    // const permanentSaves = 
     const saves = getGridsFromSavesInLocalStorage();
 
     saves.forEach(save => savesInputEl.appendChild(generateOptionHtmlElement(save.title, save.id)))
@@ -76,7 +80,7 @@ function deleteGridFromSave(listEl: HTMLSelectElement) {
     removeGridFromSavesInLocalStorage(Number(listEl.value));
     resetSavesList(listEl);
     populateSavesList(listEl);
-    
+
     listEl.classList.remove("is-invalid")
     listEl.classList.add("is-valid")
     listEl.selectedIndex = 0;
