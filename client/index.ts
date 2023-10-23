@@ -50,10 +50,10 @@ disturbanceBtn.addEventListener("mouseup", () => selectDrawType("disturbance" sa
 
 runAlgoBtn.addEventListener("mouseup", runPathFinding);
 
-showMuCheckbox.addEventListener("mouseup", drawGrid);
-showIdsCheckbox.addEventListener("mouseup", drawGrid);
-showDisturbancesCheckbox.addEventListener("mouseup", drawGrid);
-showDirectedEdgesCheckbox.addEventListener("mouseup", drawGrid);
+showMuCheckbox.addEventListener("change", drawGrid);
+showIdsCheckbox.addEventListener("change", drawGrid);
+showDisturbancesCheckbox.addEventListener("change", drawGrid);
+showDirectedEdgesCheckbox.addEventListener("change", drawGrid);
 
 window.addEventListener("unload", () => {
   saveControls();
