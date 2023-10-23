@@ -15,7 +15,7 @@ export default function clientInit() {
   setControls();
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
-  initSaveControl()
+  initSaveControl();
   // drawDisturbance(grid[0][5], grid[0][6])
 }
 
@@ -40,22 +40,20 @@ const showDirectedEdgesCheckbox = <HTMLInputElement>document.getElementById("sho
 const deleteModeCheckbox = <HTMLInputElement>document.getElementById("delete-mode")!;
 
 
-startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
-goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
-waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
-roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
-edgeBtn.addEventListener("click", () => selectDrawType("edge" satisfies drawType));
-disturbanceBtn.addEventListener("click", () => selectDrawType("disturbance" satisfies drawType));
+startBtn.addEventListener("mouseup", () => selectDrawType("start" satisfies drawType));
+goalBtn.addEventListener("mouseup", () => selectDrawType("goal" satisfies drawType));
+waterBtn.addEventListener("mouseup", () => selectDrawType("water" satisfies drawType));
+roadBtn.addEventListener("mouseup", () => selectDrawType("road" satisfies drawType));
+edgeBtn.addEventListener("mouseup", () => selectDrawType("edge" satisfies drawType));
+disturbanceBtn.addEventListener("mouseup", () => selectDrawType("disturbance" satisfies drawType));
 
 
-runAlgoBtn.addEventListener("click", runPathFinding);
-showMuCheckbox.addEventListener("click", () => {drawGrid()});
+runAlgoBtn.addEventListener("mouseup", runPathFinding);
 
-showIdsCheckbox.addEventListener("click", () => {drawGrid()});
-
-showDisturbancesCheckbox.addEventListener("click", () => { drawGrid()});
-
-showDirectedEdgesCheckbox.addEventListener("click", () => {drawGrid()});
+showMuCheckbox.addEventListener("mouseup", drawGrid);
+showIdsCheckbox.addEventListener("mouseup", drawGrid);
+showDisturbancesCheckbox.addEventListener("mouseup", drawGrid);
+showDirectedEdgesCheckbox.addEventListener("mouseup", drawGrid);
 
 window.addEventListener("unload", () => {
   saveControls();
@@ -108,6 +106,7 @@ const drawTypeToColor: Record<NodeType, color> = {
   }
 
 function selectDrawType(id: drawType) {
+  console.log("Ran")
   if (selectedType == id) {return}
 	[startBtn, goalBtn, waterBtn, roadBtn, edgeBtn, disturbanceBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;
@@ -283,7 +282,6 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 }
 
 function runPathFinding() {
-  //Ony run if theres a start and goal
   if (!startNode || !endNode) {return}
 
   //Redraw the grid to remove previous pathfinding path

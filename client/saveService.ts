@@ -144,4 +144,4 @@ type NodeJSON = Omit<Node, "edges" |"incomingEdges" | "distEdges" | "incomingDis
 type NodeLookup = Pick<Node, "x" | "y">
 type GridJSON = NodeJSON[][];
 type GridJSONSave = {title: string, id: number, grid: GridJSON};
-type GridSave = {title: string, id: number, grid: Grid};
+export type GridSave = {title: string, id: number, grid: Grid};
