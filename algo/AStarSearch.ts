@@ -15,10 +15,10 @@ interface SearchTable {
   };
 }
 
-interface NodeIdAndDistanceTuple {
-  id: number;
-  distance: number | undefined;
-}
+// interface NodeIdAndDistanceTuple {
+//   id: number;
+//   distance: number | undefined;
+// }
 
 const heuristic = (startPos: Position, endPos: Position): number => {
   return Math.abs(endPos.x - startPos.x) + Math.abs(endPos.y - startPos.y);
@@ -42,7 +42,7 @@ const search = (
   // 0 = only risk (take the safest path)
   // 1 = only distance (take the shortest path)
   //const w = riskTradeoff ? riskTradeoff : 0.5;
-  const w = 0.4;
+  const w = 0.5;
 
   let openList: Array<Node> = [];
   const closedList: Array<Node> = [];
@@ -91,8 +91,8 @@ const search = (
 
     openListSearchTableEntries.forEach((entry) => {
       if (
-        entry.entry.f &&
-        entryWithLowestF.entry.f &&
+        typeof entry.entry.f !== "undefined" &&
+        typeof entryWithLowestF.entry.f !== "undefined" &&
         entry.entry.f < entryWithLowestF.entry.f
       )
         entryWithLowestF = entry;
@@ -104,7 +104,12 @@ const search = (
 
     if (newCurrentNode) currentNode = newCurrentNode;
   }
-  return backtrackPath(currentNode, searchTable);
+  // console.log("searchTable: ", searchTable);
+
+  const route = backtrackPath(currentNode, searchTable);
+  console.log("route: ", route);
+
+  return route;
 };
 
 const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
