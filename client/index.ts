@@ -16,7 +16,6 @@ export default function clientInit() {
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
   initSaveControl();
-  // drawDisturbance(grid[0][5], grid[0][6])
 }
 
 const cellPadding = 2;
@@ -106,7 +105,6 @@ const drawTypeToColor: Record<NodeType, color> = {
   }
 
 function selectDrawType(id: drawType) {
-  console.log("Ran")
   if (selectedType == id) {return}
 	[startBtn, goalBtn, waterBtn, roadBtn, edgeBtn, disturbanceBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;

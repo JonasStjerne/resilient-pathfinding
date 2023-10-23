@@ -125,7 +125,7 @@ function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
 
     //Recreate nodes
     jsonSafeGrid.forEach((col, x) => col.forEach((space, y) => {
-        newGrid[x][y] = new Node(x, y, jsonSafeGrid[x][y].type)
+        newGrid[x][y] = new Node(x, y, jsonSafeGrid[x][y].type, jsonSafeGrid[x][y].mue)
     }))
 
     //Recreate edges and disturbances
