@@ -24,7 +24,8 @@ const heuristic = (startPos: Position, endPos: Position): number => {
   return Math.abs(endPos.x - startPos.x) + Math.abs(endPos.y - startPos.y);
 }
 
-const search = (startPos: Position, endPos: Position, graph: Grid) => {
+const search = (startPos: Position, endPos: Position, graph: Grid, riskFactor?: number) => {
+  console.log("Calculating with risk factor: " + riskFactor)
   const searchTable: SearchTable = {};
   let openList: Array<Node> = [];
   const closedList: Array<Node> = [];
@@ -36,7 +37,7 @@ const search = (startPos: Position, endPos: Position, graph: Grid) => {
 
   while (currentNode !== destinationNode) {
     currentNode.edges.forEach(edge => {
-      if (!legalMoveNodeTypes.includes(edge.adjacent.type)) return; 
+      if (!legalMoveNodeTypes.includes(edge.adjacent.type)) return;
       if (!closedList.includes(edge.adjacent) && !openList.includes(edge.adjacent)) {
         openList.push(edge.adjacent);
         const prevNodeG = searchTable[currentNode.id]?.g;
