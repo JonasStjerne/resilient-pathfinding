@@ -1,43 +1,90 @@
 import search from "../algo/AStarSearch.js";
-import { grid, setTypeOfNode } from "../algo/grid.js";
+import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, setGrid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
+import { ControlsData, getActiveGridFromLocalStorage, getControlsFromLocalStorage, saveActiveGridToLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
 export default function clientInit() {
+  const savedGrid = getActiveGridFromLocalStorage();
+  if (savedGrid) {setGrid(savedGrid)}
+  // grid[0][0].edges = [];
+  // grid[0][1].edges = [];
+  // grid[1][0].edges = [];
+  // grid[2][1].edges = [];
+  setControls();
   drawGrid();
   enableContinuousDrawing(canvas, grid.length);
   // drawDisturbance(grid[0][5], grid[0][6])
 }
 
+const cellPadding = 2;
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
 const waterBtn = document.getElementById("water" satisfies drawType)!;
 const roadBtn = document.getElementById("road" satisfies drawType)!;
+const edgeBtn = document.getElementById("edge" satisfies drawType)!;
+const disturbanceBtn = document.getElementById("disturbance" satisfies drawType)!;
+
+let selectedType: drawType = "water";
+let multiSelectedCells: Node[] = [];
 
 const runAlgoBtn = document.getElementById("run-algo")!;
 
-const showMuCheckbox = document.getElementById("show-mu")!;
-const showIdsCheckbox = document.getElementById("show-node-id")!;
-const showDisturbancesCheckbox = document.getElementById("show-disturbances")!;
+const showMuCheckbox = <HTMLInputElement>document.getElementById("show-mu")!;
+const showIdsCheckbox = <HTMLInputElement>document.getElementById("show-node-id")!;
+const showDisturbancesCheckbox = <HTMLInputElement>document.getElementById("show-disturbances")!;
+const showDirectedEdgesCheckbox = <HTMLInputElement>document.getElementById("show-directed-edges")!;
+const deleteModeCheckbox = <HTMLInputElement>document.getElementById("delete-mode")!;
 
-// wallBtn.addEventListener("click", () => selectDrawType("wall" satisfies drawType));
+
 startBtn.addEventListener("click", () => selectDrawType("start" satisfies drawType));
 goalBtn.addEventListener("click", () => selectDrawType("goal" satisfies drawType));
 waterBtn.addEventListener("click", () => selectDrawType("water" satisfies drawType));
 roadBtn.addEventListener("click", () => selectDrawType("road" satisfies drawType));
+edgeBtn.addEventListener("click", () => selectDrawType("edge" satisfies drawType));
+disturbanceBtn.addEventListener("click", () => selectDrawType("disturbance" satisfies drawType));
+
 
 runAlgoBtn.addEventListener("click", runPathFinding);
+showMuCheckbox.addEventListener("click", () => {drawGrid()});
 
-showMuCheckbox.addEventListener("click", () => {showMuValues = !showMuValues; drawGrid()});
-let showMuValues = false;
+showIdsCheckbox.addEventListener("click", () => {drawGrid()});
 
-showIdsCheckbox.addEventListener("click", () => {showIdValues = !showIdValues; drawGrid()});
-let showIdValues = false;
+showDisturbancesCheckbox.addEventListener("click", () => { drawGrid()});
 
-showDisturbancesCheckbox.addEventListener("click", () => {showDisturbances = !showDisturbances; drawGrid()});
-let showDisturbances = false;
+showDirectedEdgesCheckbox.addEventListener("click", () => {drawGrid()});
 
-type drawType = "start" | "goal" | "water" | "road";
+window.addEventListener("unload", () => {
+  saveControls();
+  if (grid[0][0]) {
+    saveActiveGridToLocalStorage(grid);
+  }
+});
+
+function setControls() {
+  const controls = getControlsFromLocalStorage();
+  if (!controls) {return}
+  showMuCheckbox.checked = controls.options.mu;
+  showIdsCheckbox.checked = controls.options.nodeId;
+  showDisturbancesCheckbox.checked = controls.options.disturbances;
+  showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
+  selectDrawType(controls.drawType);
+  // selectedType = controls.drawType
+}
+
+function saveControls() {
+  const controlsData: ControlsData = {
+    "drawType": selectedType,
+    "options": {
+        "directedEdges": showDirectedEdgesCheckbox.checked,
+        "disturbances": showDisturbancesCheckbox.checked,
+        "mu": showMuCheckbox.checked,
+        "nodeId": showIdsCheckbox.checked
+    }
+}
+  saveControlsToLocalStorage(controlsData);
+}
+export type drawType = "start" | "goal" | "water" | "road" | "disturbance" | "edge";
 type color = "blue" | "black" | "green" | "red" | "white";
 export let startNode: Pick<Node, "x" | "y"> | null = null;
 export let  endNode: Pick<Node, "x" | "y"> | null = null;
@@ -57,12 +104,11 @@ const drawTypeToColor: Record<NodeType, color> = {
   "water": "blue"
   }
 
-const cellPadding = 2;
-
-let selectedType: drawType = "water";
 function selectDrawType(id: drawType) {
-	[startBtn, goalBtn, waterBtn, roadBtn].forEach((elm) => elm.classList.remove("selected"));
+  if (selectedType == id) {return}
+	[startBtn, goalBtn, waterBtn, roadBtn, edgeBtn, disturbanceBtn].forEach((elm) => elm.classList.remove("selected"));
 	selectedType = id;
+  if (["edge", "disturbance"].includes(id)) {multiSelectedCells = [];}
 	document.getElementById(id)!.classList.add("selected");
 }
 
@@ -72,6 +118,8 @@ const canvasSize = 500;
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 const ctx = canvas.getContext("2d")!;
+const gridSize = grid.length;
+const cellSize = canvasSize / gridSize;
 
 
 export function drawGrid() {
@@ -114,9 +162,12 @@ export function drawGrid() {
   }
 
   drawObstacles()
-  showIdValues ? drawIds() : null;
-  showMuValues ? drawMuValues() : null;
-  showDisturbances ? drawAllDisturbances() : null;
+  showIdsCheckbox.checked ? drawIds() : null;
+  showMuCheckbox.checked ? drawMuValues() : null;
+  showDisturbancesCheckbox.checked ? drawAllDisturbances() : null;
+  showDirectedEdgesCheckbox.checked ? drawDirectedEdges() : null;
+  // drawEdgeArrow(grid[0][0], grid[0][1])
+  // drawEdgeArrow(grid[0][0], grid[1][0])
 };
 
 function drawSquareInGrid(
@@ -191,10 +242,27 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 	const cellSize = canvas.width / gridNumber;
 
 	canvas.addEventListener("mousedown", (event) => {
+    const col = Math.floor(event.offsetX / cellSize);
+    const row = Math.floor(event.offsetY / cellSize);
+    
+    if (selectedType == "disturbance" || selectedType == "edge") {
+      multiSelectedCells.push(grid[col][row]);
+      if (multiSelectedCells.length < 2) { return }
+
+      if (!checkIfNeighbor(multiSelectedCells[0], multiSelectedCells[1])) {multiSelectedCells = []; return}
+
+      if (selectedType == "disturbance") {
+        deleteModeCheckbox.checked ? deleteDisturbance(multiSelectedCells[0], multiSelectedCells[1]) : addDisturbance(multiSelectedCells[0], multiSelectedCells[1])
+      } else {
+        deleteModeCheckbox.checked ? deleteEdge(multiSelectedCells[0], multiSelectedCells[1]) : addEdge(multiSelectedCells[0], multiSelectedCells[1])
+      }
+
+      drawGrid();
+      multiSelectedCells = [];
+      return;
+    }
+
 		isDrawing = true;
-		const col = Math.floor(event.offsetX / cellSize);
-		const row = Math.floor(event.offsetY / cellSize);
-    console.log({col, row}, selectedType)
 		drawSquareInGrid(col, row, selectedType);
 	});
 
@@ -202,7 +270,7 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 		if (isDrawing && ["wall", "water"].includes(selectedType)) {
 			const col = Math.floor(event.offsetX / cellSize);
 			const row = Math.floor(event.offsetY / cellSize);
-			drawSquareInGrid(col, row, selectedType);
+			drawSquareInGrid(col, row, <NodeType>selectedType);
 		}
 	});
 
@@ -219,7 +287,6 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat();
-  console.log("calling search with", {startNode, endNode, grid})
   const path = search(startNode, endNode, grid);
   const cellSize = canvas.width / grid.length;
 
@@ -284,4 +351,109 @@ function posToCanvasCoordinates(col: number, row: number) {
   const cellSize = canvas.width / grid.length;
   const pos = {x: col * cellSize + cellSize/2, y: row * cellSize + cellSize/2}
   return pos
+}
+
+//Function to get direction of neighboring cell
+function getDirectionOfNode(fromNode: Node, toNode: Node) {
+  const diffPos = {x: (toNode.x - fromNode.x), y: (toNode.y - fromNode.y)};
+  const direction = offsetMap[JSON.stringify(diffPos)]
+  return direction;
+}
+type direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+const offsetMap: Record<string, direction> = {
+	'{"x":0,"y":-1}' : "top",
+  '{"x":1,"y":-1}' : "top-right",
+  '{"x":-1,"y":0}' : "right",
+	'{"x":1,"y":1}' : "bottom-right",
+  '{"x":0,"y":1}' : "bottom",
+  '{"x":-1,"y":1}' : "bottom-left",
+  '{"x":1,"y":0}' : "left",
+  '{"x":-1,"y":-1}' : "top-left",
+};
+
+//This function draws small triangles if a graph is only one directional or a thicker line if theres no edges connecting two nodes
+function drawDirectedEdges() {
+  const gridLength = grid.length;
+  for (let x = 0; x < gridLength; x++) {
+    for (let y = 0; y < gridLength; y++) {
+      const ownEdges = grid[x][y].edges;
+      
+      if (y < gridLength - 1) {
+        const belowEdges = grid[x][y + 1].edges;
+        const nodeHasEdgeToBelow = !!ownEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == y + 1);
+        const nodeBelowHasEdgeToNode = !!belowEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == grid[x][y].y);
+        
+        (nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x][y + 1]) : null;
+        (!nodeHasEdgeToBelow && nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y + 1], grid[x][y]) : null;
+        (!nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "bottom") : null
+      }
+      if (x < gridLength - 1) {
+        const rightEdges = grid[x + 1][y].edges;
+        const nodeHasEdgeToRight = !!ownEdges.find(edge => edge.adjacent.x == x + 1 && edge.adjacent.y == y);
+        const nodeRightHasEdgeToNode = !!rightEdges.find(edge => edge.adjacent.x == grid[x][y].x && edge.adjacent.y == y);
+        (nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y]) : null;
+        (!nodeHasEdgeToRight && nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y], grid[x][y]) : null;
+        (!nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "right") : null
+    }
+  }
+}
+}
+//grid[1][1] to grid[0][1]
+function drawEdgeArrow(fromNode: Node, toNode: Node) {
+  const direction = getDirectionOfNode(fromNode, toNode);
+  const fromNodePos = posToCanvasCoordinates(fromNode.x, fromNode.y);
+  const [topPoint, leftPoint, rightPoint] = getEdgeArrowPointsByDirection(direction);
+  
+  const path = new Path2D();
+  ctx.fillStyle = "black";
+  path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
+  path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
+  path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
+  ctx.fill(path);
+}
+
+function getEdgeArrowPointsByDirection(direction: direction) {
+  const edgeArrowHeight = 20;
+  const arrowDownPoints = [{x: 0, y: cellSize/2 + edgeArrowHeight/2},{x: -edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2},{x: +edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2}]
+  let angle = directionToAngleMap[direction];
+  
+  if (angle > 180) {
+    angle -= 360;
+  }
+
+  const A = angle * Math.PI / 180;
+  const rotate = (x: number, y: number) => {return  {x: (x * Math.cos(A) - y * Math.sin(A)), y: (y * Math.cos(A) + x * Math.sin(A))}};
+  const offsetPositions = [rotate(arrowDownPoints[0].x, arrowDownPoints[0].y), rotate(arrowDownPoints[1].x,arrowDownPoints[1].y), rotate(arrowDownPoints[2].x,arrowDownPoints[2].y)]
+  return offsetPositions;
+}
+
+const directionToAngleMap: Record<direction, number> = {
+  bottom: 0,
+  top: 180,
+	right: 90,
+	left: 270,
+	"top-left": 225,
+	"top-right": 135,
+	"bottom-left": 315,
+	"bottom-right": 45,
+}
+
+function drawWallBetweenNodes(fromNode: Node, direction: direction) {
+  const nodePos = posToCanvasCoordinates(fromNode.x, fromNode.y)
+  const recWidth = 5;
+  ctx.fillStyle = "black";
+  if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y + cellSize/2 - recWidth/2), cellSize, recWidth )}
+  if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
+  if (direction == "top") {ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y - cellSize/2 + recWidth/2), cellSize, recWidth )}
+  if (direction == "left") {ctx.fillRect((nodePos.x - cellSize/2 + recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
+}
+
+function checkIfNeighbor(fromNode: Node, toNode: Node) {
+  //If its the same node also return false
+  if (fromNode.x == toNode.x && fromNode.y == toNode.y) {return false;}
+
+  const distX = fromNode.x - toNode.x;
+  const distY = fromNode.y - toNode.y;
+  if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {return false}
+  return true;
 }

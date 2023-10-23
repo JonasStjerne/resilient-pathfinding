@@ -81,8 +81,11 @@ const getRiskNode = (node: Node, windDirection: number) => {
   };
 
   export function setTypeOfNode(coordinates: Pick<Node, "x" | "y">, type: NodeType) {
-    console.log({coordinates})
     grid[coordinates.x][coordinates.y].type = type;
+  }
+  export function setGrid(newGrid: Grid) {
+    grid.length = 0;
+    newGrid.forEach(col => grid.push(col));
   }
 
   function removeTypeFromGrid(type: NodeType) {
@@ -93,4 +96,26 @@ const getRiskNode = (node: Node, windDirection: number) => {
         }
       })
     })
+  }
+
+  export function addEdge(fromNode: Node, toNode: Node) {
+    if (fromNode.edges.find(edge => edge.adjacent.id == fromNode.id)) {return}
+
+    const newEdge: Edge = new Edge(toNode, 1)
+    fromNode.edges.push(newEdge);
+  }
+
+  export function deleteEdge(fromNode: Node, toNode: Node) {
+    fromNode.edges = fromNode.edges.filter(edge => edge.adjacent.id != toNode.id);
+  }
+
+  export function addDisturbance(fromNode: Node, toNode: Node) {
+    if (fromNode.distEdges.find(edge => edge.adjacent.id == fromNode.id)) {return}
+
+    const newEdge: Edge = new Edge(toNode, 1)
+    fromNode.distEdges.push(newEdge);
+  }
+
+  export function deleteDisturbance(fromNode: Node, toNode: Node) {
+    fromNode.distEdges = fromNode.distEdges.filter(edge => edge.adjacent.id != toNode.id);
   }
