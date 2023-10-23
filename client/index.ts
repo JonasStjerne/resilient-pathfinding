@@ -20,6 +20,12 @@ export default function clientInit() {
 }
 
 const cellPadding = 2;
+
+let riskFactor = 0.0;
+
+const riskFactorSlider = <HTMLInputElement>document.getElementById("risk-factor")!;
+const riskFactorView = document.getElementById("risk-factor-view");
+
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
@@ -62,6 +68,16 @@ window.addEventListener("unload", () => {
   if (grid[0][0]) {
     saveActiveGridToLocalStorage(grid);
   }
+});
+
+riskFactorSlider.addEventListener("input", () => {
+  riskFactor = Number(riskFactorSlider.value);
+
+  if (riskFactorView) {
+     riskFactorView.textContent = "Risk factor set to: " + riskFactor.toString();
+  }
+  
+  console.log("RiskFactor set to: " + riskFactor)
 });
 
 function setControls() {
@@ -290,7 +306,7 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat();
-  const path = search(startNode, endNode, grid);
+  const path = search(startNode, endNode, grid, riskFactor);
   const cellSize = canvas.width / grid.length;
 
   //Keep the start and end node to preserve the colors
