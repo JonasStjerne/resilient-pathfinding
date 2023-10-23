@@ -270,7 +270,7 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 	});
 
 	canvas.addEventListener("mousemove", (event) => {
-		if (isDrawing && ["wall", "water"].includes(selectedType)) {
+		if (isDrawing && ["wall", "water", "road"].includes(selectedType)) {
 			const col = Math.floor(event.offsetX / cellSize);
 			const row = Math.floor(event.offsetY / cellSize);
 			drawSquareInGrid(col, row, <NodeType>selectedType);
