@@ -39,15 +39,15 @@ const showDirectedEdgesCheckbox = <HTMLInputElement>document.getElementById("sho
 const deleteModeCheckbox = <HTMLInputElement>document.getElementById("delete-mode")!;
 
 
-startBtn.addEventListener("onclick", () => selectDrawType("start" satisfies drawType));
-goalBtn.addEventListener("onclick", () => selectDrawType("goal" satisfies drawType));
-waterBtn.addEventListener("onclick", () => selectDrawType("water" satisfies drawType));
-roadBtn.addEventListener("onclick", () => selectDrawType("road" satisfies drawType));
-edgeBtn.addEventListener("onclick", () => selectDrawType("edge" satisfies drawType));
-disturbanceBtn.addEventListener("onclick", () => selectDrawType("disturbance" satisfies drawType));
+startBtn.addEventListener("mouseup", () => selectDrawType("start" satisfies drawType));
+goalBtn.addEventListener("mouseup", () => selectDrawType("goal" satisfies drawType));
+waterBtn.addEventListener("mouseup", () => selectDrawType("water" satisfies drawType));
+roadBtn.addEventListener("mouseup", () => selectDrawType("road" satisfies drawType));
+edgeBtn.addEventListener("mouseup", () => selectDrawType("edge" satisfies drawType));
+disturbanceBtn.addEventListener("mouseup", () => selectDrawType("disturbance" satisfies drawType));
 
 
-runAlgoBtn.addEventListener("onclick", runPathFinding);
+runAlgoBtn.addEventListener("mouseup", runPathFinding);
 
 showMuCheckbox.addEventListener("change", drawGrid);
 showIdsCheckbox.addEventListener("change", drawGrid);
@@ -274,7 +274,7 @@ function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) 
 		}
 	});
 
-	canvas.addEventListener("onclick", () => {
+	canvas.addEventListener("mouseup", () => {
 		isDrawing = false;
 	});
 }

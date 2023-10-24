@@ -10,16 +10,16 @@ export const initSaveControl = () => {
     const saveBtn = document.getElementById("save-grid")!;
     const saveGridInput = <HTMLInputElement>document.getElementById("save-grid-input")!;
 
-    saveBtn.addEventListener("onclick", () => validateSaveGrid(saveGridInput, saveList));
+    saveBtn.addEventListener("mouseup", () => validateSaveGrid(saveGridInput, saveList));
     
     const loadBtn = document.getElementById("load-btn")!;
     const savesList = <HTMLSelectElement>document.getElementById("save-list")!;
 
-    loadBtn.addEventListener("onclick", () => loadGridFromSaves(savesList));
+    loadBtn.addEventListener("mouseup", () => loadGridFromSaves(savesList));
 
     const deleteBtn = document.getElementById("delete-btn")!;
 
-    deleteBtn.addEventListener("onclick", () => deleteGridFromSave(savesList));
+    deleteBtn.addEventListener("mouseup", () => deleteGridFromSave(savesList));
     
 }
 
