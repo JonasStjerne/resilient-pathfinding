@@ -42,6 +42,34 @@ export function makeGrid(): Grid {
         const newEdge = new Edge(grid[x][y + 1], 1);
         grid[x][y].edges.push(newEdge);
       }
+
+      //Set top diagonally edges
+      if (y != 0) {
+        //Set left
+        if (x != 0) {
+          const newEdge = new Edge(grid[x - 1][y - 1], 1.4);
+          grid[x][y].edges.push(newEdge);
+        }
+        //Set right
+        if (x != gridSize - 1) {
+          const newEdge = new Edge(grid[x + 1][y - 1], 1.4);
+          grid[x][y].edges.push(newEdge);
+        }
+      }
+      
+      //Set bottom diagonally edges
+      if (y != gridSize - 1) {
+        //Set left
+        if (x != 0) {
+          const newEdge = new Edge(grid[x - 1][y + 1], 1.4);
+          grid[x][y].edges.push(newEdge);
+        }
+        //Set right
+        if (x != gridSize - 1) {
+          const newEdge = new Edge(grid[x + 1][y + 1], 1.4);
+          grid[x][y].edges.push(newEdge);
+        }
+      }
     }
   }
 
@@ -114,8 +142,12 @@ const getRiskNode = (node: Node, windDirection: number) => {
 
     const newEdge: Edge = new Edge(toNode, 1)
     fromNode.distEdges.push(newEdge);
+
+    toNode.incomingDistEdges.push(fromNode);
   }
 
   export function deleteDisturbance(fromNode: Node, toNode: Node) {
     fromNode.distEdges = fromNode.distEdges.filter(edge => edge.adjacent.id != toNode.id);
+    toNode.incomingDistEdges = toNode.incomingDistEdges.filter(node => node.id != fromNode.id)
   }
+  

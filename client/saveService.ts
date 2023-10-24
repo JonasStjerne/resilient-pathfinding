@@ -5,6 +5,7 @@ import { drawType } from "./index.js";
 
 const CONTROLS_DATA_LS_KEY = "controlsData";
 const ACTIVE_GRID_LS_KEY = "activeGrid";
+const SAVED_GRIDS_LS_KEY = "savesGrid";
 
 export type ControlsData = {
     "drawType": drawType
@@ -28,16 +29,13 @@ export function getControlsFromLocalStorage() {
     return dataJSON;
 }
 
-//This doesn't work. stringify return undefined. Maybe because the grid has circular dependencies
 export function saveActiveGridToLocalStorage(grid: Grid) {
     const jsonSafeGrid= removeNodeCircularReference(grid);
     const data = JSON.stringify(jsonSafeGrid);
     localStorage.setItem(ACTIVE_GRID_LS_KEY, data);
 }
 
-
-//Doesn't work. Grid contains circular dependencies which JSON doesn't like
-export function getActiveGridFromLocalStorage(): Grid |undefined {
+export function getActiveGridFromLocalStorage(): Grid | undefined {
     const data = localStorage.getItem(ACTIVE_GRID_LS_KEY);
     if (!data) {return}
     const dataJSON = <NodeJSON[][]>JSON.parse(data);
@@ -47,17 +45,48 @@ export function getActiveGridFromLocalStorage(): Grid |undefined {
     return newGrid;
 }
 
-export function addGridToSavesInLocalStorage() {
+export function addGridToSavesInLocalStorage(grid: Grid, title: string) {
+    const existingSavesJSON = localStorage.getItem(SAVED_GRIDS_LS_KEY);
+    const existingSaves = existingSavesJSON ? <GridJSONSave[]>JSON.parse(existingSavesJSON) : <GridJSONSave[]>[];
 
+    const jsonSafeGrid= removeNodeCircularReference(grid);
+
+    let id = 0;
+    existingSaves.forEach(savedGrid => savedGrid.id >= id ? id = savedGrid.id + 1 : null);
+
+    const saveGrid: GridJSONSave = {title, id, grid: jsonSafeGrid};
+
+    existingSaves.push(saveGrid);
+    
+    const data = JSON.stringify(existingSaves);
+    
+    localStorage.setItem(SAVED_GRIDS_LS_KEY, data);
 }
 
-export function removeGridFromSavesInLocalStorage() {
+export function removeGridFromSavesInLocalStorage(id: number) {
+    const existingSavesJSON = localStorage.getItem(SAVED_GRIDS_LS_KEY);
+    const existingSaves = existingSavesJSON ? <GridJSONSave[]>JSON.parse(existingSavesJSON) : <GridJSONSave[]>[];
 
+    const newSaves = existingSaves.filter(grid => grid.id != id);
+
+    const newSavesJSON = JSON.stringify(newSaves);
+
+    localStorage.setItem(SAVED_GRIDS_LS_KEY, newSavesJSON);
 }
 
-export function getGridsFromSavesInLocalStorage() {
+export function getGridsFromSavesInLocalStorage(): GridSave[] {
+    const existingSavesJSON = localStorage.getItem(SAVED_GRIDS_LS_KEY);
+    if (!existingSavesJSON) {return []}
 
+    const existingSaves = <GridJSONSave[]>JSON.parse(existingSavesJSON);
+
+    const saves: GridSave[] = [];
+    existingSaves.forEach(save => saves.push({title: save.title, id: save.id, grid: recreateNodeCircularReference(save.grid)}));
+
+    return saves;
 }
+
+
 
 function removeCircularRefEdges(edges: Edge[]): EdgeJSON[] {
     const jsonSafeEdges: EdgeJSON[] = [];
@@ -96,15 +125,15 @@ function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
 
     //Recreate nodes
     jsonSafeGrid.forEach((col, x) => col.forEach((space, y) => {
-        newGrid[x][y] = new Node(x, y, jsonSafeGrid[x][y].type)
+        newGrid[x][y] = new Node(x, y, jsonSafeGrid[x][y].type, jsonSafeGrid[x][y].mue)
     }))
 
     //Recreate edges and disturbances
     jsonSafeGrid.forEach((col, x) => col.forEach((node, y) => {
         newGrid[x][y].edges = recreateEdgeCircularReference(jsonSafeGrid[x][y].edges, newGrid);
         newGrid[x][y].distEdges = recreateEdgeCircularReference(jsonSafeGrid[x][y].distEdges, newGrid);
-        newGrid[x][y].incomingEdges = jsonSafeGrid[x][y].incomingEdges.map(nodeJson => newGrid[x][y]);
-        newGrid[x][y].incomingDistEdges = jsonSafeGrid[x][y].incomingDistEdges.map(nodeJson => newGrid[x][y])
+        newGrid[x][y].incomingEdges = jsonSafeGrid[x][y].incomingEdges.map(nodeJson => newGrid[nodeJson.x][nodeJson.y]);
+        newGrid[x][y].incomingDistEdges = jsonSafeGrid[x][y].incomingDistEdges.map(nodeJson=> newGrid[nodeJson.x][nodeJson.y])
     }))
 
     return newGrid;
@@ -113,3 +142,6 @@ function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
 type EdgeJSON = Omit<Edge, "adjacent"> & {"adjacent": {x: number, y: number}};
 type NodeJSON = Omit<Node, "edges" |"incomingEdges" | "distEdges" | "incomingDistEdges"> & {edges: EdgeJSON[], incomingEdges: NodeLookup[], distEdges: EdgeJSON[], incomingDistEdges: NodeLookup[] }
 type NodeLookup = Pick<Node, "x" | "y">
+type GridJSON = NodeJSON[][];
+type GridJSONSave = {title: string, id: number, grid: GridJSON};
+export type GridSave = {title: string, id: number, grid: Grid};
