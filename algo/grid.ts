@@ -150,3 +150,4 @@ const getRiskNode = (node: Node, windDirection: number) => {
     fromNode.distEdges = fromNode.distEdges.filter(edge => edge.adjacent.id != toNode.id);
     toNode.incomingDistEdges = toNode.incomingDistEdges.filter(node => node.id != fromNode.id)
   }
+  

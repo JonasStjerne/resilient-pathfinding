@@ -59,12 +59,15 @@ function generateOptionHtmlElement(text: string, value: number) {
 }
 
 function loadGridFromSaves(listEl: HTMLSelectElement) {
-    if (listEl.value == "") {listEl.classList.add("is-invalid"); return}
+    if (listEl.value == "-1") {listEl.classList.add("is-invalid"); return}
 
     const gridsFromSave = getGridsFromSavesInLocalStorage();
     const selectedGrid = gridsFromSave.find(grid => grid.id.toString() == listEl.value);
 
-    if (!selectedGrid) {throw new Error("Selected grid not found in saves")}
+    if (!selectedGrid) {
+        listEl.classList.remove("is-invalid");
+        throw new Error("Selected grid not found in saves")
+    }
 
     setGrid(selectedGrid.grid);
     drawGrid();
@@ -75,7 +78,7 @@ function loadGridFromSaves(listEl: HTMLSelectElement) {
 }
 
 function deleteGridFromSave(listEl: HTMLSelectElement) {
-    if (listEl.value == "") {listEl.classList.add("is-invalid"); return}
+    if (listEl.value == "-1") {listEl.classList.add("is-invalid"); return}
 
     removeGridFromSavesInLocalStorage(Number(listEl.value));
     resetSavesList(listEl);
