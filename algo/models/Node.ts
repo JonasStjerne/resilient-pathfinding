@@ -23,7 +23,7 @@ export class Node {
 
     if (typeof mue == "undefined") {
       //negativ implies undefined
-      this.mue = 1;
+      this.mue = -1;
     } else {
       this.mue = mue;
     }
