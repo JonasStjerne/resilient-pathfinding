@@ -15,11 +15,6 @@ interface SearchTable {
   };
 }
 
-// interface NodeIdAndDistanceTuple {
-//   id: number;
-//   distance: number | undefined;
-// }
-
 const heuristic = (startPos: Position, endPos: Position): number => {
   return Math.abs(endPos.x - startPos.x) + Math.abs(endPos.y - startPos.y);
 };
@@ -41,14 +36,12 @@ const search = (
   // tradeoff between risk and distance
   // 0 = only risk (take the safest path)
   // 1 = only distance (take the shortest path)
-  //const w = riskTradeoff ? riskTradeoff : 0.5;
-  const w = 0.5;
+  const w = riskTradeoff ? riskTradeoff : 0.5;
 
   let openList: Array<Node> = [];
   const closedList: Array<Node> = [];
   let currentNode = graph[startPos.x][startPos.y];
   let destinationNode = graph[endPos.x][endPos.y];
-  const h = heuristic(startPos, endPos);
   const legalMoveNodeTypes = ["road", "start", "goal"];
 
   while (currentNode !== destinationNode) {
@@ -71,7 +64,7 @@ const search = (
         //const f = g * w + h + (1 - w) * edge.adjacent.mue;
         const f = g * w + h - (1 - w) * edge.adjacent.mue;
 
-        console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
+        // console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
 
         const prevF = searchTable[edge.adjacent.id]?.f;
         if (!prevF || f < prevF)
@@ -104,6 +97,7 @@ const search = (
 
     if (newCurrentNode) currentNode = newCurrentNode;
   }
+
   // console.log("searchTable: ", searchTable);
 
   const route = backtrackPath(currentNode, searchTable);
