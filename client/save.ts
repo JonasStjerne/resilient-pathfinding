@@ -4,25 +4,26 @@ import { addGridToSavesInLocalStorage, getGridsFromSavesInLocalStorage, removeGr
 
 export const initSaveControl = () => {
     const saveList = <HTMLSelectElement>document.getElementById("save-list")!;
+
     populateSavesList(saveList);
 
     const saveBtn = document.getElementById("save-grid")!;
     const saveGridInput = <HTMLInputElement>document.getElementById("save-grid-input")!;
 
-    saveBtn.addEventListener("click", () => validateSaveGrid(saveGridInput));
+    saveBtn.addEventListener("mouseup", () => validateSaveGrid(saveGridInput, saveList));
     
     const loadBtn = document.getElementById("load-btn")!;
     const savesList = <HTMLSelectElement>document.getElementById("save-list")!;
 
-    loadBtn.addEventListener("click", () => loadGridFromSaves(savesList));
+    loadBtn.addEventListener("mouseup", () => loadGridFromSaves(savesList));
 
     const deleteBtn = document.getElementById("delete-btn")!;
 
-    deleteBtn.addEventListener("click", () => deleteGridFromSave(savesList));
+    deleteBtn.addEventListener("mouseup", () => deleteGridFromSave(savesList));
     
 }
 
-function validateSaveGrid(saveGridInput: HTMLInputElement) {
+function validateSaveGrid(saveGridInput: HTMLInputElement, savesList: HTMLSelectElement) {
     const title = saveGridInput.value;
     if (!title) {
         saveGridInput.classList.add("is-invalid");
@@ -32,10 +33,13 @@ function validateSaveGrid(saveGridInput: HTMLInputElement) {
     addGridToSavesInLocalStorage(grid, title)
     saveGridInput.classList.remove("is-invalid")
     saveGridInput.classList.add("is-valid")
+    resetSavesList(savesList);
+    populateSavesList(savesList);
     setTimeout(() => {saveGridInput.classList.remove("is-valid");saveGridInput.value = "";}, 1000)
 }
 
 function populateSavesList(savesInputEl: HTMLSelectElement) {
+    // const permanentSaves = 
     const saves = getGridsFromSavesInLocalStorage();
 
     saves.forEach(save => savesInputEl.appendChild(generateOptionHtmlElement(save.title, save.id)))
@@ -55,12 +59,15 @@ function generateOptionHtmlElement(text: string, value: number) {
 }
 
 function loadGridFromSaves(listEl: HTMLSelectElement) {
-    if (listEl.value == "") {listEl.classList.add("is-invalid"); return}
+    if (listEl.value == "-1") {listEl.classList.add("is-invalid"); return}
 
     const gridsFromSave = getGridsFromSavesInLocalStorage();
     const selectedGrid = gridsFromSave.find(grid => grid.id.toString() == listEl.value);
 
-    if (!selectedGrid) {throw new Error("Selected grid not found in saves")}
+    if (!selectedGrid) {
+        listEl.classList.remove("is-invalid");
+        throw new Error("Selected grid not found in saves")
+    }
 
     setGrid(selectedGrid.grid);
     drawGrid();
@@ -71,12 +78,12 @@ function loadGridFromSaves(listEl: HTMLSelectElement) {
 }
 
 function deleteGridFromSave(listEl: HTMLSelectElement) {
-    if (listEl.value == "") {listEl.classList.add("is-invalid"); return}
+    if (listEl.value == "-1") {listEl.classList.add("is-invalid"); return}
 
     removeGridFromSavesInLocalStorage(Number(listEl.value));
     resetSavesList(listEl);
     populateSavesList(listEl);
-    
+
     listEl.classList.remove("is-invalid")
     listEl.classList.add("is-valid")
     listEl.selectedIndex = 0;

@@ -125,15 +125,15 @@ function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
 
     //Recreate nodes
     jsonSafeGrid.forEach((col, x) => col.forEach((space, y) => {
-        newGrid[x][y] = new Node(x, y, jsonSafeGrid[x][y].type)
+        newGrid[x][y] = new Node(x, y, jsonSafeGrid[x][y].type, jsonSafeGrid[x][y].mue)
     }))
 
     //Recreate edges and disturbances
     jsonSafeGrid.forEach((col, x) => col.forEach((node, y) => {
         newGrid[x][y].edges = recreateEdgeCircularReference(jsonSafeGrid[x][y].edges, newGrid);
         newGrid[x][y].distEdges = recreateEdgeCircularReference(jsonSafeGrid[x][y].distEdges, newGrid);
-        newGrid[x][y].incomingEdges = jsonSafeGrid[x][y].incomingEdges.map(nodeJson => newGrid[x][y]);
-        newGrid[x][y].incomingDistEdges = jsonSafeGrid[x][y].incomingDistEdges.map(nodeJson => newGrid[x][y])
+        newGrid[x][y].incomingEdges = jsonSafeGrid[x][y].incomingEdges.map(nodeJson => newGrid[nodeJson.x][nodeJson.y]);
+        newGrid[x][y].incomingDistEdges = jsonSafeGrid[x][y].incomingDistEdges.map(nodeJson=> newGrid[nodeJson.x][nodeJson.y])
     }))
 
     return newGrid;
@@ -144,4 +144,4 @@ type NodeJSON = Omit<Node, "edges" |"incomingEdges" | "distEdges" | "incomingDis
 type NodeLookup = Pick<Node, "x" | "y">
 type GridJSON = NodeJSON[][];
 type GridJSONSave = {title: string, id: number, grid: GridJSON};
-type GridSave = {title: string, id: number, grid: Grid};
+export type GridSave = {title: string, id: number, grid: Grid};
