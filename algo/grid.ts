@@ -21,39 +21,33 @@ export function makeGrid(): Grid {
     for (let y = 0; y < gridSize; y++) {
       // Set left edge
       if (x != 0) {
-        const newEdge = new Edge(grid[x - 1][y], 1);
-        grid[x][y].edges.push(newEdge);
+        addEdge(grid[x][y], grid[x - 1][y])
       }
 
       //Set right neighbor
       if (x != gridSize - 1) {
-        const newEdge = new Edge(grid[x + 1][y], 1);
-        grid[x][y].edges.push(newEdge);
+        addEdge(grid[x][y], grid[x + 1][y])
       }
 
       //Set upper neighbor
       if (y != 0) {
-        const newEdge = new Edge(grid[x][y - 1], 1);
-        grid[x][y].edges.push(newEdge);
+        addEdge(grid[x][y], grid[x][y - 1])
       }
 
       //Set lower neighbor
       if (y != gridSize - 1) {
-        const newEdge = new Edge(grid[x][y + 1], 1);
-        grid[x][y].edges.push(newEdge);
+        addEdge(grid[x][y], grid[x][y + 1])
       }
 
       //Set top diagonally edges
       if (y != 0) {
         //Set left
         if (x != 0) {
-          const newEdge = new Edge(grid[x - 1][y - 1], 1.4);
-          grid[x][y].edges.push(newEdge);
+          addEdge(grid[x][y], grid[x - 1][y - 1], 1.4)
         }
         //Set right
         if (x != gridSize - 1) {
-          const newEdge = new Edge(grid[x + 1][y - 1], 1.4);
-          grid[x][y].edges.push(newEdge);
+          addEdge(grid[x][y], grid[x + 1][y - 1], 1.4)
         }
       }
       
@@ -61,13 +55,11 @@ export function makeGrid(): Grid {
       if (y != gridSize - 1) {
         //Set left
         if (x != 0) {
-          const newEdge = new Edge(grid[x - 1][y + 1], 1.4);
-          grid[x][y].edges.push(newEdge);
+          addEdge(grid[x][y], grid[x - 1][y + 1], 1.4)
         }
         //Set right
         if (x != gridSize - 1) {
-          const newEdge = new Edge(grid[x + 1][y + 1], 1.4);
-          grid[x][y].edges.push(newEdge);
+          addEdge(grid[x][y], grid[x + 1][y + 1], 1.4)
         }
       }
     }
@@ -126,15 +118,18 @@ const getRiskNode = (node: Node, windDirection: number) => {
     })
   }
 
-  export function addEdge(fromNode: Node, toNode: Node) {
+  export function addEdge(fromNode: Node, toNode: Node, weight = 1) {
     if (fromNode.edges.find(edge => edge.adjacent.id == fromNode.id)) {return}
 
-    const newEdge: Edge = new Edge(toNode, 1)
+    const newEdge: Edge = new Edge(toNode, weight)
     fromNode.edges.push(newEdge);
+
+    toNode.incomingEdges.push(fromNode);
   }
 
   export function deleteEdge(fromNode: Node, toNode: Node) {
     fromNode.edges = fromNode.edges.filter(edge => edge.adjacent.id != toNode.id);
+    toNode.incomingEdges = toNode.incomingEdges.filter(node => node.id != fromNode.id)
   }
 
   export function addDisturbance(fromNode: Node, toNode: Node) {

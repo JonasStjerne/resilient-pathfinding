@@ -129,13 +129,13 @@ const Attr = (R: Node[]):Node[] =>{
                 let element:boolean = true;
                 for(const adjacent of prev.edges){
 
-                    if(!AttrRprev.includes(adjacent.adjacent) || !(AttrR.includes(adjacent.adjacent))){
+                    if(!AttrRprev.includes(adjacent.adjacent) && !(AttrR.includes(adjacent.adjacent))){
 
                         if (adjacent.adjacent.mue != 0){
 
                             //mark nodes and finde cycle
                             adjacent.adjacent.mue = -2;
-                            element = findCycle(adjacent.adjacent, AttrR);
+                            element = !findCycle(adjacent.adjacent, AttrR);
                             adjacent.adjacent.mue = -1; 
                         }
                     }
