@@ -54,7 +54,7 @@ const search = (
         const prevNodeG = searchTable[currentNode.id]?.g;
         const g = prevNodeG ? prevNodeG + edge.weight : edge.weight;
         const h = heuristic(edge.adjacent, endPos);
-        const s = edge.adjacent.mue;
+        const s = (edge.adjacent.mue === -1) ? Number.MAX_VALUE : edge.adjacent.mue;
         //const f = g + w * h + (1 - w) * edge.adjacent.mue;
         //const f = g + (w * h + w * (1 - edge.adjacent.mue));
         //const f = g * w + h * (1 - w) + edge.adjacent.mue;
