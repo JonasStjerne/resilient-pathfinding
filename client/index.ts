@@ -324,7 +324,6 @@ function resetGrid() {
   const newGrid = makeGrid();
   setGrid(newGrid)
   drawGrid()
-  console.log(grid)
 }
 
 function drawMuValues() {
