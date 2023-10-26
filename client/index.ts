@@ -82,6 +82,8 @@ function setControls() {
   showIdsCheckbox.checked = controls.options.nodeId;
   showDisturbancesCheckbox.checked = controls.options.disturbances;
   showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
+  riskFactorView.textContent = "Risk factor set to: " + controls.options.riskFactor.toString();
+  riskFactorSlider.value = controls.options.riskFactor.toString();
   selectDrawType(controls.drawType);
   // selectedType = controls.drawType
 }
@@ -93,7 +95,8 @@ function saveControls() {
         "directedEdges": showDirectedEdgesCheckbox.checked,
         "disturbances": showDisturbancesCheckbox.checked,
         "mu": showMuCheckbox.checked,
-        "nodeId": showIdsCheckbox.checked
+        "nodeId": showIdsCheckbox.checked,
+        "riskFactor": riskFactor
     }
 }
   saveControlsToLocalStorage(controlsData);

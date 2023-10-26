@@ -14,6 +14,7 @@ export type ControlsData = {
         "disturbances": boolean
         "mu": boolean
         "nodeId": boolean
+        "riskFactor": number
     }
 }
 
