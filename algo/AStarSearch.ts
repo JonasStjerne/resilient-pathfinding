@@ -23,7 +23,10 @@ const search = (
   startPos: Position,
   endPos: Position,
   graph: Grid,
-  riskTradeoff?: number
+  // tradeoff between risk and distance
+  // 0 = only risk (take the safest path)
+  // 1 = only distance (take the shortest path)
+  w: number = 0.5
 ) => {
   const searchTable: SearchTable = {};
   graph.forEach((graphRow) =>
@@ -33,15 +36,10 @@ const search = (
     })
   );
 
-  // tradeoff between risk and distance
-  // 0 = only risk (take the safest path)
-  // 1 = only distance (take the shortest path)
-  const w = riskTradeoff ? riskTradeoff : 0.5;
-
   let openList: Array<Node> = [];
   const closedList: Array<Node> = [];
   let currentNode = graph[startPos.x][startPos.y];
-  let destinationNode = graph[endPos.x][endPos.y];
+  const destinationNode = graph[endPos.x][endPos.y];
   const legalMoveNodeTypes = ["road", "start", "goal"];
 
   while (currentNode !== destinationNode) {
@@ -67,7 +65,7 @@ const search = (
         // console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
 
         const prevF = searchTable[edge.adjacent.id]?.f;
-        if (!prevF || f < prevF)
+        if (prevF == undefined || f < prevF)
           searchTable[edge.adjacent.id] = {
             ...searchTable[edge.adjacent.id],
             g: g,
@@ -84,8 +82,8 @@ const search = (
 
     openListSearchTableEntries.forEach((entry) => {
       if (
-        typeof entry.entry.f !== "undefined" &&
-        typeof entryWithLowestF.entry.f !== "undefined" &&
+        entry.entry.f !== undefined &&
+        entryWithLowestF.entry.f !== undefined &&
         entry.entry.f < entryWithLowestF.entry.f
       )
         entryWithLowestF = entry;
@@ -118,7 +116,7 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
     curNodeId = searchTable[curNodeId].prevNode;
     path.push(curNodeId);
   }
-  path = path.reverse();
+  path.reverse();
   return path;
 };
 
