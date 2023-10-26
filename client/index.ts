@@ -23,7 +23,7 @@ const cellPadding = 2;
 let riskFactor = 0.0;
 
 const riskFactorSlider = <HTMLInputElement>document.getElementById("risk-factor")!;
-const riskFactorView = document.getElementById("risk-factor-view");
+const riskFactorView = <HTMLSpanElement>document.getElementById("risk-factor-view")!;
 
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById("start" satisfies drawType)!;
@@ -70,9 +70,7 @@ window.addEventListener("unload", () => {
 riskFactorSlider.addEventListener("input", () => {
   riskFactor = Number(riskFactorSlider.value);
 
-  if (riskFactorView) {
-     riskFactorView.textContent = "Risk factor set to: " + riskFactor.toString();
-  }
+  riskFactorView.textContent = "Risk factor set to: " + riskFactor.toString();
   
   console.log("RiskFactor set to: " + riskFactor)
 });
