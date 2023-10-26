@@ -19,6 +19,12 @@ export default function clientInit() {
 }
 
 const cellPadding = 2;
+
+let riskFactor = 0.0;
+
+const riskFactorSlider = <HTMLInputElement>document.getElementById("risk-factor")!;
+const riskFactorView = <HTMLSpanElement>document.getElementById("risk-factor-view")!;
+
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById("start" satisfies drawType)!;
 const goalBtn = document.getElementById("goal" satisfies drawType)!;
@@ -61,6 +67,14 @@ window.addEventListener("unload", () => {
   }
 });
 
+riskFactorSlider.addEventListener("input", () => {
+  riskFactor = Number(riskFactorSlider.value);
+
+  riskFactorView.textContent = "Risk factor set to: " + riskFactor.toString();
+  
+  console.log("RiskFactor set to: " + riskFactor)
+});
+
 function setControls() {
   const controls = getControlsFromLocalStorage();
   if (!controls) {return}
@@ -68,6 +82,8 @@ function setControls() {
   showIdsCheckbox.checked = controls.options.nodeId;
   showDisturbancesCheckbox.checked = controls.options.disturbances;
   showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
+  riskFactorView.textContent = "Risk factor set to: " + controls.options.riskFactor.toString();
+  riskFactorSlider.value = controls.options.riskFactor.toString();
   selectDrawType(controls.drawType);
   // selectedType = controls.drawType
 }
@@ -79,7 +95,8 @@ function saveControls() {
         "directedEdges": showDirectedEdgesCheckbox.checked,
         "disturbances": showDisturbancesCheckbox.checked,
         "mu": showMuCheckbox.checked,
-        "nodeId": showIdsCheckbox.checked
+        "nodeId": showIdsCheckbox.checked,
+        "riskFactor": riskFactor
     }
 }
   saveControlsToLocalStorage(controlsData);
@@ -286,7 +303,7 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat();
-  const path = search(startNode, endNode, grid);
+  const path = search(startNode, endNode, grid, riskFactor);
   const cellSize = canvas.width / grid.length;
 
   //Keep the start and end node to preserve the colors
