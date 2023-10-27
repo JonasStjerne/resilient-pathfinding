@@ -1,5 +1,5 @@
 import search from "../algo/AStarSearch.js";
-import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, setGrid, setTypeOfNode } from "../algo/grid.js";
+import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, makeGrid, setGrid, setTypeOfNode } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
 import { computeMue } from "../algo/mue.js";
 import { initSaveControl } from "./save.js";
@@ -36,7 +36,8 @@ const disturbanceBtn = document.getElementById("disturbance" satisfies drawType)
 let selectedType: drawType = "water";
 let multiSelectedCells: Node[] = [];
 
-const runAlgoBtn = document.getElementById("run-algo")!;
+const runAlgoBtn = <HTMLButtonElement>document.getElementById("run-algo")!;
+const resetGridBtn = <HTMLButtonElement>document.getElementById("reset-grid-btn")!;
 
 const showMuCheckbox = <HTMLInputElement>document.getElementById("show-mu")!;
 const showIdsCheckbox = <HTMLInputElement>document.getElementById("show-node-id")!;
@@ -54,6 +55,7 @@ disturbanceBtn.addEventListener("mouseup", () => selectDrawType("disturbance" sa
 
 
 runAlgoBtn.addEventListener("mouseup", runPathFinding);
+resetGridBtn.addEventListener("mouseup", resetGrid);
 
 showMuCheckbox.addEventListener("change", drawGrid);
 showIdsCheckbox.addEventListener("change", drawGrid);
@@ -316,6 +318,12 @@ function runPathFinding() {
       ctx.fillRect(node.x * cellSize + cellPadding/2 , node.y * cellSize + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
     }
   });
+}
+
+function resetGrid() {
+  const newGrid = makeGrid();
+  setGrid(newGrid)
+  drawGrid()
 }
 
 function drawMuValues() {
