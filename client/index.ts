@@ -382,10 +382,9 @@ function posToCanvasCoordinates(col: number, row: number) {
 function getDirectionOfNode(fromNode: Node, toNode: Node) {
   const diffPos = {x: (toNode.x - fromNode.x), y: (toNode.y - fromNode.y)};
   const direction = offsetMap[JSON.stringify(diffPos)]
-  console.log(fromNode.id,toNode.id, direction);
-  
   return direction;
 }
+
 type direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 const offsetMap: Record<string, direction> = {
   // could change top right with top left, same for bottom right and bottom left so it works correctly, but it doesn't seem right..
@@ -406,23 +405,6 @@ function drawDirectedEdges() {
   for (let x = 0; x < gridLength; x++) {
     for (let y = 0; y < gridLength; y++) {
       const ownEdges = grid[x][y].edges;
-      
-
-      
-        // // same for top left (it doesn't work AAA)
-
-        // if (x > 0 && y > 0) {
-
-          
-        //   // (nodeHasEdgeToTopLeft) ? riskFactorView.textContent = "has edge to top left" : null;
-        //   (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x][y],grid[x-1][y-1]) : null;
-        //   (!nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x-1][y-1],grid[x][y]) : null;
-        //   // (nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x-1][y-1],grid[x][y]) : null;
-        //   // (!nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? // i don't have this type of wall yet
-
-        // } else
-        //   console.log("Dumass") // it goes here for some reason
-        // // (nodeHasEdgeToTopLeft && !topLeftHasEdgeToNode) ? drawEdgeArrow
 
       // vertical edgeArrows
       if (y < gridLength - 1) {
@@ -434,59 +416,51 @@ function drawDirectedEdges() {
         (!nodeHasEdgeToBelow && nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y + 1], grid[x][y]) : null;
         (!nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "bottom") : null
       }
-      // horizontal edgeArrows 56 66
+
+      // horizontal edgeArrows
       if (x < gridLength - 1) {
         const rightEdges = grid[x + 1][y].edges;
         const nodeHasEdgeToRight = !!ownEdges.find(edge => edge.adjacent.x == x + 1 && edge.adjacent.y == y);
         const nodeRightHasEdgeToNode = !!rightEdges.find(edge => edge.adjacent.x == grid[x][y].x && edge.adjacent.y == y);
+
         (nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y]) : null;
         (!nodeHasEdgeToRight && nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y], grid[x][y]) : null;
         (!nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "right") : null
       }
 
-      // // diagonal edgeArrows
-      // if (x > 0 && x < gridLength - 1 && y > 0 && y < gridLength - 1) {
-      //   const topLeftEdges = grid[x-1][y-1].edges; // 45
 
-      //   //56 45
-      //   const nodeHasEdgeToTopLeft = !!ownEdges.find(edge => edge.adjacent.x == x - 1 && edge.adjacent.y == y - 1);
-      //   // const nodeTopLeftHasEdgeToNode = !!topLeftEdges.find(edge => edge.adjacent.x == x-1 && edge.adjacent.y == grid[x-1][y-1].y);
-      //   const nodeTopLeftHasEdgeToNode = !!topLeftEdges.find(edge => edge.adjacent.x == grid[x][y].x && edge.adjacent.y == grid[x][y].y);
+      // There is a problem here with the check at diagonal edgeArrows. 
+      // Right now it is not possible to draw an edgeArrow going top-right from the first column
+      // Or to draw an edgeArrow going bottom-left from the second column
 
-      //   // console.log("ownEdges:", ownEdges, "topLeftEdges",topLeftEdges);
-        
-      //   // With an initial, clean grid, for some ungodly reason it thinks this is the case. (current node has edge to top left, but not the other way around).Also, this prints top right edges...
-      //   // (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x][y],grid[x-1][y-1]) : null; 
-      //   // (!nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) ?  null : null;
+      // Same on the end of the grid, 
+      // Not possible to draw an edgeArrow going top-left from the last column
+      // or to draw an edgeArrow going bottom-right from the next-to-last column
 
-      //   if (nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) {
-      //     // console.log(grid[x-1][y-1].id,grid[x][y].id);
-      //     drawEdgeArrow(grid[x][y],grid[x-1][y-1])
-      //     // drawEdgeArrow(grid[-1][y-1],grid[x][y])
-          
-      //   }
-      //   // (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x][y],grid[x-1][y-1]) : null;
-        
-
-      //   //drawEdgeArrow note: think about it: if current node has no edge to another, then i have to draw from another to current, so the fromnode is the another, and tonode is the current.
-      // }
-            // Diagonal edge arrows
+      // diagonal edgeArrows
       if (x > 0 && x < gridLength - 1 && y > 0 && y < gridLength - 1) {
         const topLeftEdges = grid[x - 1][y - 1].edges;
-
         const nodeHasEdgeToTopLeft = !!ownEdges.find(edge => edge.adjacent.x === x - 1 && edge.adjacent.y === y - 1);
         const nodeTopLeftHasEdgeToNode = !!topLeftEdges.find(edge => edge.adjacent.x === x && edge.adjacent.y === y);
 
-        if (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) {
-          drawEdgeArrow(grid[x][y], grid[x - 1][y - 1]);
-        } else if (!nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) {
-          drawEdgeArrow(grid[x - 1][y - 1], grid[x][y]);
-        } else if (!nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode){
+        (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x - 1][y - 1]) : null;
+        (!nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x - 1][y - 1], grid[x][y]) : null;
+        if (!nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) {
           drawWallBetweenNodes(grid[x][y], "top-left");
-        }
-          
-        }
-        
+          drawWallBetweenNodes(grid[x - 1][y - 1],"bottom-right");
+        } else null;
+
+        const topRightEdges = grid[x + 1][y - 1].edges;
+        const nodeHasEdgeToTopRight = !!ownEdges.find(edge => edge.adjacent.x === x + 1 && edge.adjacent.y === y - 1);
+        const nodeTopRightHasEdgeToNode = !!topRightEdges.find(edge => edge.adjacent.x === x && edge.adjacent.y === y);
+
+        (nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y - 1]) : null;
+        (!nodeHasEdgeToTopRight && nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y - 1], grid[x][y]) : null;
+        if (!nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) {
+          drawWallBetweenNodes(grid[x][y], "top-right")
+          drawWallBetweenNodes(grid[x + 1][y - 1], "bottom-left")
+        } else null;
+      }
       }
     }
   }
@@ -534,44 +508,39 @@ const directionToAngleMap: Record<direction, number> = {
 
 function drawWallBetweenNodes(fromNode: Node, direction: direction) {
   const nodePos = posToCanvasCoordinates(fromNode.x, fromNode.y)
-  const recWidth = 25;
-  ctx.fillStyle = "black";
-  if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y + cellSize/2 - recWidth/2), cellSize, recWidth )}
-  if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
-  if (direction == "top") {ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y - cellSize/2 + recWidth/2), cellSize, recWidth )}
-  if (direction == "left") {ctx.fillRect((nodePos.x - cellSize/2 + recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
-  
-  
-  ctx.beginPath();
-  
+  //orthogonal lengths
+  const oLength = cellSize*0.08; // 5 if cellSize is 50.
 
+  //diagonal lengths
+  const dShortLength = cellSize*0.06; // 3 if cellSize is 50
+  const dLongLength = cellSize*0.3; // 15 if cellSize is 50
+
+  ctx.fillStyle = "green"; // Green colored walls for orthogonal walls
+  if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/4), (nodePos.y + cellSize/2 - oLength/2), cellSize/2, oLength )}
+  if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - oLength/2), (nodePos.y - cellSize/4), oLength, cellSize/2 )}
+  if (direction == "top") {ctx.fillRect((nodePos.x - cellSize/4), (nodePos.y - cellSize/2 + oLength/2), cellSize/2, oLength )}
+  if (direction == "left") {ctx.fillRect((nodePos.x - cellSize/2 + oLength/2), (nodePos.y - cellSize/4), oLength, cellSize/2)}
+ 
+  ctx.fillStyle="blue" // Blue colored walls for diagonal walls
   if (direction === "top-left") {
-    ctx.moveTo(nodePos.x - cellSize / 2, nodePos.y - cellSize / 2);
-    ctx.lineTo(nodePos.x - cellSize / 2 + recWidth, nodePos.y - cellSize / 2);
-    ctx.lineTo(nodePos.x - cellSize / 2, nodePos.y - cellSize / 2 + recWidth);
+    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dShortLength, dLongLength)
+    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dLongLength, dShortLength)
   }
 
   if (direction === "top-right") {
-    ctx.moveTo(nodePos.x + cellSize / 2, nodePos.y - cellSize / 2);
-    ctx.lineTo(nodePos.x + cellSize / 2 - recWidth, nodePos.y - cellSize / 2);
-    ctx.lineTo(nodePos.x + cellSize / 2, nodePos.y - cellSize / 2 + recWidth);
+    ctx.fillRect((nodePos.x + cellSize / 2 - dShortLength), (nodePos.y - cellSize / 2), dShortLength, dLongLength);
+    ctx.fillRect((nodePos.x + cellSize / 2 - dLongLength), (nodePos.y - cellSize / 2), dLongLength, dShortLength);
   }
 
   if (direction === "bottom-left") {
-    ctx.moveTo(nodePos.x - cellSize / 2, nodePos.y + cellSize / 2);
-    ctx.lineTo(nodePos.x - cellSize / 2 + recWidth, nodePos.y + cellSize / 2);
-    ctx.lineTo(nodePos.x - cellSize / 2, nodePos.y + cellSize / 2 - recWidth);
+    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
+    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y + cellSize / 2 - 3), dLongLength, dShortLength)
   }
 
   if (direction === "bottom-right") {
-    ctx.moveTo(nodePos.x + cellSize / 2, nodePos.y + cellSize / 2);
-    ctx.lineTo(nodePos.x + cellSize / 2 - recWidth, nodePos.y + cellSize / 2);
-    ctx.lineTo(nodePos.x + cellSize / 2, nodePos.y + cellSize / 2 - recWidth);
+    ctx.fillRect((nodePos.x + cellSize / 2 - dShortLength), (nodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
+    ctx.fillRect((nodePos.x + cellSize / 2 - dLongLength), (nodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
   }
-
-  ctx.closePath();
-  ctx.fill();
-
 }
 
 function checkIfNeighbor(fromNode: Node, toNode: Node) {
