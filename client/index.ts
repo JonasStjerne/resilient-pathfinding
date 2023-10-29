@@ -472,11 +472,34 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
   const fromNodePos = posToCanvasCoordinates(fromNode.x, fromNode.y);
   const [topPoint, leftPoint, rightPoint] = getEdgeArrowPointsByDirection(direction);
   
+  const offset = cellSize/4
+
   const path = new Path2D();
   ctx.fillStyle = "black";
-  path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
-  path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
-  path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
+
+  // right-left directions are inverse :c (maybe the problem is with the directionToAngleMap?) (but the offset is set up so the edgeArrows show correctly)
+  if (direction == "top-right") {
+    path.moveTo((topPoint.x + fromNodePos.x) - offset, (topPoint.y + fromNodePos.y) - offset);
+    path.lineTo((leftPoint.x + fromNodePos.x) - offset, (leftPoint.y + fromNodePos.y) - offset);
+    path.lineTo((rightPoint.x + fromNodePos.x) - offset, (rightPoint.y + fromNodePos.y) - offset);
+  } else if (direction == "top-left"){
+    path.moveTo((topPoint.x + fromNodePos.x) + offset, (topPoint.y + fromNodePos.y) - offset);
+    path.lineTo((leftPoint.x + fromNodePos.x) + offset, (leftPoint.y + fromNodePos.y) - offset);
+    path.lineTo((rightPoint.x + fromNodePos.x) + offset, (rightPoint.y + fromNodePos.y) - offset);
+  } else if (direction == "bottom-right") {
+    path.moveTo((topPoint.x + fromNodePos.x) - offset, (topPoint.y + fromNodePos.y) + offset);
+    path.lineTo((leftPoint.x + fromNodePos.x) - offset, (leftPoint.y + fromNodePos.y) + offset);
+    path.lineTo((rightPoint.x + fromNodePos.x) - offset, (rightPoint.y + fromNodePos.y) + offset);
+  } else if (direction == "bottom-left"){
+    path.moveTo((topPoint.x + fromNodePos.x) + offset, (topPoint.y + fromNodePos.y) + offset);
+    path.lineTo((leftPoint.x + fromNodePos.x) + offset, (leftPoint.y + fromNodePos.y) + offset);
+    path.lineTo((rightPoint.x + fromNodePos.x) + offset, (rightPoint.y + fromNodePos.y) + offset);
+  }
+  else { // orthogonal directions
+    path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
+    path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
+    path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
+  }
   ctx.fill(path);
 }
 
