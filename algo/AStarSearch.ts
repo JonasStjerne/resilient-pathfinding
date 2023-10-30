@@ -29,10 +29,10 @@ const search = (
   w: number = 0.5
 ) => {
   const searchTable: SearchTable = {};
-  graph.forEach((graphRow) =>
-    graphRow.forEach((graphCol) => {
-      if (["road", "start", "goal"].includes(graphCol.type))
-        searchTable[graphCol.id] = {};
+  graph.forEach((column) =>
+    column.forEach((node) => {
+      if (["road", "start", "goal"].includes(node.type))
+        searchTable[node.id] = {};
     })
   );
 
