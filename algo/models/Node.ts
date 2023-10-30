@@ -15,8 +15,8 @@ export class Node {
   distEdges: Edge[] = [];
   incomingDistEdges: Node[] = [];
 
-  constructor(x: number, y: number, type: NodeType, mue?: number) {
-    this.id = Node._id++;
+  constructor(x: number, y: number, type: NodeType, mue?: number, id?: number) {
+    this.id = id ?? Node._id++;
     this.type = type;
     this.x = x;
     this.y = y;
