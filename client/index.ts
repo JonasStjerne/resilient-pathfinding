@@ -194,6 +194,9 @@ function drawSquareInGrid(
   row: number,
   type: NodeType,
 ) {
+  if (type == "water") {
+    removeEdgesJumpingDiagonalWater(grid[col][row])
+  }
   const ctx = canvas.getContext("2d")!;
   const hexColor = colorMap[drawTypeToColor[type]];
 
