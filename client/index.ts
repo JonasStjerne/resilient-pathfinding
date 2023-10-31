@@ -384,8 +384,9 @@ function getDirectionOfNode(fromNode: Node, toNode: Node) {
   const direction = offsetMap[JSON.stringify(diffPos)]
   return direction;
 }
-type direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
-const offsetMap: Record<string, direction> = {
+type Direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+type DiagonalDirection = Extract<Direction, "top-right" | "top-left" | "bottom-left" | "bottom-right">;
+const offsetMap: Record<string, Direction> = {
 	'{"x":0,"y":-1}' : "top",
   '{"x":1,"y":-1}' : "top-right",
   '{"x":-1,"y":0}' : "right",
@@ -395,6 +396,17 @@ const offsetMap: Record<string, direction> = {
   '{"x":1,"y":0}' : "left",
   '{"x":-1,"y":-1}' : "top-left",
 };
+
+const directionToOffsetMap: Record<Direction, {x: number, y: number}> = {
+  "top" : {x:0,y:-1},
+  "right": {x:1,y:0},
+  "bottom": {x:0,y:1},
+  "left": {x:-1,y:0},
+  "top-left": {x:-1,y:-1},
+   "top-right": {x:1,y:-1},
+   "bottom-left": {x:-1,y:1},
+   "bottom-right": {x:1,y:1}
+}
 
 //This function draws small triangles if a graph is only one directional or a thicker line if theres no edges connecting two nodes
 function drawDirectedEdges() {
@@ -437,7 +449,7 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
   ctx.fill(path);
 }
 
-function getEdgeArrowPointsByDirection(direction: direction) {
+function getEdgeArrowPointsByDirection(direction: Direction) {
   const edgeArrowHeight = 20;
   const arrowDownPoints = [{x: 0, y: cellSize/2 + edgeArrowHeight/2},{x: -edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2},{x: +edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2}]
   let angle = directionToAngleMap[direction];
@@ -452,7 +464,7 @@ function getEdgeArrowPointsByDirection(direction: direction) {
   return offsetPositions;
 }
 
-const directionToAngleMap: Record<direction, number> = {
+const directionToAngleMap: Record<Direction, number> = {
   bottom: 0,
   top: 180,
 	right: 90,
@@ -463,7 +475,7 @@ const directionToAngleMap: Record<direction, number> = {
 	"bottom-right": 45,
 }
 
-function drawWallBetweenNodes(fromNode: Node, direction: direction) {
+function drawWallBetweenNodes(fromNode: Node, direction: Direction) {
   const nodePos = posToCanvasCoordinates(fromNode.x, fromNode.y)
   const recWidth = 5;
   ctx.fillStyle = "black";
@@ -481,4 +493,58 @@ function checkIfNeighbor(fromNode: Node, toNode: Node) {
   const distY = fromNode.y - toNode.y;
   if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {return false}
   return true;
+}
+
+function GetNeighboringNode(node: Node, direction: Direction) {
+  const {x, y} = node;
+  const offset = directionToOffsetMap[direction];
+  const neighbor = grid[x + offset.x][ y + offset.y];
+  return neighbor;
+}
+
+function getDiagonalNodesOfTypeWater(node: Node) {
+  const nodes = 
+    [
+      GetNeighboringNode(node, "top-right"),
+      GetNeighboringNode(node, "bottom-right"),
+      GetNeighboringNode(node, "bottom-left"),
+      GetNeighboringNode(node, "top-left")
+    ]
+
+    nodes.filter(diagonalNode => diagonalNode.type == "water");
+
+    return nodes;
+}
+
+function removeEdgesJumpingDiagonalWater(newWaterNode: Node) {
+  const diagonalWaterNodes = getDiagonalNodesOfTypeWater(newWaterNode);
+
+  diagonalWaterNodes.forEach(diagonalNode => {
+    const [node1, node2] = getDividingDiagonalNodes(newWaterNode, diagonalNode)!;
+    deleteEdge(node1, node2);
+    deleteEdge(node2, node1);
+  })
+}
+
+
+//The function if provided by the nodes a1 and b2. will return the two nodes marked with X
+// b2 | X | 
+// --+--+--
+//  X |a1| 
+// --+--+--
+//      |  |
+function getDividingDiagonalNodes(fromNode: Node, toNode: Node) {
+  if (!checkIfNeighbor(fromNode, toNode)) {return []};
+  const direction = getDirectionOfNode(fromNode, toNode);
+
+  switch (direction) {
+    case 'bottom-left':
+      return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "left")];
+    case 'bottom-right':
+      return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "right")];
+    case 'top-left':
+      return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "left")];
+    case 'top-right':
+      return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "right")];
+  }
 }
