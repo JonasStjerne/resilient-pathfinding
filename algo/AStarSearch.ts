@@ -54,7 +54,7 @@ const search = (
         const prevNodeG = searchTable[currentNode.id]?.g;
         const g = prevNodeG ? prevNodeG + edge.weight : edge.weight;
         const h = heuristic(edge.adjacent, endPos);
-        const s = (edge.adjacent.mue === -1) ? Number.MAX_VALUE : edge.adjacent.mue;
+        const s = (edge.adjacent.mue === -1) ? 1000 : edge.adjacent.mue;
         //const f = g + w * h + (1 - w) * edge.adjacent.mue;
         //const f = g + (w * h + w * (1 - edge.adjacent.mue));
         //const f = g * w + h * (1 - w) + edge.adjacent.mue;
@@ -79,8 +79,9 @@ const search = (
     const openListSearchTableEntries = openList.map((node) => {
       return { id: node.id, entry: searchTable[node.id] };
     });
-    let entryWithLowestF = openListSearchTableEntries[0];
 
+    // openListSearchTableEntries.sort((entry, entry2) => (entry.entry.f ?? Number.MAX_VALUE) - (entry2.entry.f ?? Number.MAX_VALUE));
+    let entryWithLowestF = openListSearchTableEntries[0];
     openListSearchTableEntries.forEach((entry) => {
       if (
         entry.entry.f !== undefined &&
@@ -89,15 +90,18 @@ const search = (
       )
         entryWithLowestF = entry;
     });
+    console.log(openListSearchTableEntries)
+
     const newCurrentNode = openList.find(
       (node) => node.id === entryWithLowestF.id
     );
     openList = openList.filter((node) => node.id !== entryWithLowestF.id);
 
     if (newCurrentNode) currentNode = newCurrentNode;
+
   }
 
-  // console.log("searchTable: ", searchTable);
+  console.log("searchTable: ", searchTable);
 
   const route = backtrackPath(currentNode, searchTable);
   console.log("route: ", route);
