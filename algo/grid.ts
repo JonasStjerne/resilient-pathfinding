@@ -6,6 +6,7 @@ import { Node, NodeType } from "./models/Node.js";
 export const grid = makeGrid();
 
 export function makeGrid(gridSize: number = 10): Grid {
+  Node._id = 0;
   const grid: Grid = new Array(gridSize);
   for (let x = 0; x < gridSize; x++) {
     grid[x] = new Array(gridSize);
