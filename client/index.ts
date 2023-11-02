@@ -194,9 +194,16 @@ function drawSquareInGrid(
   row: number,
   type: NodeType,
 ) {
+
+  // To disallow the path to "jump" diagonal water cells, we remove those edges.
+  //If the water cell is overwritten by something else than water, we want to restore those edges
   if (type == "water") {
     removeEdgesJumpingDiagonalWater(grid[col][row])
+  } else if (grid[col][row].type == "water") {
+    recreateDiagonalEdges(grid[col][row])
+    console.log(grid)
   }
+
   const ctx = canvas.getContext("2d")!;
   const hexColor = colorMap[drawTypeToColor[type]];
 
@@ -514,9 +521,9 @@ function getDiagonalNodesOfTypeWater(node: Node) {
       GetNeighboringNode(node, "top-left")
     ]
 
-    nodes.filter(diagonalNode => diagonalNode.type == "water");
+    const diagonalNodes = nodes.filter(diagonalNode => diagonalNode.type == "water");
 
-    return nodes;
+    return diagonalNodes;
 }
 
 function removeEdgesJumpingDiagonalWater(newWaterNode: Node) {
@@ -526,6 +533,16 @@ function removeEdgesJumpingDiagonalWater(newWaterNode: Node) {
     const [node1, node2] = getDividingDiagonalNodes(newWaterNode, diagonalNode)!;
     deleteEdge(node1, node2);
     deleteEdge(node2, node1);
+  })
+}
+
+function recreateDiagonalEdges(previousWaterNode: Node) {
+  const diagonalWaterNodes = getDiagonalNodesOfTypeWater(previousWaterNode);
+
+  diagonalWaterNodes.forEach(diagonalNode => {
+    const [node1, node2] = getDividingDiagonalNodes(previousWaterNode, diagonalNode)!;
+    addEdge(node1, node2);
+    addEdge(node2, node1);
   })
 }
 
