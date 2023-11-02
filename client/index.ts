@@ -201,7 +201,6 @@ function drawSquareInGrid(
     removeEdgesJumpingDiagonalWater(grid[col][row])
   } else if (grid[col][row].type == "water") {
     recreateDiagonalEdges(grid[col][row])
-    console.log(grid)
   }
 
   const ctx = canvas.getContext("2d")!;
