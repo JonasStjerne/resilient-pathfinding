@@ -505,14 +505,15 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
 
 function getEdgeArrowPointsByDirection(direction: Direction) {
   const edgeArrowHeight = 20;
-  const arrowDownPoints = [{x: 0, y: cellSize/2 + edgeArrowHeight/2},{x: -edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2},{x: +edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2}]
+  const distanceScale = (["top-left","top-right","bottom-left","bottom-right"].includes(direction)) ? 1.4 : 1;
+
+  const arrowDownPoints = [{x: 0, y: (cellSize/2*distanceScale + edgeArrowHeight/2) },{x: -edgeArrowHeight/2, y: (cellSize/2*distanceScale-edgeArrowHeight/2)},{x: +edgeArrowHeight/2, y:( cellSize/2*distanceScale-edgeArrowHeight/2)}]
   let angle = directionToAngleMap[direction];
   
   if (angle > 180) {
     angle -= 360;
   }
 
-  const offset = 0
   const A = angle * Math.PI / 180;
   const rotate = (x: number, y: number) => {return  {x: (x * Math.cos(A) - y * Math.sin(A)), y: (y * Math.cos(A) + x * Math.sin(A))}};
   const offsetPositions = [rotate(arrowDownPoints[0].x, arrowDownPoints[0].y), rotate(arrowDownPoints[1].x,arrowDownPoints[1].y), rotate(arrowDownPoints[2].x,arrowDownPoints[2].y)]
