@@ -616,13 +616,13 @@ function getDividingDiagonalNodes(fromNode: Node, toNode: Node) {
   const direction = getDirectionOfNode(fromNode, toNode);
 
   switch (direction) {
-    case 'bottom-left':
-      return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "left")];
     case 'bottom-right':
+      return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "left")];
+    case 'bottom-left':
       return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "right")];
-    case 'top-left':
-      return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "left")];
     case 'top-right':
+      return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "left")];
+    case 'top-left':
       return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "right")];
   }
 }
