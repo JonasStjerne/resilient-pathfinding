@@ -323,7 +323,7 @@ function runPathFinding() {
   nodes.forEach((node) => {
     if (pathWithoutEnds.includes(node.id)) {
       // Calculate the size of each grid cell
-      ctx.fillStyle = "yellow"; // Set the fill color
+      ctx.fillStyle = "rgba(204, 154, 8, 0.2)"; // Set the fill color
       ctx.fillRect(node.x * cellSize + cellPadding/2 , node.y * cellSize + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
     }
   });
