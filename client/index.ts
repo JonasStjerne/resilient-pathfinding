@@ -448,18 +448,9 @@ function drawDirectedEdges() {
         (!nodeHasEdgeToRight && nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y], grid[x][y]) : null;
         (!nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "right") : null
       }
-
-
-      // There is a problem here with the check at diagonal edgeArrows. 
-      // Right now it is not possible to draw an edgeArrow going top-right from the first column
-      // Or to draw an edgeArrow going bottom-left from the second column
-
-      // Same on the end of the grid, 
-      // Not possible to draw an edgeArrow going top-left from the last column
-      // or to draw an edgeArrow going bottom-right from the next-to-last column
-
-      // diagonal edgeArrows
-      if (x > 0 && x < gridLength - 1 && y > 0 && y < gridLength - 1) {
+      
+      // top-left diagonal edgeArrows
+      if (x > 0 && y > 0) {
         const topLeftEdges = grid[x - 1][y - 1].edges;
         const nodeHasEdgeToTopLeft = !!ownEdges.find(edge => edge.adjacent.x === x - 1 && edge.adjacent.y === y - 1);
         const nodeTopLeftHasEdgeToNode = !!topLeftEdges.find(edge => edge.adjacent.x === x && edge.adjacent.y === y);
@@ -467,7 +458,10 @@ function drawDirectedEdges() {
         (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x - 1][y - 1]) : null;
         (!nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x - 1][y - 1], grid[x][y]) : null;
         (!nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ?  drawWallBetweenNodes(grid[x][y], "top-left") : null;
+      }
 
+      // top-right diagonal edgeArrows
+      if (x < gridLength -1 && y > 0){
         const topRightEdges = grid[x + 1][y - 1].edges;
         const nodeHasEdgeToTopRight = !!ownEdges.find(edge => edge.adjacent.x === x + 1 && edge.adjacent.y === y - 1);
         const nodeTopRightHasEdgeToNode = !!topRightEdges.find(edge => edge.adjacent.x === x && edge.adjacent.y === y);
@@ -475,7 +469,6 @@ function drawDirectedEdges() {
         (nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y - 1]) : null;
         (!nodeHasEdgeToTopRight && nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y - 1], grid[x][y]) : null;
         (!nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "top-right") : null;
-
       }
       }
     }
