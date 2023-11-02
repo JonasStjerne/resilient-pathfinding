@@ -6,7 +6,8 @@ import { initSaveControl } from "./save.js";
 import { ControlsData, getActiveGridFromLocalStorage, getControlsFromLocalStorage, saveActiveGridToLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
 
 export default function clientInit() {
-  const savedGrid = getActiveGridFromLocalStorage();
+  let savedGrid = getActiveGridFromLocalStorage();
+  savedGrid = undefined; // For testing of random graph generation, prevents loading graph from localStorage
   if (savedGrid) {setGrid(savedGrid)}
   // grid[0][0].edges = [];
   // grid[0][1].edges = [];
