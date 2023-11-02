@@ -477,29 +477,11 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
   const path = new Path2D();
   ctx.fillStyle = "black";
 
-  // right-left directions are inverse :c (maybe the problem is with the directionToAngleMap?) (but the offset is set up so the edgeArrows show correctly)
-  if (direction == "top-right") {
-    path.moveTo((topPoint.x + fromNodePos.x) - offset, (topPoint.y + fromNodePos.y) - offset);
-    path.lineTo((leftPoint.x + fromNodePos.x) - offset, (leftPoint.y + fromNodePos.y) - offset);
-    path.lineTo((rightPoint.x + fromNodePos.x) - offset, (rightPoint.y + fromNodePos.y) - offset);
-  } else if (direction == "top-left"){
-    path.moveTo((topPoint.x + fromNodePos.x) + offset, (topPoint.y + fromNodePos.y) - offset);
-    path.lineTo((leftPoint.x + fromNodePos.x) + offset, (leftPoint.y + fromNodePos.y) - offset);
-    path.lineTo((rightPoint.x + fromNodePos.x) + offset, (rightPoint.y + fromNodePos.y) - offset);
-  } else if (direction == "bottom-right") {
-    path.moveTo((topPoint.x + fromNodePos.x) - offset, (topPoint.y + fromNodePos.y) + offset);
-    path.lineTo((leftPoint.x + fromNodePos.x) - offset, (leftPoint.y + fromNodePos.y) + offset);
-    path.lineTo((rightPoint.x + fromNodePos.x) - offset, (rightPoint.y + fromNodePos.y) + offset);
-  } else if (direction == "bottom-left"){
-    path.moveTo((topPoint.x + fromNodePos.x) + offset, (topPoint.y + fromNodePos.y) + offset);
-    path.lineTo((leftPoint.x + fromNodePos.x) + offset, (leftPoint.y + fromNodePos.y) + offset);
-    path.lineTo((rightPoint.x + fromNodePos.x) + offset, (rightPoint.y + fromNodePos.y) + offset);
-  }
-  else { // orthogonal directions
-    path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
-    path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
-    path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
-  }
+ // orthogonal directions
+  path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
+  path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
+  path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
+  
   ctx.fill(path);
 }
 
@@ -512,6 +494,7 @@ function getEdgeArrowPointsByDirection(direction: direction) {
     angle -= 360;
   }
 
+  const offset = 0
   const A = angle * Math.PI / 180;
   const rotate = (x: number, y: number) => {return  {x: (x * Math.cos(A) - y * Math.sin(A)), y: (y * Math.cos(A) + x * Math.sin(A))}};
   const offsetPositions = [rotate(arrowDownPoints[0].x, arrowDownPoints[0].y), rotate(arrowDownPoints[1].x,arrowDownPoints[1].y), rotate(arrowDownPoints[2].x,arrowDownPoints[2].y)]
@@ -532,19 +515,16 @@ const directionToAngleMap: Record<direction, number> = {
 function drawWallBetweenNodes(fromNode: Node, direction: direction) {
   const nodePos = posToCanvasCoordinates(fromNode.x, fromNode.y)
   //orthogonal lengths
-  const oLength = cellSize*0.08; // 5 if cellSize is 50.
+  const oLength = cellSize*0.08; // 4 if cellSize is 50.
 
   //diagonal lengths
-  const dShortLength = cellSize*0.06; // 3 if cellSize is 50
+  const dShortLength = cellSize*0.04; // 2 if cellSize is 50
   const dLongLength = cellSize*0.3; // 15 if cellSize is 50
 
-  ctx.fillStyle = "green"; // Green colored walls for orthogonal walls
+  ctx.fillStyle = "black"; 
   if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/4), (nodePos.y + cellSize/2 - oLength/2), cellSize/2, oLength )}
   if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - oLength/2), (nodePos.y - cellSize/4), oLength, cellSize/2 )}
-  if (direction == "top") {ctx.fillRect((nodePos.x - cellSize/4), (nodePos.y - cellSize/2 + oLength/2), cellSize/2, oLength )}
-  if (direction == "left") {ctx.fillRect((nodePos.x - cellSize/2 + oLength/2), (nodePos.y - cellSize/4), oLength, cellSize/2)}
- 
-  ctx.fillStyle="blue" // Blue colored walls for diagonal walls
+
   if (direction === "top-left") {
     ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dShortLength, dLongLength)
     ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dLongLength, dShortLength)
@@ -557,7 +537,7 @@ function drawWallBetweenNodes(fromNode: Node, direction: direction) {
 
   if (direction === "bottom-left") {
     ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
-    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y + cellSize / 2 - 3), dLongLength, dShortLength)
+    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
   }
 
   if (direction === "bottom-right") {
