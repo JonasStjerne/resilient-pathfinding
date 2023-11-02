@@ -393,8 +393,11 @@ function getDirectionOfNode(fromNode: Node, toNode: Node) {
   const direction = offsetMap[JSON.stringify(diffPos)]
   return direction;
 }
+
 type Direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+
 type DiagonalDirection = Extract<Direction, "top-right" | "top-left" | "bottom-left" | "bottom-right">;
+
 const offsetMap: Record<string, Direction> = {
 	'{"x":0,"y":-1}' : "top",
   '{"x":-1,"y":-1}' : "top-right",
@@ -463,10 +466,7 @@ function drawDirectedEdges() {
 
         (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x - 1][y - 1]) : null;
         (!nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x - 1][y - 1], grid[x][y]) : null;
-        if (!nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) {
-          drawWallBetweenNodes(grid[x][y], "top-left");
-          drawWallBetweenNodes(grid[x - 1][y - 1],"bottom-right");
-        } else null;
+        (!nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ?  drawWallBetweenNodes(grid[x][y], "top-left") : null;
 
         const topRightEdges = grid[x + 1][y - 1].edges;
         const nodeHasEdgeToTopRight = !!ownEdges.find(edge => edge.adjacent.x === x + 1 && edge.adjacent.y === y - 1);
@@ -474,28 +474,21 @@ function drawDirectedEdges() {
 
         (nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y - 1]) : null;
         (!nodeHasEdgeToTopRight && nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y - 1], grid[x][y]) : null;
-        if (!nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) {
-          drawWallBetweenNodes(grid[x][y], "top-right")
-          drawWallBetweenNodes(grid[x + 1][y - 1], "bottom-left")
-        } else null;
+        (!nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "top-right") : null;
+
       }
       }
     }
   }
 
-
-//grid[1][1] to grid[0][1]
 function drawEdgeArrow(fromNode: Node, toNode: Node) {
   const direction = getDirectionOfNode(fromNode, toNode);
   const fromNodePos = posToCanvasCoordinates(fromNode.x, fromNode.y);
   const [topPoint, leftPoint, rightPoint] = getEdgeArrowPointsByDirection(direction);
   
-  const offset = cellSize/4
-
   const path = new Path2D();
   ctx.fillStyle = "black";
 
- // orthogonal directions
   path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
   path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
   path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
@@ -544,25 +537,27 @@ function drawWallBetweenNodes(fromNode: Node, direction: Direction) {
   if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/4), (nodePos.y + cellSize/2 - oLength/2), cellSize/2, oLength )}
   if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - oLength/2), (nodePos.y - cellSize/4), oLength, cellSize/2 )}
 
-  if (direction === "top-left") {
-    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dShortLength, dLongLength)
-    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dLongLength, dShortLength)
+  const neighborNode = (["top-right","top-left","bottom-right","bottom-left"].includes(direction)) ? GetNeighboringNode(fromNode, direction) : null;
+
+  if (neighborNode) {
+    const neighborNodePos = posToCanvasCoordinates(neighborNode.x,neighborNode.y);
+
+    if (direction === "top-left") {
+      ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dShortLength, dLongLength)
+      ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dLongLength, dShortLength)
+      ctx.fillRect((neighborNodePos.x + cellSize / 2 - dShortLength), (neighborNodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
+      ctx.fillRect((neighborNodePos.x + cellSize / 2 - dLongLength), (neighborNodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
+    }
+
+    if (direction === "top-right") {
+      ctx.fillRect((nodePos.x + cellSize / 2 - dShortLength), (nodePos.y - cellSize / 2), dShortLength, dLongLength);
+      ctx.fillRect((nodePos.x + cellSize / 2 - dLongLength), (nodePos.y - cellSize / 2), dLongLength, dShortLength);
+      ctx.fillRect((neighborNodePos.x - cellSize / 2), (neighborNodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
+      ctx.fillRect((neighborNodePos.x - cellSize / 2), (neighborNodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
+    }
+
   }
 
-  if (direction === "top-right") {
-    ctx.fillRect((nodePos.x + cellSize / 2 - dShortLength), (nodePos.y - cellSize / 2), dShortLength, dLongLength);
-    ctx.fillRect((nodePos.x + cellSize / 2 - dLongLength), (nodePos.y - cellSize / 2), dLongLength, dShortLength);
-  }
-
-  if (direction === "bottom-left") {
-    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
-    ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
-  }
-
-  if (direction === "bottom-right") {
-    ctx.fillRect((nodePos.x + cellSize / 2 - dShortLength), (nodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
-    ctx.fillRect((nodePos.x + cellSize / 2 - dLongLength), (nodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
-  }
 }
 
 function checkIfNeighbor(fromNode: Node, toNode: Node) {
