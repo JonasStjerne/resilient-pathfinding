@@ -42,6 +42,7 @@ const resetGridBtn = <HTMLButtonElement>document.getElementById("reset-grid-btn"
 
 const showMuCheckbox = <HTMLInputElement>document.getElementById("show-mu")!;
 const showIdsCheckbox = <HTMLInputElement>document.getElementById("show-node-id")!;
+const showOpenAndClosedListsCheckbox = <HTMLInputElement>document.getElementById("show-open-and-closed-lists")!;
 const showDisturbancesCheckbox = <HTMLInputElement>document.getElementById("show-disturbances")!;
 const showDirectedEdgesCheckbox = <HTMLInputElement>document.getElementById("show-directed-edges")!;
 const deleteModeCheckbox = <HTMLInputElement>document.getElementById("delete-mode")!;
@@ -60,6 +61,7 @@ resetGridBtn.addEventListener("mouseup", resetGrid);
 
 showMuCheckbox.addEventListener("change", drawGrid);
 showIdsCheckbox.addEventListener("change", drawGrid);
+showOpenAndClosedListsCheckbox.addEventListener("change", runPathFinding);
 showDisturbancesCheckbox.addEventListener("change", drawGrid);
 showDirectedEdgesCheckbox.addEventListener("change", drawGrid);
 
@@ -83,6 +85,7 @@ function setControls() {
   if (!controls) {return}
   showMuCheckbox.checked = controls.options.mu;
   showIdsCheckbox.checked = controls.options.nodeId;
+  showOpenAndClosedListsCheckbox.checked = controls.options.lists;
   showDisturbancesCheckbox.checked = controls.options.disturbances;
   showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
   riskFactorView.textContent = "Risk factor set to: " + controls.options.riskFactor.toString();
@@ -99,6 +102,7 @@ function saveControls() {
         "disturbances": showDisturbancesCheckbox.checked,
         "mu": showMuCheckbox.checked,
         "nodeId": showIdsCheckbox.checked,
+        "lists": showOpenAndClosedListsCheckbox.checked,
         "riskFactor": riskFactor
     }
 }
@@ -306,7 +310,7 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat();
-  const path = search(startNode, endNode, grid, riskFactor);
+  const path = search(startNode, endNode, grid, riskFactor, showOpenAndClosedListsCheckbox.checked);
   const cellSize = canvas.width / grid.length;
 
   //Keep the start and end node to preserve the colors

@@ -11,9 +11,10 @@ export type ControlsData = {
     "drawType": drawType
     "options": {
         "directedEdges": boolean,
-        "disturbances": boolean
-        "mu": boolean
-        "nodeId": boolean
+        "disturbances": boolean,
+        "mu": boolean,
+        "nodeId": boolean,
+        "lists": boolean,
         "riskFactor": number
     }
 }
