@@ -144,16 +144,7 @@ const cellSize = canvasSize / gridSize;
 //Find maximum mu value
 
 function findMaxMu() {
-  let max = 0;
-  const gridLength = grid.length;
-  for (let x = 0; x < gridLength; x++) {
-    for (let y = 0; y < gridLength; y++) {
-      if (grid[x][y].mue > max) {
-        max = grid[x][y].mue;
-      }
-    }
-  }
-  return max;
+  return Math.max(...grid.flat().map(node => node.mue));
 }
 
 let muMax = 0;
