@@ -237,7 +237,7 @@ function drawSquareInGrid(
   let hexColor = colorMap[drawTypeToColor[type]];
 
   // Sets the color for road cells if Mu value > 0
-  if (type == "road") {
+  if (type == "road" && showMuCheckbox.checked) {
     hexColor = gradientCellColor(hexColor, col, row);
   }
 
