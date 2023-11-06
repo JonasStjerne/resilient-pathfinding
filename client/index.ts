@@ -543,7 +543,7 @@ function checkIfNeighbor(fromNode: Node, toNode: Node) {
 function GetNeighboringNode(node: Node, direction: Direction) {
   const {x, y} = node;
   const offset = directionToOffsetMap[direction];
-  const neighbor = grid[x + offset.x][ y + offset.y];
+  const neighbor =  grid[x + offset.x]?.[ y + offset.y] ?? null;
   return neighbor;
 }
 
@@ -556,7 +556,7 @@ function getDiagonalNodesOfTypeWater(node: Node) {
       GetNeighboringNode(node, "top-left")
     ]
 
-    const diagonalNodes = nodes.filter(diagonalNode => diagonalNode.type == "water");
+    const diagonalNodes = nodes.filter(diagonalNode => diagonalNode?.type == "water");
 
     return diagonalNodes;
 }
