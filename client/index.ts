@@ -86,6 +86,7 @@ function setControls() {
   showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
   riskFactorView.textContent = "Risk factor set to: " + controls.options.riskFactor.toString();
   riskFactorSlider.value = controls.options.riskFactor.toString();
+  riskFactor = controls.options.riskFactor;
   selectDrawType(controls.drawType);
   // selectedType = controls.drawType
 }
