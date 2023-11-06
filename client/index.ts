@@ -209,7 +209,6 @@ function gradientCellColor(color: string, col: number, row: number) {
     }
     else {
       const gradientStep = gradientMaxColor / (muMax - 1);
-      console.log(gradientStep);
       hue = gradientStep * (mueValue - 1);
     }
     return 'hsl(' + hue + ',100%,80%)';
