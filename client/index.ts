@@ -86,6 +86,7 @@ function setControls() {
   showDirectedEdgesCheckbox.checked = controls.options.directedEdges;
   riskFactorView.textContent = "Risk factor set to: " + controls.options.riskFactor.toString();
   riskFactorSlider.value = controls.options.riskFactor.toString();
+  riskFactor = controls.options.riskFactor;
   selectDrawType(controls.drawType);
   // selectedType = controls.drawType
 }
@@ -122,6 +123,7 @@ const drawTypeToColor: Record<NodeType, color> = {
   "goal": "red",
   "water": "blue"
   }
+const gradientMaxColor = 120;
 
 function selectDrawType(id: drawType) {
   if (selectedType == id) {return}
@@ -140,8 +142,16 @@ const ctx = canvas.getContext("2d")!;
 const gridSize = grid.length;
 const cellSize = canvasSize / gridSize;
 
+//Find maximum mu value
+
+function findMaxMu() {
+  return Math.max(...grid.flat().map(node => node.mue));
+}
+
+let muMax = 0;
 
 export function drawGrid() {
+  muMax = findMaxMu();
   // Get the canvas element by its ID
   const gridSize = grid.length;
 
@@ -189,6 +199,26 @@ export function drawGrid() {
   // drawEdgeArrow(grid[0][0], grid[1][0])
 };
 
+//Calculate the color for road cells 
+function gradientCellColor(color: string, col: number, row: number) {
+  let mueValue = grid[col][row].mue;
+  if (mueValue > 0) {
+    let hue = 0;
+    if (mueValue == 1) {
+      // if muMax = 1 we want the cell color to be red(0). In all other cases MuMax should be green (120)
+      hue = 0;
+    }
+    else {
+      const gradientStep = gradientMaxColor / (muMax - 1);
+      hue = gradientStep * (mueValue - 1);
+    }
+    return 'hsl(' + hue + ',100%,80%)';
+  }
+  else {
+    return color;
+  }
+}
+
 function drawSquareInGrid(
   col: number,
   row: number,
@@ -204,7 +234,13 @@ function drawSquareInGrid(
   }
 
   const ctx = canvas.getContext("2d")!;
-  const hexColor = colorMap[drawTypeToColor[type]];
+  let hexColor = colorMap[drawTypeToColor[type]];
+
+  // Sets the color for road cells if Mu value > 0
+  if (type == "road" && showMuCheckbox.checked) {
+    hexColor = gradientCellColor(hexColor, col, row);
+  }
+
 
   // Calculate the size of each grid cell
   const cellSize = canvas.width / grid.length;
@@ -323,7 +359,7 @@ function runPathFinding() {
   nodes.forEach((node) => {
     if (pathWithoutEnds.includes(node.id)) {
       // Calculate the size of each grid cell
-      ctx.fillStyle = "yellow"; // Set the fill color
+      ctx.fillStyle = "rgba(128, 128, 128, 0.7)"; // Set the fill color
       ctx.fillRect(node.x * cellSize + cellPadding/2 , node.y * cellSize + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
     }
   });
@@ -566,7 +602,7 @@ function checkIfNeighbor(fromNode: Node, toNode: Node) {
 function GetNeighboringNode(node: Node, direction: Direction) {
   const {x, y} = node;
   const offset = directionToOffsetMap[direction];
-  const neighbor = grid[x + offset.x][ y + offset.y];
+  const neighbor =  grid[x + offset.x]?.[ y + offset.y] ?? null;
   return neighbor;
 }
 
@@ -579,7 +615,7 @@ function getDiagonalNodesOfTypeWater(node: Node) {
       GetNeighboringNode(node, "top-left")
     ]
 
-    const diagonalNodes = nodes.filter(diagonalNode => diagonalNode.type == "water");
+    const diagonalNodes = nodes.filter(diagonalNode => diagonalNode?.type == "water");
 
     return diagonalNodes;
 }
