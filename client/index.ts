@@ -128,6 +128,7 @@ const drawTypeToColor: Record<NodeType, color> = {
   "goal": "red",
   "water": "blue"
   }
+const gradientMaxColor = 120;
 
 function selectDrawType(id: drawType) {
   if (selectedType == id) {return}
@@ -146,8 +147,16 @@ const ctx = canvas.getContext("2d")!;
 const gridSize = grid.length;
 const cellSize = canvasSize / gridSize;
 
+//Find maximum mu value
+
+function findMaxMu() {
+  return Math.max(...grid.flat().map(node => node.mue));
+}
+
+let muMax = 0;
 
 export function drawGrid() {
+  muMax = findMaxMu();
   // Get the canvas element by its ID
   const gridSize = grid.length;
 
@@ -195,6 +204,26 @@ export function drawGrid() {
   // drawEdgeArrow(grid[0][0], grid[1][0])
 };
 
+//Calculate the color for road cells 
+function gradientCellColor(color: string, col: number, row: number) {
+  let mueValue = grid[col][row].mue;
+  if (mueValue > 0) {
+    let hue = 0;
+    if (mueValue == 1) {
+      // if muMax = 1 we want the cell color to be red(0). In all other cases MuMax should be green (120)
+      hue = 0;
+    }
+    else {
+      const gradientStep = gradientMaxColor / (muMax - 1);
+      hue = gradientStep * (mueValue - 1);
+    }
+    return 'hsl(' + hue + ',100%,80%)';
+  }
+  else {
+    return color;
+  }
+}
+
 function drawSquareInGrid(
   col: number,
   row: number,
@@ -210,7 +239,13 @@ function drawSquareInGrid(
   }
 
   const ctx = canvas.getContext("2d")!;
-  const hexColor = colorMap[drawTypeToColor[type]];
+  let hexColor = colorMap[drawTypeToColor[type]];
+
+  // Sets the color for road cells if Mu value > 0
+  if (type == "road" && showMuCheckbox.checked) {
+    hexColor = gradientCellColor(hexColor, col, row);
+  }
+
 
   // Calculate the size of each grid cell
   const cellSize = canvas.width / grid.length;
@@ -399,17 +434,20 @@ function getDirectionOfNode(fromNode: Node, toNode: Node) {
   const direction = offsetMap[JSON.stringify(diffPos)]
   return direction;
 }
+
 type Direction = "top" | "right" | "bottom" | "left" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+
 type DiagonalDirection = Extract<Direction, "top-right" | "top-left" | "bottom-left" | "bottom-right">;
+
 const offsetMap: Record<string, Direction> = {
 	'{"x":0,"y":-1}' : "top",
-  '{"x":1,"y":-1}' : "top-right",
+  '{"x":-1,"y":-1}' : "top-right",
   '{"x":-1,"y":0}' : "right",
-	'{"x":1,"y":1}' : "bottom-right",
+	'{"x":-1,"y":1}' : "bottom-right",
   '{"x":0,"y":1}' : "bottom",
-  '{"x":-1,"y":1}' : "bottom-left",
+  '{"x":1,"y":1}' : "bottom-left",
   '{"x":1,"y":0}' : "left",
-  '{"x":-1,"y":-1}' : "top-left",
+  '{"x":1,"y":-1}' : "top-left", 
 };
 
 const directionToOffsetMap: Record<Direction, {x: number, y: number}> = {
@@ -429,7 +467,8 @@ function drawDirectedEdges() {
   for (let x = 0; x < gridLength; x++) {
     for (let y = 0; y < gridLength; y++) {
       const ownEdges = grid[x][y].edges;
-      
+
+      // vertical edgeArrows
       if (y < gridLength - 1) {
         const belowEdges = grid[x][y + 1].edges;
         const nodeHasEdgeToBelow = !!ownEdges.find(edge => edge.adjacent.x == x && edge.adjacent.y == y + 1);
@@ -439,18 +478,43 @@ function drawDirectedEdges() {
         (!nodeHasEdgeToBelow && nodeBelowHasEdgeToNode) ? drawEdgeArrow(grid[x][y + 1], grid[x][y]) : null;
         (!nodeHasEdgeToBelow && !nodeBelowHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "bottom") : null
       }
+
+      // horizontal edgeArrows
       if (x < gridLength - 1) {
         const rightEdges = grid[x + 1][y].edges;
         const nodeHasEdgeToRight = !!ownEdges.find(edge => edge.adjacent.x == x + 1 && edge.adjacent.y == y);
         const nodeRightHasEdgeToNode = !!rightEdges.find(edge => edge.adjacent.x == grid[x][y].x && edge.adjacent.y == y);
+
         (nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y]) : null;
         (!nodeHasEdgeToRight && nodeRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y], grid[x][y]) : null;
         (!nodeHasEdgeToRight && !nodeRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "right") : null
+      }
+      
+      // top-left diagonal edgeArrows
+      if (x > 0 && y > 0) {
+        const topLeftEdges = grid[x - 1][y - 1].edges;
+        const nodeHasEdgeToTopLeft = !!ownEdges.find(edge => edge.adjacent.x === x - 1 && edge.adjacent.y === y - 1);
+        const nodeTopLeftHasEdgeToNode = !!topLeftEdges.find(edge => edge.adjacent.x === x && edge.adjacent.y === y);
+
+        (nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x - 1][y - 1]) : null;
+        (!nodeHasEdgeToTopLeft && nodeTopLeftHasEdgeToNode) ? drawEdgeArrow(grid[x - 1][y - 1], grid[x][y]) : null;
+        (!nodeHasEdgeToTopLeft && !nodeTopLeftHasEdgeToNode) ?  drawWallBetweenNodes(grid[x][y], "top-left") : null;
+      }
+
+      // top-right diagonal edgeArrows
+      if (x < gridLength -1 && y > 0){
+        const topRightEdges = grid[x + 1][y - 1].edges;
+        const nodeHasEdgeToTopRight = !!ownEdges.find(edge => edge.adjacent.x === x + 1 && edge.adjacent.y === y - 1);
+        const nodeTopRightHasEdgeToNode = !!topRightEdges.find(edge => edge.adjacent.x === x && edge.adjacent.y === y);
+
+        (nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x][y], grid[x + 1][y - 1]) : null;
+        (!nodeHasEdgeToTopRight && nodeTopRightHasEdgeToNode) ? drawEdgeArrow(grid[x + 1][y - 1], grid[x][y]) : null;
+        (!nodeHasEdgeToTopRight && !nodeTopRightHasEdgeToNode) ? drawWallBetweenNodes(grid[x][y], "top-right") : null;
+      }
+      }
     }
   }
-}
-}
-//grid[1][1] to grid[0][1]
+
 function drawEdgeArrow(fromNode: Node, toNode: Node) {
   const direction = getDirectionOfNode(fromNode, toNode);
   const fromNodePos = posToCanvasCoordinates(fromNode.x, fromNode.y);
@@ -458,15 +522,19 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
   
   const path = new Path2D();
   ctx.fillStyle = "black";
+
   path.moveTo(topPoint.x + fromNodePos.x, topPoint.y + fromNodePos.y);
   path.lineTo(leftPoint.x + fromNodePos.x, leftPoint.y + fromNodePos.y);
   path.lineTo(rightPoint.x + fromNodePos.x, rightPoint.y + fromNodePos.y);
+  
   ctx.fill(path);
 }
 
 function getEdgeArrowPointsByDirection(direction: Direction) {
   const edgeArrowHeight = 20;
-  const arrowDownPoints = [{x: 0, y: cellSize/2 + edgeArrowHeight/2},{x: -edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2},{x: +edgeArrowHeight/2, y: cellSize/2-edgeArrowHeight/2}]
+  const distanceScale = (["top-left","top-right","bottom-left","bottom-right"].includes(direction)) ? 1.4 : 1;
+
+  const arrowDownPoints = [{x: 0, y: (cellSize/2*distanceScale + edgeArrowHeight/2) },{x: -edgeArrowHeight/2, y: (cellSize/2*distanceScale-edgeArrowHeight/2)},{x: +edgeArrowHeight/2, y:( cellSize/2*distanceScale-edgeArrowHeight/2)}]
   let angle = directionToAngleMap[direction];
   
   if (angle > 180) {
@@ -492,12 +560,38 @@ const directionToAngleMap: Record<Direction, number> = {
 
 function drawWallBetweenNodes(fromNode: Node, direction: Direction) {
   const nodePos = posToCanvasCoordinates(fromNode.x, fromNode.y)
-  const recWidth = 5;
-  ctx.fillStyle = "black";
-  if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y + cellSize/2 - recWidth/2), cellSize, recWidth )}
-  if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
-  if (direction == "top") {ctx.fillRect((nodePos.x - cellSize/2), (nodePos.y - cellSize/2 + recWidth/2), cellSize, recWidth )}
-  if (direction == "left") {ctx.fillRect((nodePos.x - cellSize/2 + recWidth/2), (nodePos.y - cellSize/2), recWidth, cellSize )}
+  //orthogonal lengths
+  const oLength = cellSize*0.08; // 4 if cellSize is 50.
+
+  //diagonal lengths
+  const dShortLength = cellSize*0.04; // 2 if cellSize is 50
+  const dLongLength = cellSize*0.3; // 15 if cellSize is 50
+
+  ctx.fillStyle = "black"; 
+  if (direction == "bottom") { ctx.fillRect((nodePos.x - cellSize/4), (nodePos.y + cellSize/2 - oLength/2), cellSize/2, oLength )}
+  if (direction == "right") {ctx.fillRect((nodePos.x + cellSize/2 - oLength/2), (nodePos.y - cellSize/4), oLength, cellSize/2 )}
+
+  const neighborNode = (["top-right","top-left","bottom-right","bottom-left"].includes(direction)) ? GetNeighboringNode(fromNode, direction) : null;
+
+  if (neighborNode) {
+    const neighborNodePos = posToCanvasCoordinates(neighborNode.x,neighborNode.y);
+
+    if (direction === "top-left") {
+      ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dShortLength, dLongLength)
+      ctx.fillRect((nodePos.x - cellSize / 2), (nodePos.y - cellSize / 2), dLongLength, dShortLength)
+      ctx.fillRect((neighborNodePos.x + cellSize / 2 - dShortLength), (neighborNodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
+      ctx.fillRect((neighborNodePos.x + cellSize / 2 - dLongLength), (neighborNodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
+    }
+
+    if (direction === "top-right") {
+      ctx.fillRect((nodePos.x + cellSize / 2 - dShortLength), (nodePos.y - cellSize / 2), dShortLength, dLongLength);
+      ctx.fillRect((nodePos.x + cellSize / 2 - dLongLength), (nodePos.y - cellSize / 2), dLongLength, dShortLength);
+      ctx.fillRect((neighborNodePos.x - cellSize / 2), (neighborNodePos.y + cellSize / 2 - dLongLength), dShortLength, dLongLength)
+      ctx.fillRect((neighborNodePos.x - cellSize / 2), (neighborNodePos.y + cellSize / 2 - dShortLength), dLongLength, dShortLength)
+    }
+
+  }
+
 }
 
 function checkIfNeighbor(fromNode: Node, toNode: Node) {
@@ -513,7 +607,7 @@ function checkIfNeighbor(fromNode: Node, toNode: Node) {
 function GetNeighboringNode(node: Node, direction: Direction) {
   const {x, y} = node;
   const offset = directionToOffsetMap[direction];
-  const neighbor = grid[x + offset.x][ y + offset.y];
+  const neighbor =  grid[x + offset.x]?.[ y + offset.y] ?? null;
   return neighbor;
 }
 
@@ -526,7 +620,7 @@ function getDiagonalNodesOfTypeWater(node: Node) {
       GetNeighboringNode(node, "top-left")
     ]
 
-    const diagonalNodes = nodes.filter(diagonalNode => diagonalNode.type == "water");
+    const diagonalNodes = nodes.filter(diagonalNode => diagonalNode?.type == "water");
 
     return diagonalNodes;
 }
@@ -563,13 +657,13 @@ function getDividingDiagonalNodes(fromNode: Node, toNode: Node) {
   const direction = getDirectionOfNode(fromNode, toNode);
 
   switch (direction) {
-    case 'bottom-left':
-      return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "left")];
     case 'bottom-right':
+      return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "left")];
+    case 'bottom-left':
       return [GetNeighboringNode(fromNode, "bottom"), GetNeighboringNode(fromNode, "right")];
-    case 'top-left':
-      return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "left")];
     case 'top-right':
+      return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "left")];
+    case 'top-left':
       return [GetNeighboringNode(fromNode, "top"), GetNeighboringNode(fromNode, "right")];
   }
 }
