@@ -1,36 +1,42 @@
 body {
-    background-color: beige;
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  background-color: beige;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  gap: 5rem;
+  padding: 5rem 0;
 }
 
+/* section,
+main {
+  margin-bottom: 5rem;
+} */
+
 .content {
-    display: flex;
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
+  display: flex;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
 }
 
 .controls {
-    padding: 2rem;
-    display: grid;
-    gap: 2rem;
-    flex-direction: column;
+  padding: 2rem;
+  display: grid;
+  gap: 2rem;
+  flex-direction: column;
 }
 
 .draw-type button:not(.selected) {
-    filter: brightness(0.8);
+  filter: brightness(0.8);
 }
 
 .run-algo-container {
-    align-items: end;
+  align-items: end;
 }
 
 .button-container {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    align-items: center;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
