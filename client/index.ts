@@ -14,7 +14,7 @@ export default function clientInit() {
   // grid[1][0].edges = [];
   // grid[2][1].edges = [];
   setControls();
-  drawGrid();
+  // drawGrid();
   enableContinuousDrawing(canvas, grid.length);
   initSaveControl();
 }
@@ -138,7 +138,7 @@ function selectDrawType(id: drawType) {
 }
 
 
-const canvasSize = 500;
+const canvasSize = 600;
 
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
@@ -329,7 +329,7 @@ function runPathFinding() {
   nodes.forEach((node) => {
     if (pathWithoutEnds.includes(node.id)) {
       // Calculate the size of each grid cell
-      ctx.fillStyle = "rgba(204, 154, 8, 0.2)"; // Set the fill color
+      ctx.fillStyle = "rgba(0, 0, 0, 0.4)"; // Set the fill color
       ctx.fillRect(node.x * cellSize + cellPadding/2 , node.y * cellSize + cellPadding/2, cellSize - cellPadding, cellSize - cellPadding);
     }
   });
@@ -359,22 +359,22 @@ function drawAllDisturbances() {
   }))
 }
 
-function drawDisturbance(fromNode: Node, toNode: Node) {
+export function drawDisturbance(fromNode: Node, toNode: Node, color = "red") {
   const fromCord = posToCanvasCoordinates(fromNode.x, fromNode.y);
   const toCord = posToCanvasCoordinates(toNode.x, toNode.y);
-  drawArrow(fromCord.x, fromCord.y, toCord.x, toCord.y);
+  drawArrow(fromCord.x, fromCord.y, toCord.x, toCord.y, color);
 }
 
 // function getDirectionBetweenNodes(fromNode: Node, toNode: Node) {
 //   const 
 // }
 
-function drawArrow(fromX: number, fromY: number, toX: number, toY: number) {
-  ctx.lineWidth = 3;
+function drawArrow(fromX: number, fromY: number, toX: number, toY: number, color: string) {
+  ctx.lineWidth = 2;
   ctx.lineCap = 'round';
-  ctx.strokeStyle = "red";
+  ctx.strokeStyle = color;
   ctx.beginPath();
-  var headlen = 10; // length of head in pixels
+  var headlen = 3; // length of head in pixels
   var dx = toX - fromX;
   var dy = toY - fromY;
   var angle = Math.atan2(dy, dx);
