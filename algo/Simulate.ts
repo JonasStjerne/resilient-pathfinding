@@ -9,7 +9,7 @@ export interface Position {
 
 export interface results{
     grid: Grid;
-    idealPath: Node[];
+    idealPath: number[];
     pushProp: number;   
     successProp: number;
 
@@ -70,6 +70,21 @@ export const simulateRoute = (
     // If pushed recompute the path -> and start again
     // Check if mu zero reached -> return false 
     let noPath: boolean = false;
+
+    // Variables for analysis
+    let results:results; 
+    let didReachGoal:boolean = false;
+    let fallInWater:boolean = false;
+    let pathtaken:Node[] = [];
+    let distTouched:number = 0;
+    let distTaken:number = 0;
+    let gotPushedHere:Node[] = [];
+
+    let successProp:number = 0; 
+    grid.forEach(row => { row.forEach( cell => {if(path.some(obj => obj == cell.id)){
+        if(successProp != 0){successProp = Math.pow((1-pushProp),cell.mue);
+        }else{successProp = successProp * Math.pow((1-pushProp),cell.mue)}}});});
+
     grid.forEach(row => {
         row.forEach(cell => { if (cell.id === path[0]) {startPos = { x: cell.x, y: cell.y };}
             if (cell.id === path[path.length - 1]) {endPos = { x: cell.x, y: cell.y };} }); 
@@ -78,14 +93,17 @@ export const simulateRoute = (
     let currentPos: Position | undefined;
     startPos && (currentPos = startPos);
     let iter: number = 0;
-    while(currentPos != undefined && currentPos != startPos){
+    pathtaken.push(grid[startPos.x][startPos.y]);
 
+    while(currentPos != undefined && currentPos != startPos){
         let next:Node | undefined;
 
         // If dist edges det if one is taken?
         if(grid[currentPos.x][currentPos.y].distEdges.length != 0){
-            grid[currentPos.x][currentPos.y].distEdges.forEach(distedge => {if(Math.random() < (pushProp)){next = distedge.adjacent;}});
+            distTouched += grid[currentPos.x][currentPos.y].distEdges.length;
+            grid[currentPos.x][currentPos.y].distEdges.forEach(distedge => {if(Math.random() < (pushProp)){next = distedge.adjacent; currentPos && (gotPushedHere.push(grid[currentPos.x][currentPos.y])) }});
             if(next != undefined){
+                distTaken ++;
                 currentPos = {x: next.x, y: next.y};
                 if(grid[currentPos.x][currentPos.y].mue != 0 && endPos != undefined){
                     const timeoutTime:number = 2000;
@@ -100,7 +118,7 @@ export const simulateRoute = (
                         }
                     })
                 }
-                else{noPath = true; break;}
+                else{noPath = true; fallInWater = true;break;}
             }             
         }
         if(noPath){break;}
@@ -109,9 +127,12 @@ export const simulateRoute = (
 
             // do a "normal" walk
             grid[currentPos.x][currentPos.y].edges.forEach(edge => { 
-                if(edge.adjacent.id == path[iter]){next = grid[edge.adjacent.x][edge.adjacent.y]; currentPos = {x:next.x, y:next.y};}
-            });            
+                if(edge.adjacent.id == path[iter]){next = grid[edge.adjacent.x][edge.adjacent.y]; currentPos = {x:next.x, y:next.y}}});     
+
             iter ++;
         }
+        next && (pathtaken.push(next));
     }
+    if(currentPos == endPos){didReachGoal = true;}
+    results = {grid: grid, idealPath: path, pathtaken:pathtaken, didReachGoal:didReachGoal, gotPushedHere:gotPushedHere ,fallInWater: fallInWater, pushProp: pushProp, successProp: successProp, distTaken: distTaken, distTouched: distTouched}
 }
