@@ -15,3 +15,10 @@ type v02Algo = SimulationOptionsBase & {
   algoVersion: 'v0.2'
   riskFactor: number
 }
+
+export type Stats = {
+  comptime: number
+  traveledDistance: number
+  pushover: number
+  successRate: number
+}
