@@ -30,6 +30,12 @@ export function getControlsFromLocalStorage() {
     return dataJSON;
 }
 
+export function saveActiveGridLocally(grid: Grid) {
+    const jsonSafeGrid = removeNodeCircularReference(grid);
+    const data = JSON.stringify(jsonSafeGrid);
+    return data;
+}
+
 export function saveActiveGridToLocalStorage(grid: Grid) {
     const jsonSafeGrid= removeNodeCircularReference(grid);
     const data = JSON.stringify(jsonSafeGrid);
@@ -119,7 +125,7 @@ function removeNodeCircularReference(grid: Grid): NodeJSON[][] {
     return jsonSafeGrid;
 }
 
-function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
+export function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
     //Create empty grid
     const newGrid: Node[][] = new Array(jsonSafeGrid.length);
     jsonSafeGrid.forEach((col, x) => newGrid[x] = new Array(jsonSafeGrid[0].length))
@@ -141,7 +147,7 @@ function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid {
 }
 
 type EdgeJSON = Omit<Edge, "adjacent"> & {"adjacent": {x: number, y: number}};
-type NodeJSON = Omit<Node, "edges" |"incomingEdges" | "distEdges" | "incomingDistEdges"> & {edges: EdgeJSON[], incomingEdges: NodeLookup[], distEdges: EdgeJSON[], incomingDistEdges: NodeLookup[] }
+export type NodeJSON = Omit<Node, "edges" |"incomingEdges" | "distEdges" | "incomingDistEdges"> & {edges: EdgeJSON[], incomingEdges: NodeLookup[], distEdges: EdgeJSON[], incomingDistEdges: NodeLookup[] }
 type NodeLookup = Pick<Node, "x" | "y">
 type GridJSON = NodeJSON[][];
 type GridJSONSave = {title: string, id: number, grid: GridJSON};
