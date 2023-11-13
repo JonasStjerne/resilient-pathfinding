@@ -6,8 +6,8 @@ const form = <HTMLFormElement>document.getElementById('simulation-form')
 form.addEventListener('submit', (event) => {
   event.preventDefault()
   simulationService.setLoadingState(0, false)
-  const options = simulationService.getSimOptions()
-  //   simService.run(options)
+  simulationService.runSimulation()
+  simulationService.setLoadingState(0, true)
 })
 
 drawBarPlot()
