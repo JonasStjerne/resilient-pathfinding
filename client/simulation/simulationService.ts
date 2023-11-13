@@ -60,7 +60,7 @@ export class simulationService {
     const simResults: results[] = []
     for (let i = 0; i < options.runCount; i++) {
       const startPos = this.#getStartOrEndPos(maps[i], 'start')
-      const endPos = this.#getStartOrEndPos(maps[i], 'end')
+      const endPos = this.#getStartOrEndPos(maps[i], 'goal')
       if (options.algoVersion == 'v0.2') {
         const path = search(startPos!, endPos!, maps[i], options.riskFactor)
         path.filter((nodeId) => nodeId)
@@ -68,9 +68,10 @@ export class simulationService {
         simResults.push(simResult)
       }
     }
+    console.log(simResults)
   }
 
-  static #getStartOrEndPos(grid: Grid, type: 'start' | 'end'): Position | undefined {
+  static #getStartOrEndPos(grid: Grid, type: 'start' | 'goal'): Position | undefined {
     for (let col = 0; col < grid.length; col++) {
       for (let row = 0; row < grid.length; row++) {
         if (grid[col][row].type == type) {
