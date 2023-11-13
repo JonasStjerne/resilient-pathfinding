@@ -1,3 +1,5 @@
+import * as d3 from 'd3'
+
 export function drawBarPlot() {
   // set the dimensions and margins of the graph
   var margin = { top: 30, right: 30, bottom: 70, left: 60 },
@@ -16,7 +18,7 @@ export function drawBarPlot() {
   // Parse the Data
   d3.csv(
     'https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv',
-    function (data) {
+    function (data: any) {
       // sort data
       data.sort(function (b, a) {
         return a.Value - b.Value
