@@ -1,7 +1,8 @@
-import { Grid } from "./models/Grid";
-import { Node } from "./models/Node";
-import { Edge } from "./models/Edge";
-
+import { Grid } from "./models/Grid.js";
+import { Node } from "./models/Node.js";
+import { Edge } from "./models/Edge.js";
+import { computeMue } from "./mue.js";
+import search from "./AStarSearch.js";
 export interface Position {
   x: number;
   y: number;
@@ -30,9 +31,9 @@ function timeoutPathfinding (
     grid: Grid,
     startPos: Position,
     endPos: Position,
-    pathFindingAlgo: (startPos: Position,endPos: Position,grid: Grid, w:number) => number[],
-    w:number,
+    pathFindingAlgo: (startPos: Position,endPos: Position,grid: Grid, w?:number) => (number | undefined)[],
     timeoutTime: number,
+    w?:number,
 ): Promise<number[] | undefined> {
 
     return new Promise((resolve) => {
@@ -41,9 +42,9 @@ function timeoutPathfinding (
         }, timeoutTime);
 
         try {
-            const result = pathFindingAlgo(startPos,endPos,grid, w);
+            const result:(number | undefined)[] = pathFindingAlgo(startPos,endPos,grid,w);
             clearTimeout(timeoutId); 
-            resolve(result);
+            resolve(result.filter((num) => typeof num === 'number') as number[]);
         } catch (error) {
             clearTimeout(timeoutId); 
             resolve(undefined);
@@ -58,20 +59,13 @@ export const simulateRoute = (
     path:number[], 
     startPos: Position,
     endPos: Position,
-    pathFindingAlgo: (startPos: Position,endPos: Position,grid: Grid, w:number) => number[],
+    pathFindingAlgo: (startPos: Position,endPos: Position,grid: Grid, w?:number) => (number | undefined)[],
     pushProp:number, 
-    w:number,
+    w?:number,
 
-): void  => {
+): results  => {
 
-    // iterate over path
-    // walk the edges that are foreseen by the path 
-    // If for a given node there are dist edges -> radnom event if pushed
-    // If pushed recompute the path -> and start again
-    // Check if mu zero reached -> return false 
     let noPath: boolean = false;
-
-    // Variables for analysis
     let results:results; 
     let didReachGoal:boolean = false;
     let fallInWater:boolean = false;
@@ -79,53 +73,51 @@ export const simulateRoute = (
     let distTouched:number = 0;
     let distTaken:number = 0;
     let gotPushedHere:Node[] = [];
-
     let successProp:number = 0; 
-    grid.forEach(row => { row.forEach( cell => {if(path.some(obj => obj == cell.id)){
-        if(successProp != 0){successProp = Math.pow((1-pushProp),cell.mue);
-        }else{successProp = successProp * Math.pow((1-pushProp),cell.mue)}}});});
 
+    grid.forEach(row => { row.forEach( cell => {if(path.some(obj => obj == cell.id && obj != path[path.length - 1])){
+        if(successProp == 0){successProp = Math.pow((1-pushProp),cell.mue);
+        }else{successProp = successProp * Math.pow((1-pushProp),cell.mue)}}});});
+    console.log(successProp)
     grid.forEach(row => {
         row.forEach(cell => { if (cell.id === path[0]) {startPos = { x: cell.x, y: cell.y };}
             if (cell.id === path[path.length - 1]) {endPos = { x: cell.x, y: cell.y };} }); 
     });
 
+    
     let currentPos: Position | undefined;
     startPos && (currentPos = startPos);
-    let iter: number = 0;
     pathtaken.push(grid[startPos.x][startPos.y]);
+    let iter: number = 1;
 
-    while(currentPos != undefined && currentPos != startPos){
+    while(currentPos != undefined && !(currentPos.x == endPos.x && currentPos.y == endPos.y)){
         let next:Node | undefined;
-
-        // If dist edges det if one is taken?
         if(grid[currentPos.x][currentPos.y].distEdges.length != 0){
             distTouched += grid[currentPos.x][currentPos.y].distEdges.length;
-            grid[currentPos.x][currentPos.y].distEdges.forEach(distedge => {if(Math.random() < (pushProp)){next = distedge.adjacent; currentPos && (gotPushedHere.push(grid[currentPos.x][currentPos.y])) }});
+            grid[currentPos.x][currentPos.y].distEdges.forEach(distedge => {if(Math.random() < (pushProp)){next = distedge.adjacent; 
+                currentPos && (gotPushedHere.push(grid[currentPos.x][currentPos.y])) }});
             if(next != undefined){
                 distTaken ++;
                 currentPos = {x: next.x, y: next.y};
                 if(grid[currentPos.x][currentPos.y].mue != 0 && endPos != undefined){
                     const timeoutTime:number = 2000;
-                    const pathPromis = timeoutPathfinding(grid, currentPos, endPos,pathFindingAlgo,w,timeoutTime)
+                    const pathPromis = timeoutPathfinding(grid, currentPos, endPos,pathFindingAlgo,timeoutTime, w)
                     pathPromis.then((result) => {
                         if (result !== undefined){
                             path = result;
                             iter = 0;
                         } else {
-                            // Function was timed out => no path 
                             noPath = true;
                         }
                     })
+                    
                 }
                 else{noPath = true; fallInWater = true;break;}
             }             
         }
         if(noPath){break;}
-        //if no dist edge was triggered
         if(next == undefined ){
 
-            // do a "normal" walk
             grid[currentPos.x][currentPos.y].edges.forEach(edge => { 
                 if(edge.adjacent.id == path[iter]){next = grid[edge.adjacent.x][edge.adjacent.y]; currentPos = {x:next.x, y:next.y}}});     
 
@@ -133,6 +125,51 @@ export const simulateRoute = (
         }
         next && (pathtaken.push(next));
     }
-    if(currentPos == endPos){didReachGoal = true;}
-    results = {grid: grid, idealPath: path, pathtaken:pathtaken, didReachGoal:didReachGoal, gotPushedHere:gotPushedHere ,fallInWater: fallInWater, pushProp: pushProp, successProp: successProp, distTaken: distTaken, distTouched: distTouched}
+    if(currentPos && (currentPos.x == endPos.x) && currentPos && (currentPos.y == endPos.y)){didReachGoal = true;}
+    results = {grid: grid, idealPath: path, pathtaken:pathtaken, didReachGoal:didReachGoal, 
+        gotPushedHere:gotPushedHere ,fallInWater: fallInWater, pushProp: pushProp, successProp: successProp, 
+        distTaken: distTaken, distTouched: distTouched}
+    return(results);
+}
+
+export const simTestFunktion = (): void => {
+
+    let v1 = new Node(0,0,'road');
+    let v2 = new Node(0,1,'road');
+    let v3 = new Node(0,2,'road');
+    let v4 = new Node(0,3,'road');
+    let v5 = new Node(0,4,'road');
+    let v6 = new Node(0,5,'water');
+    
+
+    let grid: Grid = new Array(1);
+    grid[0] = new Array(6);
+
+    grid[0][0] = v1;
+    grid[0][1] = v2;
+    grid[0][2] = v3;
+    grid[0][3] = v4;
+    grid[0][4] = v5;
+    grid[0][5] = v6;
+    
+    grid[0][0].edges.push(new Edge(grid[0][1],1,grid[0][0]));
+    grid[0][0].distEdges.push(new  Edge(grid[0][4],1));
+    grid[0][4].incomingDistEdges.push(grid[0][0]);
+
+    grid[0][1].edges.push(new Edge(grid[0][2],1,grid[0][1]));
+    grid[0][1].distEdges.push(new  Edge(grid[0][5],1));
+    grid[0][5].incomingDistEdges.push(grid[0][1]);
+
+    grid[0][2].edges.push(new Edge(grid[0][3],1,grid[0][2]));
+    grid[0][2].distEdges.push(new  Edge(grid[0][5],1));
+    grid[0][5].incomingDistEdges.push(grid[0][2]);
+
+    grid[0][4].edges.push(new Edge(grid[0][5],1,grid[0][4]));
+
+    // Set path
+    let path:number[] = [grid[0][0].id, grid[0][1].id, grid[0][2].id, grid[0][3].id];
+    let pushProp:number = 0.5;
+    computeMue(grid);
+
+    let results:results = simulateRoute(grid,path,{x:grid[0][0].x, y:grid[0][0].y}, {x:grid[0][3].x, y:grid[0][3].y}, search, pushProp);
 }
