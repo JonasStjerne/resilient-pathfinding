@@ -3,9 +3,10 @@ import { Grid } from "./models/Grid.js";
 import { Node, NodeType } from "./models/Node.js";
 
 // Create Grid
-export const grid = makeGrid();
+export const gridSize = 10;
+export const grid = makeGrid(gridSize);
 
-export function makeGrid(gridSize: number = 10): Grid {
+export function makeGrid(gridSize: number): Grid {
   Node._id = 0;
   const grid: Grid = new Array(gridSize);
   for (let x = 0; x < gridSize; x++) {

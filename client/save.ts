@@ -1,6 +1,7 @@
 import { grid, setGrid } from "../algo/grid.js";
-import { drawGrid } from "./index.js";
+import { drawGrid, canvasSize } from "./index.js";
 import { addGridToSavesInLocalStorage, getGridsFromSavesInLocalStorage, removeGridFromSavesInLocalStorage, saveActiveGridLocally, recreateNodeCircularReference, NodeJSON} from "./saveService.js";
+import { gridSize } from "../algo/grid.js";
 
 export const initSaveControl = () => {
     const saveList = <HTMLSelectElement>document.getElementById("save-list")!;
@@ -57,11 +58,14 @@ function loadLocalGrid(input: HTMLInputElement){
 function validateLocalGrid(saveGridLocalInput: HTMLInputElement){
     saveGridLocalInput.classList.remove("is-invalid");
 
-    const fileName = saveGridLocalInput.value;
+    let fileName = saveGridLocalInput.value;
     if (!fileName) {
         saveGridLocalInput.classList.add("is-invalid");
         return
     }
+    
+    fileName = fileName + "_" + gridSize + "x" + canvasSize
+
     const content = saveActiveGridLocally(grid);
     const contentType = "application/json";
 

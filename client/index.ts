@@ -1,5 +1,5 @@
 import search from "../algo/AStarSearch.js";
-import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, makeGrid, setGrid, setTypeOfNode } from "../algo/grid.js";
+import { addDisturbance, addEdge, deleteDisturbance, deleteEdge, grid, makeGrid, setGrid, setTypeOfNode, gridSize } from "../algo/grid.js";
 import { Node, NodeType } from "../algo/models/Node.js";
 import { computeMue } from "../algo/mue.js";
 import { initSaveControl } from "./save.js";
@@ -134,12 +134,11 @@ function selectDrawType(id: drawType) {
 }
 
 
-const canvasSize = 500;
+export const canvasSize = 500;
 
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 const ctx = canvas.getContext("2d")!;
-const gridSize = grid.length;
 const cellSize = canvasSize / gridSize;
 
 //Find maximum mu value
@@ -366,7 +365,7 @@ function runPathFinding() {
 }
 
 function resetGrid() {
-  const newGrid = makeGrid();
+  const newGrid = makeGrid(gridSize);
   setGrid(newGrid)
   drawGrid()
 }
