@@ -4,7 +4,7 @@ import { Node, NodeType } from "../algo/models/Node.js";
 import { computeMue } from "../algo/mue.js";
 import { initSaveControl } from "./save.js";
 import { ControlsData, getActiveGridFromLocalStorage, getControlsFromLocalStorage, saveActiveGridToLocalStorage, saveControlsToLocalStorage } from "./saveService.js";
-
+export * from "./simulation/index.js";
 export default function clientInit() {
   const savedGrid = getActiveGridFromLocalStorage();
   if (savedGrid) {setGrid(savedGrid)}
