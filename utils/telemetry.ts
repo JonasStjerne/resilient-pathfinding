@@ -1,4 +1,4 @@
-export function trackTime(func: Function) {
+export function trackTime<T>(func: () => T): T {
   const startTime = performance.now()
   const result = func.apply(null)
   const endTime = performance.now()

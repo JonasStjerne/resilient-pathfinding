@@ -2,6 +2,7 @@ import search, { Position } from '../../algo/AStarSearch.js'
 import { results, simulateRoute } from '../../algo/Simulate.js'
 import { grid } from '../../algo/grid.js'
 import { Grid } from '../../algo/models/Grid.js'
+import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
 import { SimulationOptions, Stats } from './models.js'
 
@@ -61,7 +62,7 @@ export class simulationService {
       const startPos = this.#getStartOrEndPos(maps[mapIndex], 'start')
       const endPos = this.#getStartOrEndPos(maps[mapIndex], 'goal')
       if (options.algoVersion == 'v0.2') {
-        const path = search(startPos!, endPos!, maps[mapIndex], options.riskFactor)
+        const path = trackTime(() => search(startPos!, endPos!, maps[mapIndex], options.riskFactor))
         for (let i = 0; i < options.runCount; i++) {
           path.filter((nodeId) => nodeId)
           const simResult = simulateRoute(
