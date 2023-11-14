@@ -42,12 +42,7 @@ export class simulationService {
 
   static setLoadingState(percent: number, done: boolean) {
     const runningSpinner = <HTMLSpanElement>document.getElementById('sim-running-spinner')
-    if (done) {
-      runningSpinner.classList.add('d-none')
-    }
-    {
-      runningSpinner.classList.remove('d-none')
-    }
+    done ? runningSpinner.classList.add('d-none') : runningSpinner.classList.remove('d-none')
 
     const progressBar = <HTMLSpanElement>document.getElementById('sim-progress-bar')
     progressBar.hidden = done
@@ -58,17 +53,28 @@ export class simulationService {
     const options = this.getSimOptions()
     const maps = this.#getMaps()
     const simResults: results[] = []
-    for (let i = 0; i < options.runCount; i++) {
-      const startPos = this.#getStartOrEndPos(maps[i], 'start')
-      const endPos = this.#getStartOrEndPos(maps[i], 'goal')
+
+    for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
+      const startPos = this.#getStartOrEndPos(maps[mapIndex], 'start')
+      const endPos = this.#getStartOrEndPos(maps[mapIndex], 'goal')
       if (options.algoVersion == 'v0.2') {
-        const path = search(startPos!, endPos!, maps[i], options.riskFactor)
-        path.filter((nodeId) => nodeId)
-        const simResult = simulateRoute(maps[i], path as number[], startPos!, endNode!, search, 0.5, options.riskFactor)
-        simResults.push(simResult)
+        const path = search(startPos!, endPos!, maps[mapIndex], options.riskFactor)
+        for (let i = 0; i < options.runCount; i++) {
+          path.filter((nodeId) => nodeId)
+          const simResult = simulateRoute(
+            maps[i],
+            path as number[],
+            startPos!,
+            endNode!,
+            search,
+            0.5,
+            options.riskFactor,
+          )
+          simResults.push(simResult)
+        }
+        console.log(simResults)
       }
     }
-    console.log(simResults)
   }
 
   static #getStartOrEndPos(grid: Grid, type: 'start' | 'goal'): Position | undefined {
