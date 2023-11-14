@@ -6,8 +6,10 @@ const form = <HTMLFormElement>document.getElementById('simulation-form')
 form.addEventListener('submit', (event) => {
   event.preventDefault()
   simulationService.setLoadingState(0, false)
-  simulationService.runSimulation()
-  simulationService.setLoadingState(0, true)
+  setTimeout(() => {
+    simulationService.runSimulation()
+    simulationService.setLoadingState(0, true)
+  }, 50)
 })
 
 drawBarPlot()

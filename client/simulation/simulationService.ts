@@ -43,6 +43,8 @@ export class simulationService {
   static setLoadingState(percent: number, done: boolean) {
     const runningSpinner = <HTMLSpanElement>document.getElementById('sim-running-spinner')
     done ? runningSpinner.classList.add('d-none') : runningSpinner.classList.remove('d-none')
+    const submitBtn = <HTMLInputElement>document.getElementById('run-sim')!
+    submitBtn.disabled = done ? false : true
 
     const progressBar = <HTMLSpanElement>document.getElementById('sim-progress-bar')
     progressBar.hidden = done
@@ -53,6 +55,7 @@ export class simulationService {
     const options = this.getSimOptions()
     const maps = this.#getMaps()
     const simResults: results[] = []
+    const stats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
 
     for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
       const startPos = this.#getStartOrEndPos(maps[mapIndex], 'start')
@@ -62,7 +65,7 @@ export class simulationService {
         for (let i = 0; i < options.runCount; i++) {
           path.filter((nodeId) => nodeId)
           const simResult = simulateRoute(
-            maps[i],
+            maps[mapIndex],
             path as number[],
             startPos!,
             endNode!,
@@ -71,10 +74,13 @@ export class simulationService {
             options.riskFactor,
           )
           simResults.push(simResult)
+          stats.pushover += simResult.distTaken
+          simResult.didReachGoal ? stats.successRate++ : null
+          stats.traveledDistance += simResult.pathtaken.length
         }
-        console.log(simResults)
       }
     }
+    const averageStats = this.#getAverageStats(options.runCount, maps.length, stats)
   }
 
   static #getStartOrEndPos(grid: Grid, type: 'start' | 'goal'): Position | undefined {
@@ -85,5 +91,20 @@ export class simulationService {
         }
       }
     }
+  }
+
+  static #getAverageStat(runCount: number, mapsCount: number, value: number) {
+    const average = value / (runCount * mapsCount)
+    return average
+  }
+
+  static #getAverageStats(runCount: number, mapsCount: number, stats: Stats) {
+    const averageStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
+
+    ;(Object.keys(stats) as Array<keyof Stats>).forEach(
+      (key) => (averageStats[key] = this.#getAverageStat(runCount, mapsCount, stats[key])),
+    )
+
+    return averageStats
   }
 }
