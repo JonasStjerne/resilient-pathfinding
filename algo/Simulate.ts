@@ -22,7 +22,6 @@ export interface results{
     gotPushedHere: Node[];
 } 
 
-// Produces true with prop -> Work that out !!!!
 const randomBool = (prop: number): boolean => {
   return Math.random() < prop;
 };
@@ -76,9 +75,9 @@ export const simulateRoute = (
     let successProp:number = 0; 
 
     grid.forEach(row => { row.forEach( cell => {if(path.some(obj => obj == cell.id && obj != path[path.length - 1])){
-        if(successProp == 0){successProp = Math.pow((1-pushProp),cell.mue);
-        }else{successProp = successProp * Math.pow((1-pushProp),cell.mue)}}});});
-    console.log(successProp)
+        successProp += cell.mue;  
+    } }); });
+    successProp = Math.pow((1-pushProp), successProp);
     grid.forEach(row => {
         row.forEach(cell => { if (cell.id === path[0]) {startPos = { x: cell.x, y: cell.y };}
             if (cell.id === path[path.length - 1]) {endPos = { x: cell.x, y: cell.y };} }); 
