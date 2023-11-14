@@ -26,43 +26,18 @@ const randomBool = (prop: number): boolean => {
   return Math.random() < prop;
 };
 
-function timeoutPathfinding (
-    grid: Grid,
-    startPos: Position,
-    endPos: Position,
-    pathFindingAlgo: (startPos: Position,endPos: Position,grid: Grid, w?:number) => (number | undefined)[],
-    timeoutTime: number,
-    w?:number,
-): Promise<number[] | undefined> {
-
-    return new Promise((resolve) => {
-        const timeoutId = setTimeout(() => {
-            resolve(undefined); // Resolve with undefined if the timeout occurs
-        }, timeoutTime);
-
-        try {
-            const result:(number | undefined)[] = pathFindingAlgo(startPos,endPos,grid,w);
-            clearTimeout(timeoutId);
-            resolve(result.filter((num) => typeof num === 'number') as number[]);
-        } catch (error) {
-            clearTimeout(timeoutId);
-            resolve(undefined);
-        }
-    });
-
-}
-
 
 export const simulateRoute = (
     grid: Grid,
     path:number[],
     startPos: Position,
     endPos: Position,
-    pathFindingAlgo: (startPos: Position,endPos: Position,grid: Grid, w?:number) => (number | undefined)[],
+    pathFindingAlgo: (startPos: Position,endPos: Position,grid: Grid, w?:number) => (number | undefined)[] | null,
     pushProp:number,
     w?:number,
 
 ): results  => {
+    
 
     let noPath: boolean = false;
     let results:results;
@@ -100,16 +75,10 @@ export const simulateRoute = (
                 currentPos = {x: next.x, y: next.y};
                 if(grid[currentPos.x][currentPos.y].mue != 0 && endPos != undefined){
                     const timeoutTime:number = 2000;
-                    const pathPromis = timeoutPathfinding(grid, currentPos, endPos,pathFindingAlgo,timeoutTime, w)
-                    pathPromis.then((result) => {
-                        if (result !== undefined){
-                            path = result;
-                            iter = 0;
-                        } else {
-                            noPath = true;
-                        }
-                    })
-
+                    const temp = pathFindingAlgo(startPos, endPos, grid, w)
+                    if(temp != null){path = temp.filter((num: number | undefined): num is number => num !== undefined)}
+                    else{noPath = true;}
+                    if(path.length == 0){noPath = true}           
                 }
                 else{noPath = true; fallInWater = true;break;}
             }
