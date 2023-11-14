@@ -124,7 +124,7 @@ export const simulateRoute = (
         }
         next && (pathtaken.push(next));
     }
-    if(currentPos && (currentPos.x == endPos.x) && currentPos && (currentPos.y == endPos.y)){didReachGoal = true;}
+    if(currentPos && (currentPos.x == endPos.x) && (currentPos.y == endPos.y)){didReachGoal = true;}
     results = {grid: grid, idealPath: path, pathtaken:pathtaken, didReachGoal:didReachGoal, 
         gotPushedHere:gotPushedHere ,fallInWater: fallInWater, pushProp: pushProp, successProp: successProp, 
         distTaken: distTaken, distTouched: distTouched}
