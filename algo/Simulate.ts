@@ -74,9 +74,9 @@ export const simulateRoute = (
                 distTaken ++;
                 currentPos = {x: next.x, y: next.y};
                 if(grid[currentPos.x][currentPos.y].mue != 0 && endPos != undefined){
-                    const timeoutTime:number = 2000;
-                    const temp = pathFindingAlgo(startPos, endPos, grid, w)
-                    if(temp != null){path = temp.filter((num: number | undefined): num is number => num !== undefined)}
+                    iter = 1
+                    const temp = pathFindingAlgo(currentPos, endPos, grid, w)
+                    if(temp != null){path = temp.filter((num: number | undefined): num is number => num !== undefined); console.log('trigger');console.log(path)}
                     else{noPath = true;}
                     if(path.length == 0){noPath = true}           
                 }
@@ -99,6 +99,39 @@ export const simulateRoute = (
         distTaken: distTaken, distTouched: distTouched}
     return(results);
 }
+
+export const testPushBackTest = (): void => {
+    let v1 = new Node(0, 0, 'road')
+    let v2 = new Node(0, 1, 'road')
+    let v3 = new Node(0, 2, 'road')
+
+    let grid: Grid = new Array(1)
+    grid[0] = new Array(3)
+
+    grid[0][0] = v1;
+    grid[0][1] = v2;
+    grid[0][2] = v3;
+
+    grid[0][0].edges.push(new Edge(grid[0][1], 1, grid[0][0]));
+    grid[0][1].edges.push(new Edge(grid[0][2], 1, grid[0][1]));
+    grid[0][1].distEdges.push(new Edge(grid[0][1], 1));
+    grid[0][0].incomingDistEdges.push(grid[0][1]);
+
+    let path: number[] = [grid[0][0].id, grid[0][1].id, grid[0][2].id];
+    let pushProp: number = 0.7;
+    computeMue(grid);
+
+    let results: results = simulateRoute(
+      grid,
+      path,
+      { x: grid[0][0].x, y: grid[0][0].y },
+      { x: grid[0][2].x, y: grid[0][2].y },
+      search,
+      pushProp,
+    );
+
+}
+
 
 export const simTestFunktion = (): void => {
 
