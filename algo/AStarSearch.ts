@@ -88,7 +88,7 @@ const search = (
     })
     const newCurrentNode = openList.find((node) => node.id === entryWithLowestF.id)
     openList = openList.filter((node) => node.id !== entryWithLowestF.id)
-
+    if (openList.length == 0) return null
     if (newCurrentNode) currentNode = newCurrentNode
   }
 

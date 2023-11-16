@@ -236,6 +236,7 @@ export const computeMue = (grid: Grid) => {
             }
         }
     }
+    grid.forEach(coll => {coll.forEach(cell => {if(cell.mue == -1){cell.mue = grid.length * grid[0].length + 15}})})
 }
 
 // Funktion to test a given graph
