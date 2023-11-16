@@ -1,6 +1,7 @@
-import { Grid } from './models/Grid'
-import { Node } from './models/Node'
-import { Position } from './models/Position'
+import { HeuristicFunction } from '../heuristic'
+import { Grid } from '../models/Grid'
+import { Node } from '../models/Node'
+import { Position } from '../models/Position'
 
 interface SearchTable {
   [index: number]: {
@@ -11,19 +12,7 @@ interface SearchTable {
   }
 }
 
-const heuristic = (startPos: Position, endPos: Position): number => {
-  return Math.abs(endPos.x - startPos.x) + Math.abs(endPos.y - startPos.y)
-}
-
-const search = (
-  startPos: Position,
-  endPos: Position,
-  graph: Grid,
-  // tradeoff between risk and distance
-  // 0 = only risk (take the safest path)
-  // 1 = only distance (take the shortest path)
-  w: number = 0.5,
-) => {
+const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: HeuristicFunction) => {
   const searchTable: SearchTable = {}
   graph.forEach((graphRow) =>
     graphRow.forEach((graphCol) => {
@@ -47,15 +36,7 @@ const search = (
         const g = prevNodeG ? prevNodeG + edge.weight : edge.weight
         const h = heuristic(edge.adjacent, endPos)
         const s = edge.adjacent.mue === -1 ? Number.MAX_VALUE : edge.adjacent.mue
-        //const f = g + w * h + (1 - w) * edge.adjacent.mue;
-        //const f = g + (w * h + w * (1 - edge.adjacent.mue));
-        //const f = g * w + h * (1 - w) + edge.adjacent.mue;
-        //const f = g * w + h * (1 - w) * (1 - edge.adjacent.mue);
-
-        //const f = g * w + h + (1 - w) * edge.adjacent.mue;
-        const f = g * w + h - (1 - w) * s
-
-        // console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
+        const f = g + h
 
         const prevF = searchTable[edge.adjacent.id]?.f
         if (prevF == undefined || f < prevF)

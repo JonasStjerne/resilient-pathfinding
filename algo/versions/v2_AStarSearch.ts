@@ -1,6 +1,7 @@
-import { Grid } from './models/Grid'
-import { Node } from './models/Node'
-import { Position } from './models/Position'
+import { HeuristicFunction } from '../heuristic'
+import { Grid } from '../models/Grid'
+import { Node } from '../models/Node'
+import { Position } from '../models/Position'
 
 interface SearchTable {
   [index: number]: {
@@ -11,14 +12,11 @@ interface SearchTable {
   }
 }
 
-const heuristic = (startPos: Position, endPos: Position): number => {
-  return Math.abs(endPos.x - startPos.x) + Math.abs(endPos.y - startPos.y)
-}
-
 const search = (
   startPos: Position,
   endPos: Position,
   graph: Grid,
+  heuristic: HeuristicFunction,
   // tradeoff between risk and distance
   // 0 = only risk (take the safest path)
   // 1 = only distance (take the shortest path)
