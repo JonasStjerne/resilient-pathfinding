@@ -77,7 +77,7 @@ class DrawingAgent {
   }
 }
 
-class DisturbanceChunk {
+class DisturbanceCluster {
   private _position: Position
   private _size: Size
   private _direction: Direction
@@ -107,9 +107,9 @@ class DisturbanceChunk {
  * MAX_MOVES = 500
  * writingOnExistingWaterNodes = true
  * distanceBetweenAgents = 22
- * MIN_CHUNK_WIDTH_HEIGHT = 20
- * MAX_CHUNK_WIDTH_HEIGHT = 50
- * AMOUNT_OF_CHUNKS = 6
+ * MIN_CLUSTER_WIDTH_HEIGHT = 20
+ * MAX_CLUSTER_WIDTH_HEIGHT = 50
+ * AMOUNT_OF_CLUSTERS = 6
  */
 const GRID_SIZE = 100
 const DRAWING_AGENTS_NUMBER = 9
@@ -229,22 +229,22 @@ function generateWater(grid: Grid, writingOnExistingWaterNodes = true): DrawingA
 }
 
 /**
- * Generates rectangular chunks on the grid, and creates disturbances with one random direction per chunk.
+ * Generates rectangular clusters on the grid, and creates disturbances with one random direction per cluster.
  * @param grid
  */
 function generateDisturbances(grid: Grid) {
-  const MIN_CHUNK_WIDTH_HEIGHT = 30
-  const MAX_CHUNK_WIDTH_HEIGHT = 50
-  const AMOUNT_OF_CHUNKS = 6
+  const MIN_CLUSTER_WIDTH_HEIGHT = 30
+  const MAX_CLUSTER_WIDTH_HEIGHT = 50
+  const AMOUNT_OF_CLUSTERS = 6
   const directionValues = Object.values(Direction)
-  const chunks = new Array(AMOUNT_OF_CHUNKS).fill(null).map(() => {
+  const clusters = new Array(AMOUNT_OF_CLUSTERS).fill(null).map(() => {
     const randX = Math.floor(Math.random() * GRID_SIZE)
     const randY = Math.floor(Math.random() * GRID_SIZE)
     let randWidth = Math.floor(
-      Math.random() * (MAX_CHUNK_WIDTH_HEIGHT - MIN_CHUNK_WIDTH_HEIGHT + 1) + MIN_CHUNK_WIDTH_HEIGHT,
+      Math.random() * (MAX_CLUSTER_WIDTH_HEIGHT - MIN_CLUSTER_WIDTH_HEIGHT + 1) + MIN_CLUSTER_WIDTH_HEIGHT,
     )
     let randHeight = Math.floor(
-      Math.random() * (MAX_CHUNK_WIDTH_HEIGHT - MIN_CHUNK_WIDTH_HEIGHT + 1) + MIN_CHUNK_WIDTH_HEIGHT,
+      Math.random() * (MAX_CLUSTER_WIDTH_HEIGHT - MIN_CLUSTER_WIDTH_HEIGHT + 1) + MIN_CLUSTER_WIDTH_HEIGHT,
     )
 
     if (randX + randWidth > GRID_SIZE - 1) {
@@ -256,26 +256,26 @@ function generateDisturbances(grid: Grid) {
 
     const randomDirection = directionValues[Math.floor(Math.random() * directionValues.length)]
 
-    return new DisturbanceChunk({ x: randX, y: randY }, { width: randWidth, height: randHeight }, randomDirection)
+    return new DisturbanceCluster({ x: randX, y: randY }, { width: randWidth, height: randHeight }, randomDirection)
   })
 
-  // DEBUG: Visualize chunks
+  // DEBUG: Visualize clusters
   // const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
   // const cellSize = canvas.width / GRID_SIZE
   // const ctx = canvas.getContext('2d')!
-  // const CHUNK_COLORS = ['60, 59, 156, ', '187, 34, 204, ', '187, 34, 51, ', '170, 153, 34, ', '170, 238, 34, '] // needs as many colors as number of chunks defined
-  // chunks.forEach((chunk, index) => {
+  // const CLUSTER_COLORS = ['60, 59, 156, ', '187, 34, 204, ', '187, 34, 51, ', '170, 153, 34, ', '170, 238, 34, '] // needs as many colors as number of clusters defined
+  // clusters.forEach((cluster, index) => {
   //   ctx.beginPath()
-  //   ctx.fillStyle = `rgba(${CHUNK_COLORS[index] + '0.75'})` // Set the fill color
+  //   ctx.fillStyle = `rgba(${CLUSTER_COLORS[index] + '0.75'})` // Set the fill color
   //   ctx.fillRect(
-  //     chunk.position.x * cellSize,
-  //     chunk.position.y * cellSize,
-  //     chunk.size.width * cellSize,
-  //     chunk.size.height * cellSize,
+  //     cluster.position.x * cellSize,
+  //     cluster.position.y * cellSize,
+  //     cluster.size.width * cellSize,
+  //     cluster.size.height * cellSize,
   //   )
   // })
 
-  const CHUNK_ARROW_COLORS = {
+  const CLUSTER_ARROW_COLORS = {
     top: 'rgb(60, 59, 156)',
     left: 'rgb(187, 34, 204)',
     bottom: 'rgb(187, 34, 51)',
@@ -286,18 +286,18 @@ function generateDisturbances(grid: Grid) {
     'top-right': 'rgb(146, 119, 117)',
   }
 
-  chunks.forEach((chunk) => {
-    const dir = chunk.direction
+  clusters.forEach((cluster) => {
+    const dir = cluster.direction
     if (dir === Direction.LEFT) {
       // <---------------X  /\
       // <---------------X  ||
       // <---------------X  ||
       // <---------------X  ||
       // <---------------X  ||
-      for (let x = chunk.position.x + chunk.size.width - 1; x > chunk.position.x; x--) {
-        for (let y = chunk.position.y + chunk.size.height - 1; y >= chunk.position.y; y--) {
+      for (let x = cluster.position.x + cluster.size.width - 1; x > cluster.position.x; x--) {
+        for (let y = cluster.position.y + cluster.size.height - 1; y >= cluster.position.y; y--) {
           addDisturbance(grid[x][y], grid[x - 1][y])
-          // drawDisturbance(grid[x][y], grid[x - 1][y], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x - 1][y], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     } else if (dir === Direction.BOTTOM) {
@@ -307,10 +307,10 @@ function generateDisturbances(grid: Grid) {
       // ||||||||||||||||
       // ||||||||||||||||
       // \/\/\/\/\/\/\/\/
-      for (let x = chunk.position.x; x < chunk.position.x + chunk.size.width; x++) {
-        for (let y = chunk.position.y; y < chunk.position.y + chunk.size.height - 1; y++) {
+      for (let x = cluster.position.x; x < cluster.position.x + cluster.size.width; x++) {
+        for (let y = cluster.position.y; y < cluster.position.y + cluster.size.height - 1; y++) {
           addDisturbance(grid[x][y], grid[x][y + 1])
-          // drawDisturbance(grid[x][y], grid[x][y + 1], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x][y + 1], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     } else if (dir === Direction.RIGHT) {
@@ -319,10 +319,10 @@ function generateDisturbances(grid: Grid) {
       // || X--------------->
       // || X--------------->
       // \/ X--------------->
-      for (let x = chunk.position.x; x < chunk.position.x + chunk.size.width - 1; x++) {
-        for (let y = chunk.position.y; y < chunk.position.y + chunk.size.height; y++) {
+      for (let x = cluster.position.x; x < cluster.position.x + cluster.size.width - 1; x++) {
+        for (let y = cluster.position.y; y < cluster.position.y + cluster.size.height; y++) {
           addDisturbance(grid[x][y], grid[x + 1][y])
-          // drawDisturbance(grid[x][y], grid[x + 1][y], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x + 1][y], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     } else if (dir === Direction.TOP) {
@@ -332,10 +332,10 @@ function generateDisturbances(grid: Grid) {
       // ||||||||||||||||
       // ||||||||||||||||
       // X-------------->
-      for (let x = chunk.position.x; x < chunk.position.x + chunk.size.width; x++) {
-        for (let y = chunk.position.y + chunk.size.height - 1; y > chunk.position.y; y--) {
+      for (let x = cluster.position.x; x < cluster.position.x + cluster.size.width; x++) {
+        for (let y = cluster.position.y + cluster.size.height - 1; y > cluster.position.y; y--) {
           addDisturbance(grid[x][y], grid[x][y - 1])
-          // drawDisturbance(grid[x][y], grid[x][y - 1], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x][y - 1], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     } else if (dir === Direction.TOP_LEFT) {
@@ -345,10 +345,10 @@ function generateDisturbances(grid: Grid) {
       // \\\\\\\\\\\\\\\
       // \\\\\\\\\\\\\\\
       // <-------------X
-      for (let x = chunk.position.x + chunk.size.width - 1; x > chunk.position.x; x--) {
-        for (let y = chunk.position.y + chunk.size.height - 1; y > chunk.position.y; y--) {
+      for (let x = cluster.position.x + cluster.size.width - 1; x > cluster.position.x; x--) {
+        for (let y = cluster.position.y + cluster.size.height - 1; y > cluster.position.y; y--) {
           addDisturbance(grid[x][y], grid[x - 1][y - 1])
-          // drawDisturbance(grid[x][y], grid[x - 1][y - 1], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x - 1][y - 1], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     } else if (dir === Direction.BOTTOM_LEFT) {
@@ -358,10 +358,10 @@ function generateDisturbances(grid: Grid) {
       // /////////////
       // /////////////
       // /\/\/\/\/\/\/
-      for (let x = chunk.position.x + chunk.size.width - 1; x > chunk.position.x; x--) {
-        for (let y = chunk.position.y; y < chunk.position.y + chunk.size.height - 1; y++) {
+      for (let x = cluster.position.x + cluster.size.width - 1; x > cluster.position.x; x--) {
+        for (let y = cluster.position.y; y < cluster.position.y + cluster.size.height - 1; y++) {
           addDisturbance(grid[x][y], grid[x - 1][y + 1])
-          // drawDisturbance(grid[x][y], grid[x - 1][y + 1], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x - 1][y + 1], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     } else if (dir === Direction.BOTTOM_RIGHT) {
@@ -371,10 +371,10 @@ function generateDisturbances(grid: Grid) {
       // \\\\\\\\\\\\
       // \\\\\\\\\\\\
       // /\/\/\/\/\/\/
-      for (let x = chunk.position.x; x < chunk.position.x + chunk.size.width - 1; x++) {
-        for (let y = chunk.position.y; y < chunk.position.y + chunk.size.height - 1; y++) {
+      for (let x = cluster.position.x; x < cluster.position.x + cluster.size.width - 1; x++) {
+        for (let y = cluster.position.y; y < cluster.position.y + cluster.size.height - 1; y++) {
           addDisturbance(grid[x][y], grid[x + 1][y + 1])
-          // drawDisturbance(grid[x][y], grid[x + 1][y + 1], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x + 1][y + 1], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     } else if (dir === Direction.TOP_RIGHT) {
@@ -384,10 +384,10 @@ function generateDisturbances(grid: Grid) {
       // /////////////
       // /////////////
       // X----------->
-      for (let x = chunk.position.x; x < chunk.position.x + chunk.size.width - 1; x++) {
-        for (let y = chunk.position.y + chunk.size.height - 1; y > chunk.position.y; y--) {
+      for (let x = cluster.position.x; x < cluster.position.x + cluster.size.width - 1; x++) {
+        for (let y = cluster.position.y + cluster.size.height - 1; y > cluster.position.y; y--) {
           addDisturbance(grid[x][y], grid[x + 1][y - 1])
-          // drawDisturbance(grid[x][y], grid[x + 1][y - 1], CHUNK_ARROW_COLORS[chunk.direction])
+          // drawDisturbance(grid[x][y], grid[x + 1][y - 1], CLUSTER_ARROW_COLORS[cluster.direction])
         }
       }
     }
