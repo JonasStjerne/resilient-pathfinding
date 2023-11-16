@@ -49,7 +49,8 @@ const search = (
       return runv2(startPos, endPos, graph, selectedHeuristic, w)
     }
     default: {
-      console.log('Invalid algo version. Got ' + algoVersion)
+      console.log('Invalid algo version. Got ' + algoVersion + '. Using v2')
+      return runv2(startPos, endPos, graph, selectedHeuristic, w)
     }
   }
 }
