@@ -1,4 +1,5 @@
 import search from '../algo/AStarSearch.js'
+import { generateOneGraph } from '../algo/graphGen.js'
 import {
   addDisturbance,
   addEdge,
@@ -22,7 +23,6 @@ import {
 
 export default function clientInit() {
   let savedGrid = getActiveGridFromLocalStorage()
-  savedGrid = undefined // For testing of random graph generation, prevents loading graph from localStorage
   if (savedGrid) {
     setGrid(savedGrid)
   }
@@ -31,8 +31,8 @@ export default function clientInit() {
   // grid[1][0].edges = [];
   // grid[2][1].edges = [];
   setControls()
-  // drawGrid()
-  enableContinuousDrawing(canvas, grid.length)
+  drawGrid()
+  enableContinuousDrawing(canvas)
   initSaveControl()
 }
 
@@ -56,6 +56,7 @@ let multiSelectedCells: Node[] = []
 
 const runAlgoBtn = <HTMLButtonElement>document.getElementById('run-algo')!
 const resetGridBtn = <HTMLButtonElement>document.getElementById('reset-grid-btn')!
+const genGridBtn = <HTMLButtonElement>document.getElementById('gen-grid-btn')!
 
 const showMuCheckbox = <HTMLInputElement>document.getElementById('show-mu')!
 const showIdsCheckbox = <HTMLInputElement>document.getElementById('show-node-id')!
@@ -73,6 +74,7 @@ disturbanceBtn.addEventListener('mouseup', () => selectDrawType('disturbance' sa
 
 runAlgoBtn.addEventListener('mouseup', runPathFinding)
 resetGridBtn.addEventListener('mouseup', resetGrid)
+genGridBtn.addEventListener('mouseup', generateOneGraph)
 
 showMuCheckbox.addEventListener('change', drawGrid)
 showIdsCheckbox.addEventListener('change', drawGrid)
@@ -316,57 +318,72 @@ function drawIds() {
   }
 }
 
-function enableContinuousDrawing(canvas: HTMLCanvasElement, gridNumber: number) {
-  let isDrawing = false
+export let isDrawing = false
 
+export const mouseDownHandler = (event: MouseEvent) => {
   // Calculate the size of each grid cell
-  const cellSize = canvas.width / gridNumber
+  const cellSize = canvas.width / grid.length
 
-  canvas.addEventListener('mousedown', (event) => {
-    const col = Math.floor(event.offsetX / cellSize)
-    const row = Math.floor(event.offsetY / cellSize)
+  const col = Math.floor(event.offsetX / cellSize)
+  const row = Math.floor(event.offsetY / cellSize)
 
-    if (selectedType == 'disturbance' || selectedType == 'edge') {
-      multiSelectedCells.push(grid[col][row])
-      if (multiSelectedCells.length < 2) {
-        return
-      }
+  if (selectedType == 'disturbance' || selectedType == 'edge') {
+    multiSelectedCells.push(grid[col][row])
+    if (multiSelectedCells.length < 2) {
+      return
+    }
 
-      if (!checkIfNeighbor(multiSelectedCells[0], multiSelectedCells[1])) {
-        multiSelectedCells = []
-        return
-      }
-
-      if (selectedType == 'disturbance') {
-        deleteModeCheckbox.checked
-          ? deleteDisturbance(multiSelectedCells[0], multiSelectedCells[1])
-          : addDisturbance(multiSelectedCells[0], multiSelectedCells[1])
-      } else {
-        deleteModeCheckbox.checked
-          ? deleteEdge(multiSelectedCells[0], multiSelectedCells[1])
-          : addEdge(multiSelectedCells[0], multiSelectedCells[1])
-      }
-      computeMue(grid)
-      drawGrid()
+    if (!checkIfNeighbor(multiSelectedCells[0], multiSelectedCells[1])) {
       multiSelectedCells = []
       return
     }
 
-    isDrawing = true
-    drawSquareInGrid(col, row, selectedType)
-  })
-
-  canvas.addEventListener('mousemove', (event) => {
-    if (isDrawing && ['wall', 'water', 'road'].includes(selectedType)) {
-      const col = Math.floor(event.offsetX / cellSize)
-      const row = Math.floor(event.offsetY / cellSize)
-      drawSquareInGrid(col, row, <NodeType>selectedType)
+    if (selectedType == 'disturbance') {
+      deleteModeCheckbox.checked
+        ? deleteDisturbance(multiSelectedCells[0], multiSelectedCells[1])
+        : addDisturbance(multiSelectedCells[0], multiSelectedCells[1])
+    } else {
+      deleteModeCheckbox.checked
+        ? deleteEdge(multiSelectedCells[0], multiSelectedCells[1])
+        : addEdge(multiSelectedCells[0], multiSelectedCells[1])
     }
-  })
+    computeMue(grid)
+    drawGrid()
+    multiSelectedCells = []
+    return
+  }
 
-  canvas.addEventListener('mouseup', () => {
-    isDrawing = false
-  })
+  isDrawing = true
+  drawSquareInGrid(col, row, selectedType)
+}
+
+export const mouseMoveHandler = (event: MouseEvent) => {
+  // Calculate the size of each grid cell
+  const cellSize = canvas.width / grid.length
+
+  if (isDrawing && ['wall', 'water', 'road'].includes(selectedType)) {
+    const col = Math.floor(event.offsetX / cellSize)
+    const row = Math.floor(event.offsetY / cellSize)
+    drawSquareInGrid(col, row, <NodeType>selectedType)
+  }
+}
+
+export const mouseUpHandler = () => {
+  isDrawing = false
+}
+
+export function disableContinuousDrawing(canvas: HTMLCanvasElement) {
+  canvas.removeEventListener('mousedown', mouseDownHandler)
+  canvas.removeEventListener('mousemove', mouseMoveHandler)
+  canvas.removeEventListener('mouseup', mouseUpHandler)
+}
+
+export function enableContinuousDrawing(canvas: HTMLCanvasElement) {
+  canvas.addEventListener('mousedown', mouseDownHandler)
+
+  canvas.addEventListener('mousemove', mouseMoveHandler)
+
+  canvas.addEventListener('mouseup', mouseUpHandler)
 }
 
 function runPathFinding() {

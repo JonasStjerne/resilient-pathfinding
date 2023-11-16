@@ -1,7 +1,10 @@
-import { drawDisturbance, drawGrid } from '../client/index.js'
+// Experimental radius is bugged. And its use cases are commented out.
+
+import { disableContinuousDrawing, drawDisturbance, drawGrid, enableContinuousDrawing } from '../client/index.js'
 import { Position } from './AStarSearch.js'
 import { addDisturbance, makeGrid, setGrid } from './grid.js'
 import { Grid } from './models/Grid.js'
+import { computeMue } from './mue.js'
 
 interface Size {
   width: number
@@ -23,12 +26,14 @@ class DrawingAgent {
   private _maxMoves
   private _maxRadius
   private _movesLeft
+  private _originalPos: Position
   private _pos: Position
 
   constructor(maxMoves: number, maxRadius: number, pos: Position) {
     this._maxMoves = maxMoves
     this._maxRadius = maxRadius
     this._movesLeft = maxMoves
+    this._originalPos = pos
     this._pos = pos
   }
 
@@ -48,6 +53,10 @@ class DrawingAgent {
     return this._movesLeft
   }
 
+  public get originalPos(): Position {
+    return this._originalPos
+  }
+
   public get pos(): Position {
     return this._pos
   }
@@ -55,6 +64,16 @@ class DrawingAgent {
   public move(pos: Position) {
     this._pos = { x: pos.x, y: pos.y }
     this.reduceMoves()
+  }
+
+  public addMoves() {
+    this._movesLeft++
+  }
+
+  public exceedsRadius(newPos: Position) {
+    const x = this.originalPos.x - newPos.x
+    const y = this.originalPos.y - newPos.y
+    return Math.sqrt(x * x + y * y) > this._maxRadius
   }
 }
 
@@ -82,49 +101,142 @@ class DisturbanceChunk {
   }
 }
 
-/* Good maps
- * Grid size = 100
- * Drawing agents = 15
- * Max moves = 500
+/* Good map
+ * GRID_SIZE = 100
+ * DRAWING_AGENTS_NUMBER = 9
+ * MAX_MOVES = 500
+ * writingOnExistingWaterNodes = true
+ * distanceBetweenAgents = 22
+ * MIN_CHUNK_WIDTH_HEIGHT = 20
+ * MAX_CHUNK_WIDTH_HEIGHT = 50
+ * AMOUNT_OF_CHUNKS = 6
  */
 const GRID_SIZE = 100
-// const nodeTypes = ["water"];
-const DRAWING_AGENTS_NUMBER = 15
+const DRAWING_AGENTS_NUMBER = 9
 const MAX_MOVES = 500
-const MAX_RADIUS = 10
+const MAX_RADIUS_FACTOR = 1.3
+
+function writeGeneratingGraph(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d')!
+  ctx.font = '26px Arial'
+  ctx.fillStyle = 'black'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const x = canvas.width / 2
+  const y = canvas.height / 2
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.fillText('Generating graph', x, y)
+}
 
 export function generateOneGraph() {
+  const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
+  writeGeneratingGraph(canvas)
   const newGrid = makeGrid(GRID_SIZE)
-  generateWater(newGrid)
-  generateDisturbances(newGrid)
+  setTimeout(() => {
+    const drawingAgents = generateWater(newGrid)
+    setGrid(newGrid)
+    console.debug('WATER nodes: ', newGrid.flat().filter((node) => node.type === 'water').length)
+    generateDisturbances(newGrid)
+    computeMue(newGrid)
+    drawGrid()
+
+    disableContinuousDrawing(canvas)
+    enableContinuousDrawing(canvas)
+  }, 100)
+
+  // DEBUG: Mark starting point of each water drawing agent
+  // drawingAgents.forEach((agent) => {
+  //   const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
+  //   const cellSize = canvas.width / GRID_SIZE
+  //   const ctx = canvas.getContext('2d')!
+  //   ctx.fillStyle = 'rgb(255, 51, 85)'
+  //   ctx.fillRect(agent.originalPos.x * cellSize, agent.originalPos.y * cellSize, cellSize, cellSize)
+  // })
 }
 
-function generateWater(grid: Grid) {
-  const drawingAgents = new Array(DRAWING_AGENTS_NUMBER).fill(null).map(
-    () =>
-      new DrawingAgent(MAX_MOVES, MAX_RADIUS, {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: Math.floor(Math.random() * GRID_SIZE),
-      }),
+function euclideanDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {
+  const dx = point1.x - point2.x
+  const dy = point1.y - point2.y
+  return Math.sqrt(dx * dx + dy * dy)
+}
+
+function arePointsFarEnough(newPoint: Position, existingPoints: Position[], minDistance: number): boolean {
+  for (const point of existingPoints) {
+    if (euclideanDistance(newPoint, point) < minDistance) {
+      return false
+    }
+  }
+  return true
+}
+
+function generatePointsWithMinDistance(numPoints: number, minDistance: number): Position[] {
+  const points: Position[] = []
+
+  while (points.length < numPoints) {
+    const newPoint = {
+      x: Math.floor(Math.random() * GRID_SIZE),
+      y: Math.floor(Math.random() * GRID_SIZE),
+    }
+
+    if (arePointsFarEnough(newPoint, points, minDistance)) {
+      points.push(newPoint)
+    }
+  }
+
+  return points
+}
+
+/**
+ * Modifies random nodes of grid to be of type "water" by random walk of agents starting in random positions.
+ * @param grid
+ * @param writingOnExistingWaterNodes specifies whether a new move should be found if the node already is of type "water"
+ */
+function generateWater(grid: Grid, writingOnExistingWaterNodes = true): DrawingAgent[] {
+  const MAX_RADIUS = Math.ceil(Math.sqrt(MAX_MOVES) * MAX_RADIUS_FACTOR)
+  const agentPositions = generatePointsWithMinDistance(DRAWING_AGENTS_NUMBER, 22)
+  const drawingAgents = Array.from(
+    { length: DRAWING_AGENTS_NUMBER },
+    (_, i) => new DrawingAgent(MAX_MOVES, MAX_RADIUS, { x: agentPositions[i].x, y: agentPositions[i].y }),
   )
+
   while (drawingAgents.some((agent) => agent.movesLeft > 0)) {
     drawingAgents.forEach((agent) => {
-      // Make move
-      const edgesFromCurrentNode = grid[agent.pos.x][agent.pos.y].edges.length
-      const randomEdge = grid[agent.pos.x][agent.pos.y].edges[Math.floor(Math.random() * edgesFromCurrentNode)]
-      agent.move({ x: randomEdge.adjacent.x, y: randomEdge.adjacent.y })
-      // Set node type to water
-      grid[agent.pos.x][agent.pos.y].type = 'water'
+      if (agent.movesLeft > 0) {
+        // Make move
+        const edgesFromCurrentNodeLength = grid[agent.pos.x][agent.pos.y].edges.length
+        let randomEdge
+        let foundLegalMove = false
+        while (!foundLegalMove) {
+          randomEdge = grid[agent.pos.x][agent.pos.y].edges[Math.floor(Math.random() * edgesFromCurrentNodeLength)]
+          // Experimental radius
+          // if (!agent.exceedsRadius({ x: randomEdge.adjacent.x, y: randomEdge.adjacent.y })) foundLegalMove = true
+          foundLegalMove = true // This needs to be commented if experimental radius is used
+        }
+        if (!randomEdge) return
+        agent.move({ x: randomEdge.adjacent.x, y: randomEdge.adjacent.y })
+
+        // Set node type to water
+        if (writingOnExistingWaterNodes) {
+          grid[agent.pos.x][agent.pos.y].type = 'water'
+        } else {
+          if (grid[agent.pos.x][agent.pos.y].type === 'water') agent.addMoves()
+          else grid[agent.pos.x][agent.pos.y].type = 'water'
+        }
+      }
     })
   }
+  return drawingAgents
 }
 
+/**
+ * Generates rectangular chunks on the grid, and creates disturbances with one random direction per chunk.
+ * @param grid
+ */
 function generateDisturbances(grid: Grid) {
-  // Chunk grid into wind directions (not every node is in a chunk)
   const MIN_CHUNK_WIDTH_HEIGHT = 30
   const MAX_CHUNK_WIDTH_HEIGHT = 50
-  const AMOUNT_OF_CHUNKS = 5
-  const directionValues = Object.values(Direction).filter((dir) => !dir.includes('top-left'))
+  const AMOUNT_OF_CHUNKS = 6
+  const directionValues = Object.values(Direction)
   const chunks = new Array(AMOUNT_OF_CHUNKS).fill(null).map(() => {
     const randX = Math.floor(Math.random() * GRID_SIZE)
     const randY = Math.floor(Math.random() * GRID_SIZE)
@@ -146,28 +258,22 @@ function generateDisturbances(grid: Grid) {
 
     return new DisturbanceChunk({ x: randX, y: randY }, { width: randWidth, height: randHeight }, randomDirection)
   })
-  setGrid(grid)
-  // console.log("ROAD nodes: ", grid.flat().filter(node => node.type === "road").length);
-  // console.log("WATER nodes: ", grid.flat().filter(node => node.type === "water").length);
-  drawGrid()
 
   // DEBUG: Visualize chunks
-  {
-    // const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
-    // const cellSize = canvas.width / GRID_SIZE
-    // const ctx = canvas.getContext('2d')!
-    // const CHUNK_COLORS = ['60, 59, 156, ', '187, 34, 204, ', '187, 34, 51, ', '170, 153, 34, ', '170, 238, 34, ']
-    // chunks.forEach((chunk, index) => {
-    //   ctx.beginPath()
-    //   ctx.fillStyle = `rgba(${CHUNK_COLORS[index] + '0.75'})` // Set the fill color
-    //   ctx.fillRect(
-    //     chunk.position.x * cellSize,
-    //     chunk.position.y * cellSize,
-    //     chunk.size.width * cellSize,
-    //     chunk.size.height * cellSize,
-    //   )
-    // })
-  }
+  // const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
+  // const cellSize = canvas.width / GRID_SIZE
+  // const ctx = canvas.getContext('2d')!
+  // const CHUNK_COLORS = ['60, 59, 156, ', '187, 34, 204, ', '187, 34, 51, ', '170, 153, 34, ', '170, 238, 34, '] // needs as many colors as number of chunks defined
+  // chunks.forEach((chunk, index) => {
+  //   ctx.beginPath()
+  //   ctx.fillStyle = `rgba(${CHUNK_COLORS[index] + '0.75'})` // Set the fill color
+  //   ctx.fillRect(
+  //     chunk.position.x * cellSize,
+  //     chunk.position.y * cellSize,
+  //     chunk.size.width * cellSize,
+  //     chunk.size.height * cellSize,
+  //   )
+  // })
 
   const CHUNK_ARROW_COLORS = {
     top: 'rgb(60, 59, 156)',
