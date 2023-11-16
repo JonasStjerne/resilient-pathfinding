@@ -22,7 +22,7 @@ import {
 } from './saveService.js'
 
 export default function clientInit() {
-  let savedGrid = getActiveGridFromLocalStorage()
+  const savedGrid = getActiveGridFromLocalStorage()
   if (savedGrid) {
     setGrid(savedGrid)
   }
@@ -429,7 +429,7 @@ function runPathFinding() {
   nodes.forEach((node) => {
     if (pathWithoutEnds.includes(node.id)) {
       // Calculate the size of each grid cell
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)' // Set the fill color
+      ctx.fillStyle = 'rgba(128, 128, 128, 0.7)' // Set the fill color
       ctx.fillRect(
         node.x * cellSize + cellPadding / 2,
         node.y * cellSize + cellPadding / 2,
@@ -506,10 +506,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number, color
 
 function posToCanvasCoordinates(col: number, row: number) {
   const cellSize = canvas.width / grid.length
-  const pos = {
-    x: col * cellSize + cellSize / 2,
-    y: row * cellSize + cellSize / 2,
-  }
+  const pos = { x: col * cellSize + cellSize / 2, y: row * cellSize + cellSize / 2 }
   return pos
 }
 
@@ -625,14 +622,8 @@ function getEdgeArrowPointsByDirection(direction: Direction) {
 
   const arrowDownPoints = [
     { x: 0, y: (cellSize / 2) * distanceScale + edgeArrowHeight / 2 },
-    {
-      x: -edgeArrowHeight / 2,
-      y: (cellSize / 2) * distanceScale - edgeArrowHeight / 2,
-    },
-    {
-      x: +edgeArrowHeight / 2,
-      y: (cellSize / 2) * distanceScale - edgeArrowHeight / 2,
-    },
+    { x: -edgeArrowHeight / 2, y: (cellSize / 2) * distanceScale - edgeArrowHeight / 2 },
+    { x: +edgeArrowHeight / 2, y: (cellSize / 2) * distanceScale - edgeArrowHeight / 2 },
   ]
   let angle = directionToAngleMap[direction]
 
@@ -642,10 +633,7 @@ function getEdgeArrowPointsByDirection(direction: Direction) {
 
   const A = (angle * Math.PI) / 180
   const rotate = (x: number, y: number) => {
-    return {
-      x: x * Math.cos(A) - y * Math.sin(A),
-      y: y * Math.cos(A) + x * Math.sin(A),
-    }
+    return { x: x * Math.cos(A) - y * Math.sin(A), y: y * Math.cos(A) + x * Math.sin(A) }
   }
   const offsetPositions = [
     rotate(arrowDownPoints[0].x, arrowDownPoints[0].y),
