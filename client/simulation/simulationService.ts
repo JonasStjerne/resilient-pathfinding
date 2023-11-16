@@ -30,15 +30,15 @@ export class simulationService {
     return [grid]
   }
 
-  static setStats(stats: Stats) {
-    this.#setStat('comp-time', stats.comptime)
-    this.#setStat('traveledDistance', stats.traveledDistance)
-    this.#setStat('pushover', stats.pushover)
-    this.#setStat('success-rate', stats.successRate)
+  static #setStats(stats: Stats) {
+    this.#setStat('comp-time', `${stats.comptime}ms`)
+    this.#setStat('traveledDistance', `${stats.traveledDistance}m`)
+    this.#setStat('pushover', `${stats.pushover * 100}%`)
+    this.#setStat('success-rate', `${stats.successRate * 100}%`)
   }
 
-  static #setStat(id: string, value: number) {
-    ;(<HTMLHeadElement>document.getElementById(id)).innerHTML = value.toString()
+  static #setStat(id: string, value: string) {
+    ;(<HTMLHeadElement>document.getElementById(id)).innerHTML = value
   }
 
   static setLoadingState(percent: number, done: boolean) {
@@ -62,7 +62,9 @@ export class simulationService {
       const startPos = this.#getStartOrEndPos(maps[mapIndex], 'start')
       const endPos = this.#getStartOrEndPos(maps[mapIndex], 'goal')
       if (options.algoVersion == 'v0.2') {
-        const path = trackTime(() => search(startPos!, endPos!, maps[mapIndex], options.riskFactor))
+        const { result: path, deltaTime } = trackTime(() =>
+          search(startPos!, endPos!, maps[mapIndex], options.riskFactor),
+        )
         for (let i = 0; i < options.runCount; i++) {
           path.filter((nodeId) => nodeId)
           const simResult = simulateRoute(
@@ -76,12 +78,19 @@ export class simulationService {
           )
           simResults.push(simResult)
           stats.pushover += simResult.distTaken
+          stats.comptime += deltaTime
           simResult.didReachGoal ? stats.successRate++ : null
-          stats.traveledDistance += simResult.pathtaken.length
+          simResult.pathtaken.forEach((node, index, path) => {
+            if (index < path.length - 1) {
+              const possibleMoves = [...node.edges, ...node.distEdges]
+              stats.traveledDistance += possibleMoves.find((edge) => edge.adjacent.id == path[index + 1].id)!.weight
+            }
+          })
         }
       }
     }
     const averageStats = this.#getAverageStats(options.runCount, maps.length, stats)
+    this.#setStats(averageStats)
   }
 
   static #getStartOrEndPos(grid: Grid, type: 'start' | 'goal'): Position | undefined {
