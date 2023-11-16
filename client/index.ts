@@ -221,7 +221,6 @@ export function drawGrid() {
 
   // Draw the grid
   ctx.strokeStyle = 'black' // Set grid line color to black
-  ctx.strokeStyle = 'black' // Set grid line color to black
 
   // Vertical lines
   for (let x = 0; x <= canvasSize; x += cellSize) {
