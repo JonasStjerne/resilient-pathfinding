@@ -350,6 +350,7 @@ function runPathFinding() {
 
   const nodes = grid.flat();
   const path = search(startNode, endNode, grid, riskFactor);
+  if (!path) {return}
   const cellSize = canvas.width / grid.length;
 
   //Keep the start and end node to preserve the colors
