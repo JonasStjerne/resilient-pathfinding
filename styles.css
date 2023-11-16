@@ -43,3 +43,12 @@ body {
   flex-wrap: wrap;
   align-items: center;
 }
+
+.file-input {
+    align-self: flex-start;
+    padding: 0.25rem;
+}
+
+.LocalStorage-section .FileSystem-section {
+    flex: 1;
+}
