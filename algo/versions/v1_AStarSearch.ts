@@ -12,7 +12,7 @@ interface SearchTable {
   }
 }
 
-const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: HeuristicFunction) => {
+const run = (startPos: Position, endPos: Position, graph: Grid, heuristic: HeuristicFunction) => {
   const searchTable: SearchTable = {}
   graph.forEach((graphRow) =>
     graphRow.forEach((graphCol) => {
@@ -90,4 +90,4 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
   return path
 }
 
-export default search
+export default run

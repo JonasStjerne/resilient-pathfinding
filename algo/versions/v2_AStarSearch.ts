@@ -12,7 +12,7 @@ interface SearchTable {
   }
 }
 
-const search = (
+const run = (
   startPos: Position,
   endPos: Position,
   graph: Grid,
@@ -107,4 +107,4 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
   return path
 }
 
-export default search
+export default run

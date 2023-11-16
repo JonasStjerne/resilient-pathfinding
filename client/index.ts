@@ -391,7 +391,7 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat()
-  const path = search(startNode, endNode, grid, riskFactor)
+  const path = search(startNode, endNode, grid, riskFactor, algoVersion)
   if (!path) {
     return
   }
