@@ -1,21 +1,20 @@
-import { Edge } from "./models/Edge.js";
-import { Grid } from "./models/Grid.js";
-import { Node, NodeType } from "./models/Node.js";
+import { Edge } from './models/Edge.js'
+import { Grid } from './models/Grid.js'
+import { Node, NodeType } from './models/Node.js'
 
 // Create Grid
-export const gridSize = 10;
-export const grid = makeGrid(gridSize);
+export const grid = makeGrid()
 
-export function makeGrid(gridSize: number): Grid {
-  Node._id = 0;
-  const grid: Grid = new Array(gridSize);
+export function makeGrid(gridSize: number = 10): Grid {
+  Node._id = 0
+  const grid: Grid = new Array(gridSize)
   for (let x = 0; x < gridSize; x++) {
-    grid[x] = new Array(gridSize);
+    grid[x] = new Array(gridSize)
   }
 
   for (let x = 0; x < gridSize; x++) {
     for (let y = 0; y < gridSize; y++) {
-      grid[x][y] = new Node(x, y, "road");
+      grid[x][y] = new Node(x, y, 'road')
     }
   }
   // Set the edges of the grid
@@ -52,7 +51,7 @@ export function makeGrid(gridSize: number): Grid {
           addEdge(grid[x][y], grid[x + 1][y - 1], 1.4)
         }
       }
-      
+
       //Set bottom diagonally edges
       if (y != gridSize - 1) {
         //Set left
@@ -67,58 +66,61 @@ export function makeGrid(gridSize: number): Grid {
     }
   }
 
-  return grid;
+  return grid
 }
 
 const getRiskNode = (node: Node, windDirection: number) => {
-    node.edges.forEach((edge) => {
-      edge.adjacent;
-    });
-  };
+  node.edges.forEach((edge) => {
+    edge.adjacent
+  })
+}
 
-  export function setTypeOfNode(coordinates: Pick<Node, "x" | "y">, type: NodeType) {
-    grid[coordinates.x][coordinates.y].type = type;
-  }
-  export function setGrid(newGrid: Grid) {
-    grid.length = 0;
-    newGrid.forEach(col => grid.push(col));
-  }
+export function setTypeOfNode(coordinates: Pick<Node, 'x' | 'y'>, type: NodeType) {
+  grid[coordinates.x][coordinates.y].type = type
+}
+export function setGrid(newGrid: Grid) {
+  grid.length = 0
+  newGrid.forEach((col) => grid.push(col))
+}
 
-  function removeTypeFromGrid(type: NodeType) {
-    grid.forEach(column => {
-      column.forEach(rowElm => {
-        if (rowElm.type === type) {
-          rowElm.type = "road";
-        }
-      })
+function removeTypeFromGrid(type: NodeType) {
+  grid.forEach((column) => {
+    column.forEach((rowElm) => {
+      if (rowElm.type === type) {
+        rowElm.type = 'road'
+      }
     })
+  })
+}
+
+export function addEdge(fromNode: Node, toNode: Node, weight = 1) {
+  if (fromNode.edges.find((edge) => edge.adjacent.id == fromNode.id)) {
+    return
   }
 
-  export function addEdge(fromNode: Node, toNode: Node, weight = 1) {
-    if (fromNode.edges.find(edge => edge.adjacent.id == fromNode.id)) {return}
+  const newEdge: Edge = new Edge(toNode, weight)
+  fromNode.edges.push(newEdge)
 
-    const newEdge: Edge = new Edge(toNode, weight)
-    fromNode.edges.push(newEdge);
+  toNode.incomingEdges.push(fromNode)
+}
 
-    toNode.incomingEdges.push(fromNode);
+export function deleteEdge(fromNode: Node, toNode: Node) {
+  fromNode.edges = fromNode.edges.filter((edge) => edge.adjacent.id != toNode.id)
+  toNode.incomingEdges = toNode.incomingEdges.filter((node) => node.id != fromNode.id)
+}
+
+export function addDisturbance(fromNode: Node, toNode: Node) {
+  if (fromNode.distEdges.find((edge) => edge.adjacent.id == fromNode.id)) {
+    return
   }
 
-  export function deleteEdge(fromNode: Node, toNode: Node) {
-    fromNode.edges = fromNode.edges.filter(edge => edge.adjacent.id != toNode.id);
-    toNode.incomingEdges = toNode.incomingEdges.filter(node => node.id != fromNode.id)
-  }
+  const newEdge: Edge = new Edge(toNode, 1)
+  fromNode.distEdges.push(newEdge)
 
-  export function addDisturbance(fromNode: Node, toNode: Node) {
-    if (fromNode.distEdges.find(edge => edge.adjacent.id == fromNode.id)) {return}
+  toNode.incomingDistEdges.push(fromNode)
+}
 
-    const newEdge: Edge = new Edge(toNode, 1)
-    fromNode.distEdges.push(newEdge);
-
-    toNode.incomingDistEdges.push(fromNode);
-  }
-
-  export function deleteDisturbance(fromNode: Node, toNode: Node) {
-    fromNode.distEdges = fromNode.distEdges.filter(edge => edge.adjacent.id != toNode.id);
-    toNode.incomingDistEdges = toNode.incomingDistEdges.filter(node => node.id != fromNode.id)
-  }
-  
+export function deleteDisturbance(fromNode: Node, toNode: Node) {
+  fromNode.distEdges = fromNode.distEdges.filter((edge) => edge.adjacent.id != toNode.id)
+  toNode.incomingDistEdges = toNode.incomingDistEdges.filter((node) => node.id != fromNode.id)
+}

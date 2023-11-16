@@ -1,8 +1,7 @@
-import { grid, makeGrid } from "./grid.js";
-import { computeMue } from "./mue.js";
-import { gridSize } from "./grid.js"
+import { grid, makeGrid } from './grid.js'
+import { computeMue } from './mue.js'
 
 export default function algoInit() {
-  makeGrid(gridSize);
-  computeMue(grid);
+  makeGrid()
+  computeMue(grid)
 }
