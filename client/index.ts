@@ -58,7 +58,7 @@ const runAlgoBtn = <HTMLButtonElement>document.getElementById('run-algo')!
 const resetGridBtn = <HTMLButtonElement>document.getElementById('reset-grid-btn')!
 const genGridBtn = <HTMLButtonElement>document.getElementById('gen-grid-btn')!
 
-const showMuCheckbox = <HTMLInputElement>document.getElementById('show-mu')!
+const showMuRadios = <NodeListOf<HTMLInputElement>>document.getElementsByName('mu-options')!
 const showIdsCheckbox = <HTMLInputElement>document.getElementById('show-node-id')!
 const showOpenAndClosedListsCheckbox = <HTMLInputElement>document.getElementById('show-open-and-closed-lists')!
 const showDisturbancesCheckbox = <HTMLInputElement>document.getElementById('show-disturbances')!
@@ -76,7 +76,9 @@ runAlgoBtn.addEventListener('mouseup', runPathFinding)
 resetGridBtn.addEventListener('mouseup', resetGrid)
 genGridBtn.addEventListener('mouseup', generateOneGraph)
 
-showMuCheckbox.addEventListener('change', drawGrid)
+for (var i = 0; i < showMuRadios.length; i++) {
+  showMuRadios.item(i).addEventListener('change', drawGrid)
+}
 showIdsCheckbox.addEventListener('change', drawGrid)
 showOpenAndClosedListsCheckbox.addEventListener('change', runPathFinding)
 showDisturbancesCheckbox.addEventListener('change', drawGrid)
@@ -102,7 +104,10 @@ function setControls() {
   if (!controls) {
     return
   }
-  showMuCheckbox.checked = controls.options.mu
+  showMuRadios.item(0).checked = controls.options.mu === 'number'
+  showMuRadios.item(1).checked = controls.options.mu === 'color'
+  showMuRadios.item(2).checked = controls.options.mu === 'both'
+  showMuRadios.item(3).checked = controls.options.mu === 'none'
   showIdsCheckbox.checked = controls.options.nodeId
   showOpenAndClosedListsCheckbox.checked = controls.options.lists
   showDisturbancesCheckbox.checked = controls.options.disturbances
@@ -115,12 +120,21 @@ function setControls() {
 }
 
 function saveControls() {
+  let muVal: string = 'none'
+  if ((<HTMLInputElement>document.getElementById('show-mu-number'))?.checked) {
+    muVal = (<HTMLInputElement>document.getElementById('show-mu-number'))?.value
+  } else if ((<HTMLInputElement>document.getElementById('show-mu-color'))?.checked) {
+    muVal = (<HTMLInputElement>document.getElementById('show-mu-color'))?.value
+  } else if ((<HTMLInputElement>document.getElementById('show-mu-both'))?.checked) {
+    muVal = (<HTMLInputElement>document.getElementById('show-mu-both'))?.value
+  }
+
   const controlsData: ControlsData = {
     drawType: selectedType,
     options: {
       directedEdges: showDirectedEdgesCheckbox.checked,
       disturbances: showDisturbancesCheckbox.checked,
-      mu: showMuCheckbox.checked,
+      mu: muVal,
       nodeId: showIdsCheckbox.checked,
       lists: showOpenAndClosedListsCheckbox.checked,
       riskFactor: riskFactor,
@@ -218,10 +232,20 @@ export function drawGrid() {
   }
 
   drawObstacles()
-  showIdsCheckbox.checked ? drawIds() : null
-  showMuCheckbox.checked ? drawMuValues() : null
-  showDisturbancesCheckbox.checked ? drawAllDisturbances() : null
-  showDirectedEdgesCheckbox.checked ? drawDirectedEdges() : null
+  if (showIdsCheckbox.checked) drawIds()
+
+  let muVal: string = 'none'
+  if ((<HTMLInputElement>document.getElementById('show-mu-number'))?.checked) {
+    muVal = (<HTMLInputElement>document.getElementById('show-mu-number'))?.value
+  } else if ((<HTMLInputElement>document.getElementById('show-mu-color'))?.checked) {
+    muVal = (<HTMLInputElement>document.getElementById('show-mu-color'))?.value
+  } else if ((<HTMLInputElement>document.getElementById('show-mu-both'))?.checked) {
+    muVal = (<HTMLInputElement>document.getElementById('show-mu-both'))?.value
+  }
+
+  drawMuValues(muVal)
+  if (showDisturbancesCheckbox.checked) drawAllDisturbances()
+  if (showDirectedEdgesCheckbox.checked) drawDirectedEdges()
   // drawEdgeArrow(grid[0][0], grid[0][1])
   // drawEdgeArrow(grid[0][0], grid[1][0])
 }
@@ -257,7 +281,7 @@ function drawSquareInGrid(col: number, row: number, type: NodeType) {
   let hexColor = colorMap[drawTypeToColor[type]]
 
   // Sets the color for road cells if Mu value > 0
-  if (type == 'road' && showMuCheckbox.checked) {
+  if (type == 'road' && (showMuRadios.item(1).checked || showMuRadios.item(2).checked)) {
     hexColor = gradientCellColor(hexColor, col, row)
   }
 
@@ -273,7 +297,7 @@ function drawSquareInGrid(col: number, row: number, type: NodeType) {
   ctx.fillRect(x + cellPadding / 2, y + cellPadding / 2, cellSize - cellPadding, cellSize - cellPadding)
   setTypeOfNode({ x: col, y: row }, type)
 
-  //There can only be one start and goal. Delete the previous start/finish if exists and not in the same pos
+  // There can only be one start and goal. Delete the previous start/finish if exists and not in the same pos
   if (type == 'goal' && endNode && !(col == endNode.x && row == endNode.y)) {
     setTypeOfNode({ x: endNode.x, y: endNode.y }, 'road')
     drawSquareInGrid(endNode.x, endNode.y, 'road')
@@ -282,11 +306,11 @@ function drawSquareInGrid(col: number, row: number, type: NodeType) {
     drawSquareInGrid(startNode.x, startNode.y, 'road')
   }
 
-  //If the draw type were of type start or goal save the new position of the node
+  // If the draw type were of type start or goal save the new position of the node
   type == 'start' ? (startNode = { x: col, y: row }) : null
   type == 'goal' ? (endNode = { x: col, y: row }) : null
 
-  //If a cell of type start or goal gets overridden by another type unset the start and the goal
+  // If a cell of type start or goal gets overridden by another type unset the start and the goal
   if (!['start', 'goal'].includes(type)) {
     col == startNode?.x && row == startNode.y ? (startNode = null) : null
     col == endNode?.x && row == endNode.y ? (endNode = null) : null
@@ -421,20 +445,22 @@ function resetGrid() {
   drawGrid()
 }
 
-function drawMuValues() {
+function drawMuValues(muSelection: string) {
   computeMue(grid)
-  // ctx.font = '14px Arial';
-  // ctx.fillStyle = 'black';
-  // const cellSize = canvas.width / grid.length;
-  // grid.forEach((col, colIndex) =>
-  //   col.forEach((colEl, rowIndex) =>
-  //     ctx.fillText(
-  //       colEl.mue.toString(),
-  //       colIndex * cellSize + cellSize / 2 - 10,
-  //       rowIndex * cellSize + cellSize / 2 + 10,
-  //     ),
-  //   ),
-  // );
+  if (['number', 'both'].includes(muSelection)) {
+    ctx.font = '14px Arial'
+    ctx.fillStyle = 'black'
+    const cellSize = canvas.width / grid.length
+    grid.forEach((col, colIndex) =>
+      col.forEach((colEl, rowIndex) =>
+        ctx.fillText(
+          colEl.mue.toString(),
+          colIndex * cellSize + cellSize / 2 - 10,
+          rowIndex * cellSize + cellSize / 2 + 10,
+        ),
+      ),
+    )
+  }
 }
 
 function drawAllDisturbances() {

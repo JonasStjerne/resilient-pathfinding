@@ -59,6 +59,24 @@
             </div>
             <div class="switches">
               <p>Settings</p>
+              <span>Show μ: </span>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="mu-options" id="show-mu-number" value="number">
+                <label class="form-check-label" for="show-mu-number">Number</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="mu-options" id="show-mu-color" value="color">
+                <label class="form-check-label" for="show-mu-color">Color</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="mu-options" id="show-mu-both" value="both">
+                <label class="form-check-label" for="show-mu-both">Both</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="mu-options" id="show-mu-none" value="none">
+                <label class="form-check-label" for="show-mu-none">None</label>
+              </div>
+              <p></p>
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="show-directed-edges">
                 <label class="form-check-label" for="show-directed-edges">Show directed edges</label>
@@ -66,10 +84,6 @@
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="show-disturbances">
                 <label class="form-check-label" for="show-disturbances">Show disturbances</label>
-              </div>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="show-mu">
-                <label class="form-check-label" for="show-mu">Show μ</label>
               </div>
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="show-node-id">
