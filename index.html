@@ -82,23 +82,44 @@
             </div>
           </div>
         </main>
-        <section>
-          <div class="save-menu content">
-            <div class="saves-container">
-              <label for="save-list" class="form-label">Saves</label>
-              <div class="input-group mb-3">
-                <button class="btn btn-primary" type="button" id="load-btn">Load</button>
-                <button class="btn btn-danger" type="button" id="delete-btn">Delete</button>
-                <select class="form-select" id="save-list">
-                  <option selected value="-1">Choose...</option>
-                </select>
+
+        <div class="content">
+
+          <section class="LocalStorage-section">
+            <div class="save-menu content">
+              <div class="saves-container">
+                <label for="save-list" class="form-label">Local Storage Saves</label>
+                <div class="input-group mb-3">
+                  <button class="btn btn-primary" type="button" id="load-btn">Load</button>
+                  <button class="btn btn-danger" type="button" id="delete-btn">Delete</button>
+                  <select class="form-select" id="save-list">
+                    <option selected value="-1">Choose...</option>
+                  </select>
+                </div>
+                <div class="input-group mb-3">
+                  <button class="btn btn-success" type="button" id="save-grid">Save current grid</button>
+                  <input type="text" class="form-control" placeholder="Save name" id="save-grid-input">
+                </div>            
               </div>
-              <div class="input-group mb-3">
-                <button class="btn btn-success" type="button" id="save-grid">Save current grid</button>
-                <input type="text" class="form-control" placeholder="Save name" id="save-grid-input">
-              </div>            
             </div>
-          </div>
-        </section>
+          </section>
+  
+          <section class="FileSystem-section">
+            <div class="local-fs content">
+              <div class="local-fs-container">
+                <label for="" class="form-label">Local File System Saves</label>
+                <div class="input-group mb-3">
+                  <button class="btn btn-primary" type="button" id="load-local-btn">Load local</button>
+                  <input class="file-input" type="file" id="load-local-grid-input" accept=".json, application/json" >
+                </div>
+                <div class="input-group mb-3">
+                  <button class="btn btn-success" type="button" id="save-grid-local">Save current grid locally</button>
+                  <input type="text" class="form-control" placeholder="Save name" id="save-grid-local-input">
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
     </body>
 </html>
