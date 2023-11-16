@@ -31,10 +31,10 @@ export class simulationService {
   }
 
   static #setStats(stats: Stats) {
-    this.#setStat('comp-time', `${stats.comptime}ms`)
-    this.#setStat('traveledDistance', `${stats.traveledDistance}m`)
-    this.#setStat('pushover', `${stats.pushover * 100}%`)
-    this.#setStat('success-rate', `${stats.successRate * 100}%`)
+    this.#setStat('comp-time', `${stats.comptime.toFixed(1)}ms`)
+    this.#setStat('traveledDistance', `${stats.traveledDistance.toFixed(1)}m`)
+    this.#setStat('pushover', `${(stats.pushover * 100).toFixed(0)}%`)
+    this.#setStat('success-rate', `${(stats.successRate * 100).toFixed(0)}%`)
   }
 
   static #setStat(id: string, value: string) {
@@ -57,6 +57,7 @@ export class simulationService {
     const maps = this.#getMaps()
     const simResults: results[] = []
     const stats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
+    let successfulRuns = 0
 
     for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
       const startPos = this.#getStartOrEndPos(maps[mapIndex], 'start')
@@ -66,7 +67,8 @@ export class simulationService {
           search(startPos!, endPos!, maps[mapIndex], options.riskFactor),
         )
         for (let i = 0; i < options.runCount; i++) {
-          path.filter((nodeId) => nodeId)
+          path?.filter((nodeId) => nodeId)
+          console.log('started')
           const simResult = simulateRoute(
             maps[mapIndex],
             path as number[],
@@ -76,16 +78,21 @@ export class simulationService {
             0.5,
             options.riskFactor,
           )
+          console.log('Ended')
           simResults.push(simResult)
           stats.pushover += simResult.distTaken
           stats.comptime += deltaTime
           simResult.didReachGoal ? stats.successRate++ : null
-          simResult.pathtaken.forEach((node, index, path) => {
-            if (index < path.length - 1) {
-              const possibleMoves = [...node.edges, ...node.distEdges]
-              stats.traveledDistance += possibleMoves.find((edge) => edge.adjacent.id == path[index + 1].id)!.weight
-            }
-          })
+
+          //If we reach the goal, calculate the distance of the path (could be different for same route because of disturbance pushovers)
+          if (simResult.didReachGoal) {
+            simResult.pathtaken.forEach((node, index, path) => {
+              if (index < path.length - 1) {
+                const possibleMoves = [...node.edges, ...node.distEdges]
+                stats.traveledDistance += possibleMoves.find((edge) => edge.adjacent.id == path[index + 1].id)!.weight
+              }
+            })
+          }
         }
       }
     }
@@ -110,10 +117,12 @@ export class simulationService {
 
   static #getAverageStats(runCount: number, mapsCount: number, stats: Stats) {
     const averageStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
-
-    ;(Object.keys(stats) as Array<keyof Stats>).forEach(
-      (key) => (averageStats[key] = this.#getAverageStat(runCount, mapsCount, stats[key])),
-    )
+    ;(Object.keys(stats) as Array<keyof Stats>).forEach((key) => {
+      averageStats[key] =
+        key == 'traveledDistance'
+          ? this.#getAverageStat(stats['successRate'], 1, stats[key])
+          : (averageStats[key] = this.#getAverageStat(runCount, mapsCount, stats[key]))
+    })
 
     return averageStats
   }
