@@ -600,7 +600,7 @@ function drawEdgeArrow(fromNode: Node, toNode: Node) {
 
 function getEdgeArrowPointsByDirection(direction: Direction) {
   const edgeArrowHeight = 20
-  const distanceScale = ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(direction) ? 1.4 : 1
+  const distanceScale = ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(direction) ? Math.SQRT2 : 1
 
   const arrowDownPoints = [
     { x: 0, y: (cellSize / 2) * distanceScale + edgeArrowHeight / 2 },
