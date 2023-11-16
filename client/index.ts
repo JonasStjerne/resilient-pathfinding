@@ -45,6 +45,9 @@ const riskFactorView = <HTMLSpanElement>document.getElementById('risk-factor-vie
 let algoVersion = 'v1'
 const selectedAlgoRadio = document.getElementsByName('algo-version')!
 
+let heuristic = 'manhattan'
+const selectedHeuristicRadio = document.getElementsByName('algo-heuristics')!
+
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById('start' satisfies drawType)!
 const goalBtn = document.getElementById('goal' satisfies drawType)!
@@ -107,6 +110,13 @@ selectedAlgoRadio.forEach((radio) => {
       riskFactorSlider.style.opacity = '1'
     }
     console.log('Algo version set to: ' + algoVersion)
+  })
+})
+
+selectedHeuristicRadio.forEach((radio) => {
+  radio.addEventListener('change', () => {
+    heuristic = (<HTMLInputElement>radio).value
+    console.log('Heuristic set to: ' + heuristic)
   })
 })
 
@@ -391,7 +401,7 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat()
-  const path = search(startNode, endNode, grid, riskFactor, algoVersion)
+  const path = search(startNode, endNode, grid, riskFactor, algoVersion, heuristic)
   if (!path) {
     return
   }
