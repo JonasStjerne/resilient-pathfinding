@@ -30,7 +30,7 @@ export function getControlsFromLocalStorage() {
     return dataJSON;
 }
 
-export function saveActiveGridLocally(grid: Grid) {
+export function convertGridToJSONstring(grid: Grid) {
     const jsonSafeGrid = removeNodeCircularReference(grid);
     const data = JSON.stringify(jsonSafeGrid);
     return data;
@@ -152,3 +152,14 @@ type NodeLookup = Pick<Node, "x" | "y">
 type GridJSON = NodeJSON[][];
 type GridJSONSave = {title: string, id: number, grid: GridJSON};
 export type GridSave = {title: string, id: number, grid: Grid};
+
+export function saveLocalGrid(content: string, fileName: string, contentType: string) {
+    const blob = new Blob([content], { type: contentType });
+
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.download = fileName;
+    a.click();
+
+    window.URL.revokeObjectURL(a.href);
+}

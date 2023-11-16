@@ -1,7 +1,8 @@
 import { grid, setGrid } from "../algo/grid.js";
-import { drawGrid, canvasSize } from "./index.js";
-import { addGridToSavesInLocalStorage, getGridsFromSavesInLocalStorage, removeGridFromSavesInLocalStorage, saveActiveGridLocally, recreateNodeCircularReference, NodeJSON} from "./saveService.js";
+import { drawGrid } from "./index.js";
+import { addGridToSavesInLocalStorage, getGridsFromSavesInLocalStorage, removeGridFromSavesInLocalStorage, convertGridToJSONstring, recreateNodeCircularReference, NodeJSON} from "./saveService.js";
 import { gridSize } from "../algo/grid.js";
+import { saveLocalGrid } from "./saveService.js";
 
 export const initSaveControl = () => {
     const saveList = <HTMLSelectElement>document.getElementById("save-list")!;
@@ -64,23 +65,12 @@ function validateLocalGrid(saveGridLocalInput: HTMLInputElement){
         return
     }
     
-    fileName = fileName + "_" + gridSize + "x" + canvasSize
+    fileName = fileName + "_" + gridSize
 
-    const content = saveActiveGridLocally(grid);
+    const content = convertGridToJSONstring(grid);
     const contentType = "application/json";
 
     saveLocalGrid(content,fileName,contentType);
-}
-
-function saveLocalGrid(content: string, fileName: string, contentType: string) {
-    const blob = new Blob([content],{type: contentType});
-    
-    const a = document.createElement('a');
-    a.href = window.URL.createObjectURL(blob);
-    a.download = fileName;
-    a.click();
-
-    window.URL.revokeObjectURL(a.href);
 }
 
 function validateSaveGrid(saveGridInput: HTMLInputElement, savesList: HTMLSelectElement) {

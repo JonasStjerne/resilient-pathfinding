@@ -134,7 +134,7 @@ function selectDrawType(id: drawType) {
 }
 
 
-export const canvasSize = 500;
+const canvasSize = 500;
 
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
