@@ -27,7 +27,7 @@ export class simulationService {
 
   static #getMaps() {
     //Todo: hook up to save service when working with file system
-    return [grid]
+    return [grid, grid]
   }
 
   static #setStats(stats: Stats) {
@@ -55,7 +55,7 @@ export class simulationService {
   static runSimulation() {
     const options = this.getSimOptions()
     const maps = this.#getMaps()
-    const statsByMap: Stats[] = []
+    const statsByMap: Array<{ name: string; stats: Stats }> = []
     const globalStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
 
     for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
@@ -94,7 +94,10 @@ export class simulationService {
             })
           }
         }
-        statsByMap.push({ ...this.#getAverageStats(options.runCount, 1, statsMap) })
+        statsByMap.push({
+          name: Math.random().toString(),
+          stats: { ...this.#getAverageStats(options.runCount, 1, statsMap) },
+        })
         ;(Object.keys(globalStats) as Array<keyof Stats>).forEach((key) => {
           globalStats[key] += statsMap[key]
         })
@@ -103,6 +106,7 @@ export class simulationService {
 
     const averageStats = this.#getAverageStats(options.runCount, maps.length, globalStats)
     this.#setStats(averageStats)
+    return statsByMap
   }
 
   static #getStartOrEndPos(grid: Grid, type: 'start' | 'goal'): Position | undefined {
