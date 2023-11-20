@@ -13,13 +13,9 @@ export const initSaveControl = () => {
   populateSavesList(saveList)
 
   const saveBtn = document.getElementById('save-grid')!
-  const saveGridInput = <HTMLInputElement>(
-    document.getElementById('save-grid-input')!
-  )
+  const saveGridInput = <HTMLInputElement>document.getElementById('save-grid-input')!
 
-  saveBtn.addEventListener('mouseup', () =>
-    validateSaveGrid(saveGridInput, saveList),
-  )
+  saveBtn.addEventListener('mouseup', () => validateSaveGrid(saveGridInput, saveList))
 
   const loadBtn = document.getElementById('load-btn')!
   const savesList = <HTMLSelectElement>document.getElementById('save-list')!
@@ -31,10 +27,7 @@ export const initSaveControl = () => {
   deleteBtn.addEventListener('mouseup', () => deleteGridFromSave(savesList))
 }
 
-function validateSaveGrid(
-  saveGridInput: HTMLInputElement,
-  savesList: HTMLSelectElement,
-) {
+function validateSaveGrid(saveGridInput: HTMLInputElement, savesList: HTMLSelectElement) {
   const title = saveGridInput.value
   if (!title) {
     saveGridInput.classList.add('is-invalid')
@@ -56,9 +49,7 @@ function populateSavesList(savesInputEl: HTMLSelectElement) {
   // const permanentSaves =
   const saves = getGridsFromSavesInLocalStorage()
 
-  saves.forEach((save) =>
-    savesInputEl.appendChild(generateOptionHtmlElement(save.title, save.id)),
-  )
+  saves.forEach((save) => savesInputEl.appendChild(generateOptionHtmlElement(save.title, save.id)))
 }
 
 function resetSavesList(savesInputEl: HTMLSelectElement) {
@@ -83,9 +74,7 @@ function loadGridFromSaves(listEl: HTMLSelectElement) {
   }
   trackTime(() => {
     const gridsFromSave = getGridsFromSavesInLocalStorage()
-    const selectedGrid = gridsFromSave.find(
-      (grid) => grid.id.toString() == listEl.value,
-    )
+    const selectedGrid = gridsFromSave.find((grid) => grid.id.toString() == listEl.value)
 
     if (!selectedGrid) {
       listEl.classList.remove('is-invalid')
