@@ -1,4 +1,3 @@
-// import * as d3 from 'd3'
 import { Stats } from './models'
 //https://d3-graph-gallery.com/graph/barplot_ordered.html
 // export function drawBarPlot(data: Stats[]) {
@@ -80,6 +79,7 @@ export function createBarPlot(data: BarData[]) {
   const margin = { top: 20, right: 20, bottom: 30, left: 40 }
 
   // Create the SVG container
+  // @ts-ignore
   const svg = d3
     .select('body')
     .append('svg')
@@ -89,14 +89,16 @@ export function createBarPlot(data: BarData[]) {
     .attr('transform', `translate(${margin.left},${margin.top})`)
 
   // Set up the scales
+  // @ts-ignore
   const xScale = d3
     .scaleBand<string>()
     .domain(data.map((d) => d.name))
     .range([0, width])
     .padding(0.1)
-
+  // @ts-ignore
   const yScale = d3
     .scaleLinear()
+    // @ts-ignore
     .domain([0, d3.max(data, (d) => d.stats.successRate)!]) // Ensure the result is not undefined
     .range([height, 0])
 
@@ -113,9 +115,11 @@ export function createBarPlot(data: BarData[]) {
     .attr('height', (d) => height - yScale(d.stats.successRate))
 
   // Add X axis
+  // @ts-ignore
   svg.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(xScale))
 
   // Add Y axis
+  // @ts-ignore
   svg.append('g').call(d3.axisLeft(yScale))
 
   // Add labels
