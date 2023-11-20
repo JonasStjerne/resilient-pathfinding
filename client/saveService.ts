@@ -178,7 +178,7 @@ export type NodeJSON = Omit<Node, 'edges' | 'incomingEdges' | 'distEdges' | 'inc
 }
 type NodeLookup = Pick<Node, 'x' | 'y'>
 type GridJSON = NodeJSON[][]
-type GridJSONSave = { title: string; id: number; grid: GridJSON }
+export type GridJSONSave = { title: string; id: number; grid: GridJSON }
 export type GridSave = { title: string; id: number; grid: Grid }
 
 export function saveLocalGrid(content: string, fileName: string, contentType: string) {

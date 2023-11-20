@@ -4,6 +4,7 @@ import { grid } from '../../algo/grid.js'
 import { Grid } from '../../algo/models/Grid.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
+import { GridJSONSave, GridSave, recreateNodeCircularReference } from '../saveService.js'
 import { SimulationOptions, Stats } from './models.js'
 
 export class simulationService {
@@ -134,5 +135,29 @@ export class simulationService {
     })
 
     return averageStats
+  }
+
+  static #getSavesFiles(input: HTMLInputElement) {
+    if (input?.files && input.files.length > 0) {
+      const file = input.files[0]
+      if (file.type === 'application/json') {
+        const reader = new FileReader()
+
+        reader.onload = (e) => {
+          const fileContent = e.target?.result as string
+          const saves: GridSave[] = []
+          const dataJSON = <GridJSONSave[]>JSON.parse(fileContent)
+          dataJSON.forEach((save) => {
+            const grid = recreateNodeCircularReference(save.grid)
+            saves.push({ ...save, grid })
+          })
+          return saves
+        }
+
+        reader.readAsText(file)
+      } else {
+        alert('Please select a JSON file.')
+      }
+    }
   }
 }
