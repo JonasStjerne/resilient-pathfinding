@@ -119,7 +119,7 @@ function setControls() {
   // selectedType = controls.drawType
 }
 
-function saveControls() {
+function getMuRadioValueFromRadioGroup() {
   let muVal: string = 'none'
   if ((<HTMLInputElement>document.getElementById('show-mu-number'))?.checked) {
     muVal = (<HTMLInputElement>document.getElementById('show-mu-number'))?.value
@@ -128,6 +128,11 @@ function saveControls() {
   } else if ((<HTMLInputElement>document.getElementById('show-mu-both'))?.checked) {
     muVal = (<HTMLInputElement>document.getElementById('show-mu-both'))?.value
   }
+  return muVal
+}
+
+function saveControls() {
+  const muVal = getMuRadioValueFromRadioGroup()
 
   const controlsData: ControlsData = {
     drawType: selectedType,
@@ -234,14 +239,7 @@ export function drawGrid() {
   drawObstacles()
   if (showIdsCheckbox.checked) drawIds()
 
-  let muVal: string = 'none'
-  if ((<HTMLInputElement>document.getElementById('show-mu-number'))?.checked) {
-    muVal = (<HTMLInputElement>document.getElementById('show-mu-number'))?.value
-  } else if ((<HTMLInputElement>document.getElementById('show-mu-color'))?.checked) {
-    muVal = (<HTMLInputElement>document.getElementById('show-mu-color'))?.value
-  } else if ((<HTMLInputElement>document.getElementById('show-mu-both'))?.checked) {
-    muVal = (<HTMLInputElement>document.getElementById('show-mu-both'))?.value
-  }
+  const muVal = getMuRadioValueFromRadioGroup()
 
   drawMuValues(muVal)
   if (showDisturbancesCheckbox.checked) drawAllDisturbances()
@@ -491,16 +489,16 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number, color
   ctx.lineCap = 'round'
   ctx.strokeStyle = color
   ctx.beginPath()
-  var headlen = 3 // length of head in pixels
+  var headLength = 3 // in pixels
   var dx = toX - fromX
   var dy = toY - fromY
   var angle = Math.atan2(dy, dx)
   ctx.moveTo(fromX, fromY)
   ctx.lineTo(toX, toY)
   ctx.moveTo(toX, toY)
-  ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6))
+  ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6))
   ctx.moveTo(toX, toY)
-  ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6))
+  ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6))
   ctx.stroke()
 }
 
