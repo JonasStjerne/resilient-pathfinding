@@ -14,6 +14,7 @@ const search = (
   w: number = 0.5,
   algoVersion: string = 'v2',
   heuristic: string = 'manhattan',
+  drawLists = false,
 ) => {
   let selectedHeuristic: HeuristicFunction
 

@@ -445,7 +445,15 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat()
-  const path = search(startNode, endNode, grid, riskFactor, algoVersion, heuristic, showOpenAndClosedListsCheckbox.checked)
+  const path = search(
+    startNode,
+    endNode,
+    grid,
+    riskFactor,
+    algoVersion,
+    heuristic,
+    showOpenAndClosedListsCheckbox.checked,
+  )
   if (!path) {
     return
   }
@@ -571,7 +579,7 @@ const directionToOffsetMap: Record<Direction, { x: number; y: number }> = {
   'bottom-right': { x: 1, y: 1 },
 }
 
-//This function draws small triangles if a graph is only one directional or a thicker line if theres no edges connecting two nodes
+//This function draws small triangles if a graph is only one directional or a thicker line if there's no edges connecting two nodes
 function drawDirectedEdges() {
   const gridLength = grid.length
   for (let x = 0; x < gridLength; x++) {
@@ -743,7 +751,7 @@ function drawWallBetweenNodes(fromNode: Node, direction: Direction) {
 }
 
 function checkIfNeighbor(fromNode: Node, toNode: Node) {
-  //If its the same node also return false
+  //If it's the same node also return false
   if (fromNode.x == toNode.x && fromNode.y == toNode.y) {
     return false
   }
