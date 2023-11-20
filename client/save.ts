@@ -1,14 +1,14 @@
 import { grid, setGrid } from '../algo/grid.js'
 import { drawGrid } from './index.js'
 import {
-  addGridToSavesInLocalStorage,
-  getGridsFromSavesInLocalStorage,
-  removeGridFromSavesInLocalStorage,
-  convertGridToJSONstring,
-  recreateNodeCircularReference,
   NodeJSON,
+  addGridToSavesInLocalStorage,
+  convertGridToJSONstring,
+  getGridsFromSavesInLocalStorage,
+  recreateNodeCircularReference,
+  removeGridFromSavesInLocalStorage,
+  saveLocalGrid,
 } from './saveService.js'
-import { saveLocalGrid } from './saveService.js'
 
 export const initSaveControl = () => {
   const saveList = <HTMLSelectElement>document.getElementById('save-list')!
