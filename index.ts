@@ -1,9 +1,9 @@
-import algoInit from "./algo/index.js";
-import clientInit from "./client/index.js";
+import algoInit from './algo/index.js'
+import clientInit from './client/index.js'
 
 const initImports = [algoInit, clientInit]
 
-initImports.forEach(init => init())
+initImports.forEach((init) => init())
 
 // const canvas = <HTMLCanvasElement>document.getElementById("canvas")!;
 // const ctx = canvas.getContext("2d")!;
@@ -11,9 +11,7 @@ initImports.forEach(init => init())
 // const startNode = { x: 8, y: 8 };
 // const endNode = { x: 0, y: 3 };
 
-
 // const path = search(startNode, endNode, grid);
-
 
 // const nodes = grid.flat();
 // const cellSize = canvas.width / grid.length;

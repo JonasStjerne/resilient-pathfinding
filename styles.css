@@ -59,3 +59,12 @@ main {
   gap: 1rem;
   padding: 1rem;
 }
+
+.file-input {
+    align-self: flex-start;
+    padding: 0.25rem;
+}
+
+.LocalStorage-section .FileSystem-section {
+    flex: 1;
+}

@@ -74,9 +74,9 @@ export const simulateRoute = (
                 distTaken ++;
                 currentPos = {x: next.x, y: next.y};
                 if(grid[currentPos.x][currentPos.y].mue != 0 && endPos != undefined){
-                    iter = 1
-                    const temp = pathFindingAlgo(currentPos, endPos, grid, w)
-                    if(temp != null){path = temp.filter((num: number | undefined): num is number => num !== undefined); console.log('trigger');console.log(path)}
+                    iter = 1;
+                    const temp = pathFindingAlgo(currentPos, endPos, grid, w);
+                    if(temp != null){path = temp.filter((num: number | undefined): num is number => num !== undefined);}
                     else{noPath = true;}
                     if(path.length == 0){noPath = true}           
                 }
@@ -167,7 +167,6 @@ export const simTestFunktion = (): void => {
 
     grid[0][4].edges.push(new Edge(grid[0][5],1,grid[0][4]));
 
-    // Set path
     let path:number[] = [grid[0][0].id, grid[0][1].id, grid[0][2].id, grid[0][3].id];
     let pushProp:number = 0.5;
     computeMue(grid);

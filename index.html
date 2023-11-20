@@ -65,6 +65,24 @@
       </div>
       <div class="switches">
         <p>Settings</p>
+        <span>Show μ: </span>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-number" value="number">
+          <label class="form-check-label" for="show-mu-number">Number</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-color" value="color">
+          <label class="form-check-label" for="show-mu-color">Color</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-both" value="both">
+          <label class="form-check-label" for="show-mu-both">Both</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-none" value="none">
+          <label class="form-check-label" for="show-mu-none">None</label>
+        </div>
+        <p></p>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="show-directed-edges">
           <label class="form-check-label" for="show-directed-edges">Show directed edges</label>
@@ -74,17 +92,18 @@
           <label class="form-check-label" for="show-disturbances">Show disturbances</label>
         </div>
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="show-mu">
-          <label class="form-check-label" for="show-mu">Show μ</label>
-        </div>
-        <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="show-node-id">
           <label class="form-check-label" for="show-node-id">Show node ID</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="show-open-and-closed-lists">
+          <label class="form-check-label" for="show-open-and-closed-lists">Show open and closed lists</label>
         </div>
       </div>
       <div class="run-algo-container button-container">
         <button class="btn btn-success" id="run-algo">Run algorithm ></button>
         <button class="btn btn-danger" id="reset-grid-btn">Reset grid</button>
+        <button class="btn btn-success" id="gen-grid-btn">Generate random grid</button>
       </div>
     </div>
   </main>
@@ -193,6 +212,44 @@
     <div id="my_dataviz"></div>
   </section>
 
+  <div class="content">
+
+    <section class="LocalStorage-section">
+      <div class="save-menu content">
+        <div class="saves-container">
+          <label for="save-list" class="form-label">Local Storage Saves</label>
+          <div class="input-group mb-3">
+            <button class="btn btn-primary" type="button" id="load-btn">Load</button>
+            <button class="btn btn-danger" type="button" id="delete-btn">Delete</button>
+            <select class="form-select" id="save-list">
+              <option selected value="-1">Choose...</option>
+            </select>
+          </div>
+          <div class="input-group mb-3">
+            <button class="btn btn-success" type="button" id="save-grid">Save current grid</button>
+            <input type="text" class="form-control" placeholder="Save name" id="save-grid-input">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="FileSystem-section">
+      <div class="local-fs content">
+        <div class="local-fs-container">
+          <label for="" class="form-label">Local File System Saves</label>
+          <div class="input-group mb-3">
+            <button class="btn btn-primary" type="button" id="load-local-btn">Load local</button>
+            <input class="file-input" type="file" id="load-local-grid-input" accept=".json, application/json">
+          </div>
+          <div class="input-group mb-3">
+            <button class="btn btn-success" type="button" id="save-grid-local">Save current grid locally</button>
+            <input type="text" class="form-control" placeholder="Save name" id="save-grid-local-input">
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
 </body>
 
 </html>
