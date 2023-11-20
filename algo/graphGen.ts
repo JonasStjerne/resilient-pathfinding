@@ -169,22 +169,27 @@ export function generateRandomMaps(mapsCount: number) {
 
 function setStartAndEnd(grid: Grid) {
   const minDistanceBetweenPoints = grid.length / 2 - 10
-  let path
+  let path: undefined | (number | undefined)[] | null
+  let startX, startY, goalX, goalY
 
   do {
-    const startX = Math.floor(Math.random() * grid.length)
-    const startY = Math.floor(Math.random() * grid[0].length)
+    if (startX && startY && goalX && goalY) {
+      grid[startX][startY].type = 'road'
+      grid[goalX][goalY].type = 'road'
+    }
+    startX = Math.floor(Math.random() * grid.length)
+    startY = Math.floor(Math.random() * grid[0].length)
     grid[startX][startY].type = 'start'
 
-    const goalX = Math.floor(Math.random() * grid.length)
-    const goalY = Math.floor(Math.random() * grid[0].length)
+    goalX = Math.floor(Math.random() * grid.length)
+    goalY = Math.floor(Math.random() * grid[0].length)
     grid[goalX][goalY].type = 'goal'
 
     if (euclideanDistance({ x: startX, y: startY }, { x: goalX, y: goalY }) < minDistanceBetweenPoints) {
-      continue
+      path = undefined
+    } else {
+      path = search({ x: startX, y: startY }, { x: goalX, y: goalY }, grid)
     }
-
-    path = search({ x: startX, y: startY }, { x: goalX, y: goalY }, grid)
   } while (!path)
 }
 
