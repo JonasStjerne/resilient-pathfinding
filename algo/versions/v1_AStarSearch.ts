@@ -3,6 +3,7 @@ import { Grid } from '../models/Grid'
 import { Node } from '../models/Node'
 import { Position } from '../models/Position'
 
+
 interface SearchTable {
   [index: number]: {
     g?: number
@@ -12,12 +13,18 @@ interface SearchTable {
   }
 }
 
-const run = (startPos: Position, endPos: Position, graph: Grid, heuristic: HeuristicFunction) => {
+const search = (
+    startPos: Position,
+    endPos: Position,
+    graph: Grid,
+    heuristic: HeuristicFunction,
+    drawLists = false,
+) => {
   const searchTable: SearchTable = {}
   graph.forEach((graphRow) =>
-    graphRow.forEach((graphCol) => {
-      if (['road', 'start', 'goal'].includes(graphCol.type)) searchTable[graphCol.id] = {}
-    }),
+      graphRow.forEach((graphCol) => {
+        if (['road', 'start', 'goal'].includes(graphCol.type)) searchTable[graphCol.id] = {}
+      }),
   )
 
   let openList: Array<Node> = []
@@ -38,6 +45,8 @@ const run = (startPos: Position, endPos: Position, graph: Grid, heuristic: Heuri
         const s = edge.adjacent.mue === -1 ? Number.MAX_VALUE : edge.adjacent.mue
         const f = g + h
 
+        // console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
+
         const prevF = searchTable[edge.adjacent.id]?.f
         if (prevF == undefined || f < prevF)
           searchTable[edge.adjacent.id] = {
@@ -56,25 +65,114 @@ const run = (startPos: Position, endPos: Position, graph: Grid, heuristic: Heuri
 
     openListSearchTableEntries.forEach((entry) => {
       if (
-        entry.entry.f !== undefined &&
-        entryWithLowestF.entry.f !== undefined &&
-        entry.entry.f < entryWithLowestF.entry.f
+          entry.entry.f !== undefined &&
+          entryWithLowestF.entry.f !== undefined &&
+          entry.entry.f < entryWithLowestF.entry.f
       )
         entryWithLowestF = entry
     })
     const newCurrentNode = openList.find((node) => node.id === entryWithLowestF.id)
     openList = openList.filter((node) => node.id !== entryWithLowestF.id)
-    if (openList.length == 0) {
-      return null
-    }
+    if (openList.length == 0) return null
     if (newCurrentNode) currentNode = newCurrentNode
   }
 
   // console.log("searchTable: ", searchTable);
-
+  console.log('open', openList)
+  console.log('closed', closedList)
   const route = backtrackPath(currentNode, searchTable)
   console.log('route: ', route)
 
+  const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
+  const ctx = canvas.getContext('2d')!
+  const gridSize = graph.length
+  ctx.lineWidth = 2
+
+  if (drawLists) {
+    const openListToDraw = openList.filter((node) => !route.includes(node.id))
+    openListToDraw.forEach((node) => {
+      ctx.strokeStyle = '#57fa57' // Set fill color to color
+      const cellSize = canvas.width / gridSize
+      ctx.beginPath()
+      // Top border
+      let fromX = node.x * cellSize
+      let fromY = node.y * cellSize
+      let toX = node.x * cellSize + cellSize
+      let toY = node.y * cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+
+      //Left border
+      fromX = node.x * cellSize
+      fromY = node.y * cellSize
+      toX = node.x * cellSize
+      toY = node.y * cellSize + cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+
+      // Bottom border
+      fromX = node.x * cellSize
+      fromY = node.y * cellSize + cellSize
+      toX = node.x * cellSize + cellSize
+      toY = node.y * cellSize + cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+
+      // Right border
+      fromX = node.x * cellSize + cellSize
+      fromY = node.y * cellSize + cellSize
+      toX = node.x * cellSize + cellSize
+      toY = node.y * cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+    })
+
+    const closedListToDraw = closedList.filter((node) => !route.includes(node.id))
+    closedListToDraw.forEach((node) => {
+      ctx.strokeStyle = '#9e1515' // Set fill color to color
+      const cellSize = canvas.width / gridSize
+      ctx.beginPath()
+      // Top border
+      let fromX = node.x * cellSize
+      let fromY = node.y * cellSize
+      let toX = node.x * cellSize + cellSize
+      let toY = node.y * cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+
+      // Left border
+      fromX = node.x * cellSize
+      fromY = node.y * cellSize
+      toX = node.x * cellSize
+      toY = node.y * cellSize + cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+
+      // Bottom border
+      fromX = node.x * cellSize
+      fromY = node.y * cellSize + cellSize
+      toX = node.x * cellSize + cellSize
+      toY = node.y * cellSize + cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+
+      // Right border
+      fromX = node.x * cellSize + cellSize
+      fromY = node.y * cellSize + cellSize
+      toX = node.x * cellSize + cellSize
+      toY = node.y * cellSize
+      ctx.moveTo(fromX, fromY)
+      ctx.lineTo(toX, toY)
+      ctx.stroke()
+    })
+  }
   return route
 }
 
@@ -90,4 +188,4 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
   return path
 }
 
-export default run
+export default search

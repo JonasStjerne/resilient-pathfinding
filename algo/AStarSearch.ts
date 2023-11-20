@@ -43,15 +43,15 @@ const search = (
   switch (algoVersion) {
     case 'v1': {
       console.log('Running v1')
-      return runv1(startPos, endPos, graph, selectedHeuristic)
+      return runv1(startPos, endPos, graph, selectedHeuristic, drawLists)
     }
     case 'v2': {
       console.log('Running v2')
-      return runv2(startPos, endPos, graph, selectedHeuristic, w)
+      return runv2(startPos, endPos, graph, selectedHeuristic, w, drawLists)
     }
     default: {
       console.log('Invalid algo version. Got ' + algoVersion + '. Using v2')
-      return runv2(startPos, endPos, graph, selectedHeuristic, w)
+      return runv2(startPos, endPos, graph, selectedHeuristic, w, drawLists)
     }
   }
 }
