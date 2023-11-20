@@ -283,7 +283,10 @@ function drawSquareInGrid(col: number, row: number, type: NodeType) {
 
   // Sets the color for road cells if Mu value > 0
   if (type == 'road' && (showMuRadios.item(1).checked || showMuRadios.item(2).checked)) {
-    hexColor = gradientCellColor(hexColor, col, row)
+    const gradient = gradientCellColor(hexColor, col, row)
+    if (gradient) {
+      hexColor = gradient
+    }
   }
 
   // Calculate the size of each grid cell
