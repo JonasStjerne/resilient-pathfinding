@@ -1,7 +1,7 @@
 // Experimental radius is bugged. And its use cases are commented out.
 
-import { disableContinuousDrawing, drawDisturbance, drawGrid, enableContinuousDrawing } from '../client/index.js'
-import { Position } from './AStarSearch.js'
+import { disableContinuousDrawing, drawGrid, enableContinuousDrawing } from '../client/index.js'
+import search, { Position } from './AStarSearch.js'
 import { addDisturbance, makeGrid, setGrid } from './grid.js'
 import { Grid } from './models/Grid.js'
 import { computeMue } from './mue.js'
@@ -152,6 +152,40 @@ export function generateOneGraph() {
   //   ctx.fillStyle = 'rgb(255, 51, 85)'
   //   ctx.fillRect(agent.originalPos.x * cellSize, agent.originalPos.y * cellSize, cellSize, cellSize)
   // })
+}
+
+export function generateRandomMaps(mapsCount: number) {
+  const maps: Grid[] = []
+  for (let i = 0; i < mapsCount; i++) {
+    const newGrid = makeGrid(GRID_SIZE)
+    generateWater(newGrid)
+    generateDisturbances(newGrid)
+    computeMue(newGrid)
+    setStartAndEnd(newGrid)
+    maps.push(newGrid)
+  }
+  return maps
+}
+
+function setStartAndEnd(grid: Grid) {
+  const minDistanceBetweenPoints = grid.length / 2 - 10
+  let path
+
+  do {
+    const startX = Math.floor(Math.random() * grid.length)
+    const startY = Math.floor(Math.random() * grid[0].length)
+    grid[startX][startY].type = 'start'
+
+    const goalX = Math.floor(Math.random() * grid.length)
+    const goalY = Math.floor(Math.random() * grid[0].length)
+    grid[goalX][goalY].type = 'goal'
+
+    if (euclideanDistance({ x: startX, y: startY }, { x: goalX, y: goalY }) < minDistanceBetweenPoints) {
+      continue
+    }
+
+    path = search({ x: startX, y: startY }, { x: goalX, y: goalY }, grid)
+  } while (!path)
 }
 
 function euclideanDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {
