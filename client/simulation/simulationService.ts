@@ -1,6 +1,5 @@
 import search, { Position } from '../../algo/AStarSearch.js'
 import { simulateRoute } from '../../algo/Simulate.js'
-import { grid } from '../../algo/grid.js'
 import { Grid } from '../../algo/models/Grid.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
@@ -15,7 +14,7 @@ export class simulationService {
     const riskFactor = Number((<HTMLInputElement>document.getElementById('risk-factor-sim')).value)
     const runCount = Number((<HTMLInputElement>document.getElementById('iteration-count')).value)
 
-    const maps = await this.#getMaps()
+    const maps = <Grid[]>await this.#getMaps()
 
     const options: SimulationOptions = {
       maps,
@@ -28,7 +27,7 @@ export class simulationService {
 
   static async #getMaps() {
     const maps = await this.#getSaveFiles()
-    return [grid, grid]
+    return maps
   }
 
   static #setStats(stats: Stats) {
@@ -153,6 +152,10 @@ export class simulationService {
               saves.push(grid)
             })
             resolve(saves)
+          }
+
+          reader.onerror = () => {
+            reject(new Error('Error reading file'))
           }
 
           reader.readAsText(file)
