@@ -8,7 +8,7 @@ import {
   getGridsFromSavesInLocalStorage,
   recreateNodeCircularReference,
   removeGridFromSavesInLocalStorage,
-  saveLocalGrid,
+  saveToFs,
 } from './saveService.js'
 
 export const initSaveControl = () => {
@@ -74,9 +74,8 @@ function validateLocalGrid(saveGridLocalInput: HTMLInputElement) {
   fileName = fileName + '_' + grid.length
 
   const content = convertGridToJSONstring(grid)
-  const contentType = 'application/json'
 
-  saveLocalGrid(content, fileName, contentType)
+  saveToFs(content, fileName)
 }
 
 function validateSaveGrid(saveGridInput: HTMLInputElement, savesList: HTMLSelectElement) {

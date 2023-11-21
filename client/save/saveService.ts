@@ -39,6 +39,13 @@ export function convertGridToJSONstring(grid: Grid) {
   return data
 }
 
+export function convertGridsToJSONString(grids: Grid[]) {
+  const jsonSafeGrids: GridJSON[] = []
+  grids.forEach((grid) => jsonSafeGrids.push(removeNodeCircularReference(grid)))
+  const json = JSON.stringify(jsonSafeGrids)
+  return json
+}
+
 export function saveActiveGridToLocalStorage(grid: Grid) {
   const jsonSafeGrid = removeNodeCircularReference(grid)
   const data = JSON.stringify(jsonSafeGrid)
@@ -169,19 +176,7 @@ export function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid 
   return newGrid
 }
 
-type EdgeJSON = Omit<Edge, 'adjacent'> & { adjacent: { x: number; y: number } }
-export type NodeJSON = Omit<Node, 'edges' | 'incomingEdges' | 'distEdges' | 'incomingDistEdges'> & {
-  edges: EdgeJSON[]
-  incomingEdges: NodeLookup[]
-  distEdges: EdgeJSON[]
-  incomingDistEdges: NodeLookup[]
-}
-type NodeLookup = Pick<Node, 'x' | 'y'>
-type GridJSON = NodeJSON[][]
-export type GridJSONSave = { title: string; id: number; grid: GridJSON }
-export type GridSave = { title: string; id: number; grid: Grid }
-
-export function saveLocalGrid(content: string, fileName: string, contentType: string) {
+export function saveToFs(content: string, fileName: string, contentType = 'application/json') {
   const blob = new Blob([content], { type: contentType })
 
   const a = document.createElement('a')
@@ -191,3 +186,17 @@ export function saveLocalGrid(content: string, fileName: string, contentType: st
 
   window.URL.revokeObjectURL(a.href)
 }
+type EdgeJSON = Omit<Edge, 'adjacent'> & { adjacent: { x: number; y: number } }
+
+export type NodeJSON = Omit<Node, 'edges' | 'incomingEdges' | 'distEdges' | 'incomingDistEdges'> & {
+  edges: EdgeJSON[]
+  incomingEdges: NodeLookup[]
+  distEdges: EdgeJSON[]
+  incomingDistEdges: NodeLookup[]
+}
+
+type NodeLookup = Pick<Node, 'x' | 'y'>
+type GridJSON = NodeJSON[][]
+
+export type GridJSONSave = { title: string; id: number; grid: GridJSON }
+export type GridSave = { title: string; id: number; grid: Grid }

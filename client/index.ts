@@ -20,6 +20,7 @@ import {
   saveActiveGridToLocalStorage,
   saveControlsToLocalStorage,
 } from './save/saveService.js'
+export * from './genMaps/index.js'
 export * from './simulation/index.js'
 export default function clientInit() {
   const savedGrid = getActiveGridFromLocalStorage()
