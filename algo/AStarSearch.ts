@@ -20,37 +20,37 @@ const search = (
 
   switch (heuristic) {
     case 'manhattan': {
-      console.log('Using manhattan')
+      // console.log('Using manhattan')
       selectedHeuristic = manhattan
       break
     }
     case 'chebyshev': {
-      console.log('Using chebyshev')
+      // console.log('Using chebyshev')
       selectedHeuristic = chebyshev
       break
     }
     case 'octile': {
-      console.log('Using octile')
+      // console.log('Using octile')
       selectedHeuristic = octile
       break
     }
     default: {
-      console.log('Invalid heuristic. Got ' + heuristic + '. Using manhattan')
+      // console.log('Invalid heuristic. Got ' + heuristic + '. Using manhattan')
       selectedHeuristic = manhattan
     }
   }
 
   switch (algoVersion) {
     case 'v1': {
-      console.log('Running v1')
+      // console.log('Running v1')
       return runv1(startPos, endPos, graph, selectedHeuristic, drawLists)
     }
     case 'v2': {
-      console.log('Running v2')
+      // console.log('Running v2')
       return runv2(startPos, endPos, graph, selectedHeuristic, w, drawLists)
     }
     default: {
-      console.log('Invalid algo version. Got ' + algoVersion + '. Using v2')
+      // console.log('Invalid algo version. Got ' + algoVersion + '. Using v2')
       return runv2(startPos, endPos, graph, selectedHeuristic, w, drawLists)
     }
   }
