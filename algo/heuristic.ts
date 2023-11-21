@@ -4,11 +4,11 @@ interface HeuristicFunction {
   (startPos: Position, endPos: Position): number
 }
 
-const manhattan = (startPos: Position, endPos: Position): number => {
+const manhattan: HeuristicFunction = (startPos, endPos): number => {
   return Math.abs(endPos.x - startPos.x) + Math.abs(endPos.y - startPos.y)
 }
 
-const octile = (startPos: Position, endPos: Position): number => {
+const octile: HeuristicFunction = (startPos, endPos): number => {
   const dx = Math.abs(endPos.x - startPos.x)
   const dy = Math.abs(endPos.y - startPos.y)
 
@@ -18,7 +18,7 @@ const octile = (startPos: Position, endPos: Position): number => {
   return D * (dx + dy) + (F - 2 * D) * Math.min(dx, dy)
 }
 
-const chebyshev = (startPos: Position, endPos: Position): number => {
+const chebyshev: HeuristicFunction = (startPos, endPos): number => {
   return Math.max(Math.abs(endPos.x - startPos.x), Math.abs(endPos.y - startPos.y))
 }
 
