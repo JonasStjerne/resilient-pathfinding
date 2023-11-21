@@ -1,7 +1,7 @@
 // Experimental radius is bugged. And its use cases are commented out.
 
 import { disableContinuousDrawing, drawDisturbance, drawGrid, enableContinuousDrawing } from '../client/index.js'
-import { Position } from './AStarSearch.js'
+import { Position } from './models/Position.js'
 import { addDisturbance, makeGrid, setGrid } from './grid.js'
 import { Grid } from './models/Grid.js'
 import { computeMue } from './mue.js'

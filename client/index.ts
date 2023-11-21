@@ -43,6 +43,12 @@ let riskFactor = 0.0
 const riskFactorSlider = <HTMLInputElement>document.getElementById('risk-factor')!
 const riskFactorView = <HTMLSpanElement>document.getElementById('risk-factor-view')!
 
+let algoVersion = 'v1'
+const selectedAlgoRadio = document.getElementsByName('algo-version')!
+
+let heuristic = 'manhattan'
+const selectedHeuristicRadio = document.getElementsByName('algo-heuristics')!
+
 // const wallBtn = document.getElementById("wall" satisfies drawType)!;
 const startBtn = document.getElementById('start' satisfies drawType)!
 const goalBtn = document.getElementById('goal' satisfies drawType)!
@@ -99,6 +105,28 @@ riskFactorSlider.addEventListener('input', () => {
   console.log('RiskFactor set to: ' + riskFactor)
 })
 
+selectedAlgoRadio.forEach((radio) => {
+  radio.addEventListener('change', () => {
+    algoVersion = (<HTMLInputElement>radio).value
+
+    if (algoVersion == 'v1') {
+      riskFactorSlider.disabled = true
+      riskFactorSlider.style.opacity = '0.5'
+    } else {
+      riskFactorSlider.disabled = false
+      riskFactorSlider.style.opacity = '1'
+    }
+    console.log('Algo version set to: ' + algoVersion)
+  })
+})
+
+selectedHeuristicRadio.forEach((radio) => {
+  radio.addEventListener('change', () => {
+    heuristic = (<HTMLInputElement>radio).value
+    console.log('Heuristic set to: ' + heuristic)
+  })
+})
+
 function setControls() {
   const controls = getControlsFromLocalStorage()
   if (!controls) {
@@ -115,6 +143,23 @@ function setControls() {
   riskFactorView.textContent = 'Risk factor set to: ' + controls.options.riskFactor.toString()
   riskFactorSlider.value = controls.options.riskFactor.toString()
   riskFactor = controls.options.riskFactor
+
+  selectedAlgoRadio.forEach((radio) => {
+    const radioElement = radio as HTMLInputElement
+    if (radioElement.value === controls.options.algoVersion) {
+      radioElement.checked = true
+    }
+  })
+  algoVersion = controls.options.algoVersion
+
+  selectedHeuristicRadio.forEach((radio) => {
+    const radioElement = radio as HTMLInputElement
+    if (radioElement.value === controls.options.heuristic) {
+      radioElement.checked = true
+    }
+  })
+  heuristic = controls.options.heuristic
+
   selectDrawType(controls.drawType)
   // selectedType = controls.drawType
 }
@@ -143,6 +188,8 @@ function saveControls() {
       nodeId: showIdsCheckbox.checked,
       lists: showOpenAndClosedListsCheckbox.checked,
       riskFactor: riskFactor,
+      algoVersion: algoVersion,
+      heuristic: heuristic,
     },
   }
   saveControlsToLocalStorage(controlsData)
@@ -417,8 +464,18 @@ function runPathFinding() {
   drawGrid()
 
   const nodes = grid.flat()
-  const path = search(startNode, endNode, grid, riskFactor, showOpenAndClosedListsCheckbox.checked)
-  if (!path) return
+  const path = search(
+    startNode,
+    endNode,
+    grid,
+    riskFactor,
+    algoVersion,
+    heuristic,
+    showOpenAndClosedListsCheckbox.checked,
+  )
+  if (!path) {
+    return
+  }
   const cellSize = canvas.width / grid.length
 
   //Keep the start and end node to preserve the colors
@@ -541,7 +598,7 @@ const directionToOffsetMap: Record<Direction, { x: number; y: number }> = {
   'bottom-right': { x: 1, y: 1 },
 }
 
-//This function draws small triangles if a graph is only one directional or a thicker line if theres no edges connecting two nodes
+//This function draws small triangles if a graph is only one directional or a thicker line if there are no edges connecting two nodes
 function drawDirectedEdges() {
   const gridLength = grid.length
   for (let x = 0; x < gridLength; x++) {
@@ -713,7 +770,7 @@ function drawWallBetweenNodes(fromNode: Node, direction: Direction) {
 }
 
 function checkIfNeighbor(fromNode: Node, toNode: Node) {
-  //If its the same node also return false
+  //If it's the same node also return false
   if (fromNode.x == toNode.x && fromNode.y == toNode.y) {
     return false
   }

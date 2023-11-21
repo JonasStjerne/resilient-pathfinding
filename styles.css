@@ -1,38 +1,47 @@
 body {
-    background-color: beige;
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  background-color: beige;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .content {
-    display: flex;
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
+  display: flex;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .controls {
-    padding: 2rem;
-    display: grid;
-    gap: 2rem;
-    flex-direction: column;
+  padding: 2rem;
+  display: grid;
+  gap: 2rem;
+  flex-direction: column;
 }
 
 .draw-type button:not(.selected) {
-    filter: brightness(0.8);
+  filter: brightness(0.8);
 }
 
 .run-algo-container {
-    align-items: end;
+  align-items: end;
 }
 
 .button-container {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    align-items: center;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.algo-settings {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .file-input {

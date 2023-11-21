@@ -1,150 +1,182 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <title>P7</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <link rel="stylesheet" href="./styles.css">
-  <script defer src="dist/index.js" type="module"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-    crossorigin="anonymous"></script>
-  <script defer id="__bs_script__">//<![CDATA[
-    (function () {
-      try {
-        var script = document.createElement('script');
-        if ('async') {
-          script.async = true;
+  <head>
+    <title>P7</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="dist/index.js" type="module"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <script defer id="__bs_script__">
+      //<![CDATA[
+      ;(function () {
+        try {
+          var script = document.createElement('script')
+          if ('async') {
+            script.async = true
+          }
+          script.src = 'http://HOST:3000/browser-sync/browser-sync-client.js?v=2.29.3'.replace(
+            'HOST',
+            location.hostname,
+          )
+          if (document.body) {
+            document.body.appendChild(script)
+          } else if (document.head) {
+            document.head.appendChild(script)
+          }
+        } catch (e) {
+          console.error('Browsersync: could not append script tag', e)
         }
-        script.src = 'http://HOST:3000/browser-sync/browser-sync-client.js?v=2.29.3'.replace("HOST", location.hostname);
-        if (document.body) {
-          document.body.appendChild(script);
-        } else if (document.head) {
-          document.head.appendChild(script);
-        }
-      } catch (e) {
-        console.error("Browsersync: could not append script tag", e);
-      }
-    })()
-    //]]></script>
-</head>
+      })()
+      //]]>
+    </script>
+  </head>
 
-<body>
-  <main class="content">
-    <canvas id="canvas"></canvas>
-    <div class="controls">
-      <div class="risk-controler-container">
-        <label for="risk-factor" class="form-label">Risk factor (between 0.0 and 1.0)</label>
-        <input type="range" class="form-range" min="0.0" max="1.0" step="0.1" value="0.0" id="risk-factor">
-        <span id="risk-factor-view">Risk factor set to: 0</span>
-      </div>
-      <div class="draw-types-container">
-        <p>Select draw type</p>
-        <div class="button-container">
-          <div class="btn-group draw-type" role="group">
-            <button id="start" class="btn btn-success">Start</button>
-            <button id="water" class="selected btn btn-primary ">Water</button>
-            <button id="road" class="btn btn-secondary ">Road</button>
-            <button id="goal" class="btn btn-danger">Goal</button>
+  <body>
+    <main class="content">
+      <canvas id="canvas"></canvas>
+      <div class="controls">
+        <div class="risk-controler-container">
+          <label for="risk-factor" class="form-label">Risk factor (between 0.0 and 1.0)</label>
+          <input type="range" class="form-range" min="0.0" max="1.0" step="0.1" value="0.0" id="risk-factor" />
+          <span id="risk-factor-view">Risk factor set to: 0</span>
+        </div>
+        <div class="draw-types-container">
+          <p>Select draw type</p>
+          <div class="button-container">
+            <div class="btn-group draw-type" role="group">
+              <button id="start" class="btn btn-success">Start</button>
+              <button id="water" class="selected btn btn-primary">Water</button>
+              <button id="road" class="btn btn-secondary">Road</button>
+              <button id="goal" class="btn btn-danger">Goal</button>
+            </div>
+            <div class="btn-group draw-type" role="group">
+              <button id="edge" class="btn btn-dark">Edges</button>
+              <button id="disturbance" class="btn btn-warning">Disturbances</button>
+            </div>
+            <div>
+              <input class="form-check-input" type="checkbox" value="" id="delete-mode" />
+              <label class="form-check-label" for="delete-mode"> Delete mode </label>
+            </div>
           </div>
-          <div class="btn-group draw-type" role="group">
-            <button id="edge" class="btn btn-dark">Edges</button>
-            <button id="disturbance" class="btn btn-warning">Disturbances</button>
+        </div>
+        <div class="switches">
+          <p>Settings</p>
+          <span>Show μ: </span>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-number" value="number" />
+            <label class="form-check-label" for="show-mu-number">Number</label>
           </div>
-          <div>
-            <input class="form-check-input" type="checkbox" value="" id="delete-mode">
-            <label class="form-check-label" for="delete-mode">
-              Delete mode
-            </label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-color" value="color" />
+            <label class="form-check-label" for="show-mu-color">Color</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-both" value="both" />
+            <label class="form-check-label" for="show-mu-both">Both</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-none" value="none" />
+            <label class="form-check-label" for="show-mu-none">None</label>
+          </div>
+          <p></p>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="show-directed-edges" />
+            <label class="form-check-label" for="show-directed-edges">Show directed edges</label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="show-disturbances" />
+            <label class="form-check-label" for="show-disturbances">Show disturbances</label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="show-node-id" />
+            <label class="form-check-label" for="show-node-id">Show node ID</label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="show-open-and-closed-lists" />
+            <label class="form-check-label" for="show-open-and-closed-lists">Show open and closed lists</label>
           </div>
         </div>
-      </div>
-      <div class="switches">
-        <p>Settings</p>
-        <span>Show μ: </span>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-number" value="number">
-          <label class="form-check-label" for="show-mu-number">Number</label>
+        <div class="algo-settings">
+          <div class="algo-version-container">
+            <p>Algorithm version</p>
+            <div id="algo-version">
+              <input type="radio" id="version1" name="algo-version" value="v1" />
+              <label for="version1">Version 1 (Ignore algorithm)</label><br />
+              <input type="radio" id="version2" name="algo-version" value="v2" checked />
+              <label for="version2">Version 2 (Dynamic risk algorithm)</label>
+            </div>
+          </div>
+          <div class="algo-heuristics-container">
+            <p>Heuristics</p>
+            <div>
+              <input type="radio" id="heuristic1" name="algo-heuristics" value="manhattan" checked />
+              <label for="heuristic1">Manhattan</label>
+            </div>
+            <div>
+              <input type="radio" id="heuristic2" name="algo-heuristics" value="chebyshev" />
+              <label for="heuristic2">Chebyshev</label>
+            </div>
+            <div>
+              <input type="radio" id="heuristic3" name="algo-heuristics" value="octile" />
+              <label for="heuristic3">Octile</label>
+            </div>
+          </div>
         </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-color" value="color">
-          <label class="form-check-label" for="show-mu-color">Color</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-both" value="both">
-          <label class="form-check-label" for="show-mu-both">Both</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-none" value="none">
-          <label class="form-check-label" for="show-mu-none">None</label>
-        </div>
-        <p></p>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="show-directed-edges">
-          <label class="form-check-label" for="show-directed-edges">Show directed edges</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="show-disturbances">
-          <label class="form-check-label" for="show-disturbances">Show disturbances</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="show-node-id">
-          <label class="form-check-label" for="show-node-id">Show node ID</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="show-open-and-closed-lists">
-          <label class="form-check-label" for="show-open-and-closed-lists">Show open and closed lists</label>
+        <div class="run-algo-container button-container">
+          <button class="btn btn-success" id="run-algo">Run algorithm ></button>
+          <button class="btn btn-danger" id="reset-grid-btn">Reset grid</button>
+          <button class="btn btn-success" id="gen-grid-btn">Generate random grid</button>
         </div>
       </div>
-      <div class="run-algo-container button-container">
-        <button class="btn btn-success" id="run-algo">Run algorithm ></button>
-        <button class="btn btn-danger" id="reset-grid-btn">Reset grid</button>
-        <button class="btn btn-success" id="gen-grid-btn">Generate random grid</button>
-      </div>
+    </main>
+
+    <div class="content">
+      <section class="LocalStorage-section">
+        <div class="save-menu content">
+          <div class="saves-container">
+            <label for="save-list" class="form-label">Local Storage Saves</label>
+            <div class="input-group mb-3">
+              <button class="btn btn-primary" type="button" id="load-btn">Load</button>
+              <button class="btn btn-danger" type="button" id="delete-btn">Delete</button>
+              <select class="form-select" id="save-list">
+                <option selected value="-1">Choose...</option>
+              </select>
+            </div>
+            <div class="input-group mb-3">
+              <button class="btn btn-success" type="button" id="save-grid">Save current grid</button>
+              <input type="text" class="form-control" placeholder="Save name" id="save-grid-input" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="FileSystem-section">
+        <div class="local-fs content">
+          <div class="local-fs-container">
+            <label for="" class="form-label">Local File System Saves</label>
+            <div class="input-group mb-3">
+              <button class="btn btn-primary" type="button" id="load-local-btn">Load local</button>
+              <input class="file-input" type="file" id="load-local-grid-input" accept=".json, application/json" />
+            </div>
+            <div class="input-group mb-3">
+              <button class="btn btn-success" type="button" id="save-grid-local">Save current grid locally</button>
+              <input type="text" class="form-control" placeholder="Save name" id="save-grid-local-input" />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-  </main>
-
-  <div class="content">
-
-    <section class="LocalStorage-section">
-      <div class="save-menu content">
-        <div class="saves-container">
-          <label for="save-list" class="form-label">Local Storage Saves</label>
-          <div class="input-group mb-3">
-            <button class="btn btn-primary" type="button" id="load-btn">Load</button>
-            <button class="btn btn-danger" type="button" id="delete-btn">Delete</button>
-            <select class="form-select" id="save-list">
-              <option selected value="-1">Choose...</option>
-            </select>
-          </div>
-          <div class="input-group mb-3">
-            <button class="btn btn-success" type="button" id="save-grid">Save current grid</button>
-            <input type="text" class="form-control" placeholder="Save name" id="save-grid-input">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="FileSystem-section">
-      <div class="local-fs content">
-        <div class="local-fs-container">
-          <label for="" class="form-label">Local File System Saves</label>
-          <div class="input-group mb-3">
-            <button class="btn btn-primary" type="button" id="load-local-btn">Load local</button>
-            <input class="file-input" type="file" id="load-local-grid-input" accept=".json, application/json">
-          </div>
-          <div class="input-group mb-3">
-            <button class="btn btn-success" type="button" id="save-grid-local">Save current grid locally</button>
-            <input type="text" class="form-control" placeholder="Save name" id="save-grid-local-input">
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </div>
-</body>
-
+  </body>
 </html>
