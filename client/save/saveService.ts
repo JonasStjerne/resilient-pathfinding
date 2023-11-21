@@ -1,7 +1,7 @@
-import { Edge } from '../algo/models/Edge.js'
-import { Grid } from '../algo/models/Grid.js'
-import { Node } from '../algo/models/Node.js'
-import { drawType } from './index.js'
+import { Edge } from '../../algo/models/Edge.js'
+import { Grid } from '../../algo/models/Grid.js'
+import { Node } from '../../algo/models/Node.js'
+import { drawType } from '../index.js'
 
 const CONTROLS_DATA_LS_KEY = 'controlsData'
 const ACTIVE_GRID_LS_KEY = 'activeGrid'

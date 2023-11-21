@@ -4,7 +4,7 @@ import { grid } from '../../algo/grid.js'
 import { Grid } from '../../algo/models/Grid.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
-import { GridJSONSave, GridSave, recreateNodeCircularReference } from '../saveService.js'
+import { GridJSONSave, GridSave, recreateNodeCircularReference } from '../save/saveService.js'
 import { SimulationOptions, Stats } from './models.js'
 
 export class simulationService {

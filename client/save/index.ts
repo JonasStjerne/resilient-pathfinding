@@ -1,6 +1,6 @@
-import { grid, setGrid } from '../algo/grid.js'
-import { trackTime } from '../utils/telemetry.js'
-import { drawGrid } from './index.js'
+import { grid, setGrid } from '../../algo/grid.js'
+import { trackTime } from '../../utils/telemetry.js'
+import { drawGrid } from '../index.js'
 import {
   NodeJSON,
   addGridToSavesInLocalStorage,
