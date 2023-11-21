@@ -29,46 +29,42 @@ export class simulationService {
       const startPos = this.#getStartOrEndPos(options.maps[mapIndex], 'start')
       const endPos = this.#getStartOrEndPos(options.maps[mapIndex], 'goal')
       const statsMap: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
-      if (options.algoVersion == 'v2') {
-        const { result: path, deltaTime } = trackTime(() =>
-          search(startPos!, endPos!, options.maps[mapIndex], options.riskFactor),
+      const { result: path, deltaTime } = trackTime(() =>
+        search(startPos!, endPos!, options.maps[mapIndex], options.riskFactor, options.algoVersion),
+      )
+      for (let i = 0; i < options.runCount; i++) {
+        path?.filter((nodeId) => nodeId)
+        const simResult = simulateRoute(
+          options.maps[mapIndex],
+          path as number[],
+          startPos!,
+          endNode!,
+          search,
+          0.5,
+          options.riskFactor,
         )
-        for (let i = 0; i < options.runCount; i++) {
-          path?.filter((nodeId) => nodeId)
-          const simResult = simulateRoute(
-            options.maps[mapIndex],
-            path as number[],
-            startPos!,
-            endNode!,
-            search,
-            0.5,
-            options.riskFactor,
-          )
 
-          statsMap.pushover += simResult.distTaken / (simResult.distTouched ? simResult.distTouched : 1)
-          statsMap.comptime += deltaTime
-          simResult.didReachGoal ? statsMap.successRate++ : null
+        statsMap.pushover += simResult.distTaken / (simResult.distTouched ? simResult.distTouched : 1)
+        statsMap.comptime += deltaTime
+        simResult.didReachGoal ? statsMap.successRate++ : null
 
-          //If we reach the goal, calculate the distance of the path (could be different for same route because of disturbance pushovers)
-          if (simResult.didReachGoal) {
-            simResult.pathtaken.forEach((node, index, path) => {
-              if (index < path.length - 1) {
-                const possibleMoves = [...node.edges, ...node.distEdges]
-                statsMap.traveledDistance += possibleMoves.find(
-                  (edge) => edge.adjacent.id == path[index + 1].id,
-                )!.weight
-              }
-            })
-          }
+        //If we reach the goal, calculate the distance of the path (could be different for same route because of disturbance pushovers)
+        if (simResult.didReachGoal) {
+          simResult.pathtaken.forEach((node, index, path) => {
+            if (index < path.length - 1) {
+              const possibleMoves = [...node.edges, ...node.distEdges]
+              statsMap.traveledDistance += possibleMoves.find((edge) => edge.adjacent.id == path[index + 1].id)!.weight
+            }
+          })
         }
-        statsByMap.push({
-          name: mapIndex.toString(),
-          stats: { ...this.#getAverageStats(options.runCount, 1, statsMap) },
-        })
-        ;(Object.keys(globalStats) as Array<keyof Stats>).forEach((key) => {
-          globalStats[key] += statsMap[key]
-        })
       }
+      statsByMap.push({
+        name: mapIndex.toString(),
+        stats: { ...this.#getAverageStats(options.runCount, 1, statsMap) },
+      })
+      ;(Object.keys(globalStats) as Array<keyof Stats>).forEach((key) => {
+        globalStats[key] += statsMap[key]
+      })
     }
 
     const averageStats = this.#getAverageStats(options.runCount, options.maps.length, globalStats)
