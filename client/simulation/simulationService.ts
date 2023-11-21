@@ -82,7 +82,7 @@ export class simulationService {
   }
 
   static async #getSimOptions() {
-    const algoVersion = <'v0.1' | 'v0.2'>(
+    const algoVersion = <'v1' | 'v2'>(
       (<HTMLInputElement>document.querySelector('input[name="algo-version-sim"]:checked')).value
     )
     const riskFactor = Number((<HTMLInputElement>document.getElementById('risk-factor-sim')).value)
