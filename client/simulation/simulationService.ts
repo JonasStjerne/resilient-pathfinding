@@ -5,7 +5,7 @@ import { Grid } from '../../algo/models/Grid.js'
 import { Position } from '../../algo/models/Position.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
-import { GridJSON, recreateNodeCircularReference } from '../save/saveService.js'
+import { GridJSON, getFileFromFs, recreateNodeCircularReference } from '../save/saveService.js'
 import { SimulationOptions, Stats } from './models.js'
 
 export class simulationService {
@@ -73,7 +73,7 @@ export class simulationService {
   }
 
   static async #getMaps() {
-    const maps = await this.#getSaveFiles()
+    const maps = await getFileFromFs<Grid[]>('map-upload')
     return maps
   }
 

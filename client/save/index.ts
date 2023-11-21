@@ -1,12 +1,12 @@
 import { grid, setGrid } from '../../algo/grid.js'
+import { Grid } from '../../algo/models/Grid.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { drawGrid } from '../index.js'
 import {
-  NodeJSON,
   addGridToSavesInLocalStorage,
   convertGridToJSONstring,
+  getFileFromFs,
   getGridsFromSavesInLocalStorage,
-  recreateNodeCircularReference,
   removeGridFromSavesInLocalStorage,
   saveToFs,
 } from './saveService.js'
@@ -23,13 +23,12 @@ export const initSaveControl = () => {
   const saveGridLocalInput = <HTMLInputElement>document.getElementById('save-grid-local-input')!
 
   const loadLocalBtn = document.getElementById('load-local-btn')!
-  const loadGridLocalInput = <HTMLInputElement>document.getElementById('load-local-grid-input')!
 
   saveBtn.addEventListener('mouseup', () => validateSaveGrid(saveGridInput, saveList))
 
   saveLocalBtn.addEventListener('mouseup', () => validateLocalGrid(saveGridLocalInput))
 
-  loadLocalBtn.addEventListener('mouseup', () => loadLocalGrid(loadGridLocalInput))
+  loadLocalBtn.addEventListener('mouseup', () => loadLocalGrid('load-local-grid-input'))
 
   const loadBtn = document.getElementById('load-btn')!
   const savesList = <HTMLSelectElement>document.getElementById('save-list')!
@@ -41,24 +40,11 @@ export const initSaveControl = () => {
   deleteBtn.addEventListener('mouseup', () => deleteGridFromSave(savesList))
 }
 
-function loadLocalGrid(input: HTMLInputElement) {
-  if (input?.files && input.files.length > 0) {
-    const file = input.files[0]
-    if (file.type === 'application/json') {
-      const reader = new FileReader()
-
-      reader.onload = (e) => {
-        const fileContent = e.target?.result as string
-        const dataJSON = <NodeJSON[][]>JSON.parse(fileContent)
-        const newGrid = recreateNodeCircularReference(dataJSON)
-        setGrid(newGrid)
-        drawGrid()
-      }
-
-      reader.readAsText(file)
-    } else {
-      alert('Please select a JSON file.')
-    }
+async function loadLocalGrid(input: string) {
+  const newGrid = await getFileFromFs<Grid>(input)
+  if (newGrid) {
+    setGrid(newGrid)
+    drawGrid()
   }
 }
 
