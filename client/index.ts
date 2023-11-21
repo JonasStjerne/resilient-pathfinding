@@ -143,6 +143,23 @@ function setControls() {
   riskFactorView.textContent = 'Risk factor set to: ' + controls.options.riskFactor.toString()
   riskFactorSlider.value = controls.options.riskFactor.toString()
   riskFactor = controls.options.riskFactor
+
+  selectedAlgoRadio.forEach((radio) => {
+    const radioElement = radio as HTMLInputElement
+    if (radioElement.value === controls.options.algoVersion) {
+      radioElement.checked = true
+    }
+  })
+  algoVersion = controls.options.algoVersion
+
+  selectedHeuristicRadio.forEach((radio) => {
+    const radioElement = radio as HTMLInputElement
+    if (radioElement.value === controls.options.heuristic) {
+      radioElement.checked = true
+    }
+  })
+  heuristic = controls.options.heuristic
+
   selectDrawType(controls.drawType)
   // selectedType = controls.drawType
 }
@@ -171,6 +188,8 @@ function saveControls() {
       nodeId: showIdsCheckbox.checked,
       lists: showOpenAndClosedListsCheckbox.checked,
       riskFactor: riskFactor,
+      algoVersion: algoVersion,
+      heuristic: heuristic,
     },
   }
   saveControlsToLocalStorage(controlsData)
