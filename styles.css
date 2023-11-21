@@ -18,6 +18,7 @@ main {
   padding: 2rem;
   border-radius: 10px;
   gap: 2rem;
+  align-items: flex-start;
 }
 
 .content > div {
