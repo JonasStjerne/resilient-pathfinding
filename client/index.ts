@@ -598,7 +598,7 @@ const directionToOffsetMap: Record<Direction, { x: number; y: number }> = {
   'bottom-right': { x: 1, y: 1 },
 }
 
-//This function draws small triangles if a graph is only one directional or a thicker line if there's no edges connecting two nodes
+//This function draws small triangles if a graph is only one directional or a thicker line if there are no edges connecting two nodes
 function drawDirectedEdges() {
   const gridLength = grid.length
   for (let x = 0; x < gridLength; x++) {

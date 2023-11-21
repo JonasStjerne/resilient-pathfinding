@@ -3,7 +3,6 @@ import { Grid } from '../models/Grid'
 import { Node } from '../models/Node'
 import { Position } from '../models/Position'
 
-
 interface SearchTable {
   [index: number]: {
     g?: number
@@ -13,18 +12,12 @@ interface SearchTable {
   }
 }
 
-const search = (
-    startPos: Position,
-    endPos: Position,
-    graph: Grid,
-    heuristic: HeuristicFunction,
-    drawLists = false,
-) => {
+const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: HeuristicFunction, drawLists = false) => {
   const searchTable: SearchTable = {}
   graph.forEach((graphRow) =>
-      graphRow.forEach((graphCol) => {
-        if (['road', 'start', 'goal'].includes(graphCol.type)) searchTable[graphCol.id] = {}
-      }),
+    graphRow.forEach((graphCol) => {
+      if (['road', 'start', 'goal'].includes(graphCol.type)) searchTable[graphCol.id] = {}
+    }),
   )
 
   let openList: Array<Node> = []
@@ -65,9 +58,9 @@ const search = (
 
     openListSearchTableEntries.forEach((entry) => {
       if (
-          entry.entry.f !== undefined &&
-          entryWithLowestF.entry.f !== undefined &&
-          entry.entry.f < entryWithLowestF.entry.f
+        entry.entry.f !== undefined &&
+        entryWithLowestF.entry.f !== undefined &&
+        entry.entry.f < entryWithLowestF.entry.f
       )
         entryWithLowestF = entry
     })

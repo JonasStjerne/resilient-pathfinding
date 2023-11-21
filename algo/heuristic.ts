@@ -22,5 +22,4 @@ const chebyshev = (startPos: Position, endPos: Position): number => {
   return Math.max(Math.abs(endPos.x - startPos.x), Math.abs(endPos.y - startPos.y))
 }
 
-export { manhattan, octile, chebyshev }
-export type { HeuristicFunction }
+export { manhattan, octile, chebyshev, HeuristicFunction }
