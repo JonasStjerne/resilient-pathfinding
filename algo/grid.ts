@@ -44,11 +44,11 @@ export function makeGrid(gridSize: number = 10): Grid {
       if (y != 0) {
         //Set left
         if (x != 0) {
-          addEdge(grid[x][y], grid[x - 1][y - 1], 1.4)
+          addEdge(grid[x][y], grid[x - 1][y - 1], Math.SQRT2)
         }
         //Set right
         if (x != gridSize - 1) {
-          addEdge(grid[x][y], grid[x + 1][y - 1], 1.4)
+          addEdge(grid[x][y], grid[x + 1][y - 1], Math.SQRT2)
         }
       }
 
@@ -56,11 +56,11 @@ export function makeGrid(gridSize: number = 10): Grid {
       if (y != gridSize - 1) {
         //Set left
         if (x != 0) {
-          addEdge(grid[x][y], grid[x - 1][y + 1], 1.4)
+          addEdge(grid[x][y], grid[x - 1][y + 1], Math.SQRT2)
         }
         //Set right
         if (x != gridSize - 1) {
-          addEdge(grid[x][y], grid[x + 1][y + 1], 1.4)
+          addEdge(grid[x][y], grid[x + 1][y + 1], Math.SQRT2)
         }
       }
     }

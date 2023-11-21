@@ -16,6 +16,8 @@ export type ControlsData = {
     nodeId: boolean
     lists: boolean
     riskFactor: number
+    algoVersion: string
+    heuristic: string
   }
 }
 
