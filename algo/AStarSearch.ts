@@ -93,10 +93,10 @@ const search = (
   }
 
   // console.log("searchTable: ", searchTable);
-  console.log('open', openList)
-  console.log('closed', closedList)
+  // console.log('open', openList)
+  // console.log('closed', closedList)
   const route = backtrackPath(currentNode, searchTable)
-  console.log('route: ', route)
+  // console.log('route: ', route)
 
   const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
   const ctx = canvas.getContext('2d')!
