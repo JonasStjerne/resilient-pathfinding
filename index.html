@@ -202,7 +202,6 @@
         <div class="risk-controler-container mb-4">
           <label for="risk-factor-sim" class="form-label">Risk factor (between 0.0 and 1.0)</label>
           <input type="range" class="form-range" min="0.0" max="1.0" step="0.1" value="0.0" id="risk-factor-sim">
-          <span id="risk-factor-view-sim">Risk factor set to: 0</span>
         </div>
 
         <div class="mb-4">
@@ -221,28 +220,28 @@
         <div class="stat-container">
           <div><small>Average computation time</small></div>
           <div>
-            <h5 class="text-center" id="comp-time">10ms</h5>
+            <h5 class="text-center" id="comp-time">-</h5>
           </div>
         </div>
 
         <div class="stat-container">
           <div><small>Average traveled distance</small></div>
           <div>
-            <h5 class="text-center" id="traveledDistance">10ms</h5>
+            <h5 class="text-center" id="traveledDistance">-</h5>
           </div>
         </div>
 
         <div class="stat-container">
           <div><small>Pushover rate</small></div>
           <div>
-            <h5 class="text-center" id="pushover">10ms</h5>
+            <h5 class="text-center" id="pushover">-</h5>
           </div>
         </div>
 
         <div class="stat-container">
           <div><small>Average success rate</small></div>
           <div>
-            <h5 class="text-center" id="success-rate">10ms</h5>
+            <h5 class="text-center" id="success-rate">-</h5>
           </div>
         </div>
         <div class="progress">
@@ -254,7 +253,8 @@
 
     </div>
 
-    <div id="my_dataviz"></div>
+    <div id="my_data">
+    </div>
   </section>
 
   <section>

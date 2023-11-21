@@ -10,11 +10,11 @@ export function createBarPlot(data: BarData[]) {
   const width = 600
   const height = 400
   const margin = { top: 20, right: 20, bottom: 30, left: 40 }
-
+  document.querySelector('#my_data>svg')?.remove()
   // Create the SVG container
   // @ts-ignore
   const svg = d3
-    .select('body')
+    .select('#my_data')
     .append('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
