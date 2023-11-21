@@ -1,4 +1,6 @@
-import search, { Position } from '../../algo/AStarSearch.js'
+import search from '../../algo/AStarSearch.js'
+import { Position } from '../../algo/Simulate.js'
+
 import { simulateRoute } from '../../algo/Simulate.js'
 import { Grid } from '../../algo/models/Grid.js'
 import { trackTime } from '../../utils/telemetry.js'
@@ -27,7 +29,7 @@ export class simulationService {
       const startPos = this.#getStartOrEndPos(options.maps[mapIndex], 'start')
       const endPos = this.#getStartOrEndPos(options.maps[mapIndex], 'goal')
       const statsMap: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
-      if (options.algoVersion == 'v0.2') {
+      if (options.algoVersion == 'v2') {
         const { result: path, deltaTime } = trackTime(() =>
           search(startPos!, endPos!, options.maps[mapIndex], options.riskFactor),
         )
@@ -81,7 +83,7 @@ export class simulationService {
 
   static async #getSimOptions() {
     const algoVersion = <'v0.1' | 'v0.2'>(
-      (<HTMLInputElement>document.querySelector('input[name="algo-version"]:checked')).value
+      (<HTMLInputElement>document.querySelector('input[name="algo-version-sim"]:checked')).value
     )
     const riskFactor = Number((<HTMLInputElement>document.getElementById('risk-factor-sim')).value)
     const runCount = Number((<HTMLInputElement>document.getElementById('iteration-count')).value)

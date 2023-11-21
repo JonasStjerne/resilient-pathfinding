@@ -8,11 +8,11 @@ type SimulationOptionsBase = {
 }
 
 type v01Algo = SimulationOptionsBase & {
-  algoVersion: 'v0.1'
+  algoVersion: 'v1'
 }
 
 type v02Algo = SimulationOptionsBase & {
-  algoVersion: 'v0.2'
+  algoVersion: 'v2'
   riskFactor: number
 }
 
