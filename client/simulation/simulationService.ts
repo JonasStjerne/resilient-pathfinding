@@ -1,8 +1,8 @@
 import search from '../../algo/AStarSearch.js'
-import { Position } from '../../algo/Simulate.js'
 
 import { simulateRoute } from '../../algo/Simulate.js'
 import { Grid } from '../../algo/models/Grid.js'
+import { Position } from '../../algo/models/Position.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
 import { GridJSON, recreateNodeCircularReference } from '../save/saveService.js'
