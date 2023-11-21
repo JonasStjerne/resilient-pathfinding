@@ -4,18 +4,18 @@ import { grid } from '../../algo/grid.js'
 import { Grid } from '../../algo/models/Grid.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
-import { GridJSONSave, GridSave, recreateNodeCircularReference } from '../save/saveService.js'
+import { GridJSON, recreateNodeCircularReference } from '../save/saveService.js'
 import { SimulationOptions, Stats } from './models.js'
 
 export class simulationService {
-  static getSimOptions() {
+  static async getSimOptions() {
     const algoVersion = <'v0.1' | 'v0.2'>(
       (<HTMLInputElement>document.querySelector('input[name="algo-version"]:checked')).value
     )
     const riskFactor = Number((<HTMLInputElement>document.getElementById('risk-factor-sim')).value)
     const runCount = Number((<HTMLInputElement>document.getElementById('iteration-count')).value)
 
-    const maps = this.#getMaps()
+    const maps = await this.#getMaps()
 
     const options: SimulationOptions = {
       maps,
@@ -26,8 +26,8 @@ export class simulationService {
     return options
   }
 
-  static #getMaps() {
-    //Todo: hook up to save service when working with file system
+  static async #getMaps() {
+    const maps = await this.#getSaveFiles()
     return [grid, grid]
   }
 
@@ -53,24 +53,23 @@ export class simulationService {
     progressBar.style.width = `${percent.toString()}%`
   }
 
-  static runSimulation() {
-    const options = this.getSimOptions()
-    const maps = this.#getMaps()
+  static async runSimulation() {
+    const options = await this.getSimOptions()
     const statsByMap: Array<{ name: string; stats: Stats }> = []
     const globalStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
 
-    for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
-      const startPos = this.#getStartOrEndPos(maps[mapIndex], 'start')
-      const endPos = this.#getStartOrEndPos(maps[mapIndex], 'goal')
+    for (let mapIndex = 0; mapIndex < options.maps.length; mapIndex++) {
+      const startPos = this.#getStartOrEndPos(options.maps[mapIndex], 'start')
+      const endPos = this.#getStartOrEndPos(options.maps[mapIndex], 'goal')
       const statsMap: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
       if (options.algoVersion == 'v0.2') {
         const { result: path, deltaTime } = trackTime(() =>
-          search(startPos!, endPos!, maps[mapIndex], options.riskFactor),
+          search(startPos!, endPos!, options.maps[mapIndex], options.riskFactor),
         )
         for (let i = 0; i < options.runCount; i++) {
           path?.filter((nodeId) => nodeId)
           const simResult = simulateRoute(
-            maps[mapIndex],
+            options.maps[mapIndex],
             path as number[],
             startPos!,
             endNode!,
@@ -96,7 +95,7 @@ export class simulationService {
           }
         }
         statsByMap.push({
-          name: Math.random().toString(),
+          name: mapIndex.toString(),
           stats: { ...this.#getAverageStats(options.runCount, 1, statsMap) },
         })
         ;(Object.keys(globalStats) as Array<keyof Stats>).forEach((key) => {
@@ -105,7 +104,7 @@ export class simulationService {
       }
     }
 
-    const averageStats = this.#getAverageStats(options.runCount, maps.length, globalStats)
+    const averageStats = this.#getAverageStats(options.runCount, options.maps.length, globalStats)
     this.#setStats(averageStats)
     return statsByMap
   }
@@ -137,24 +136,27 @@ export class simulationService {
     return averageStats
   }
 
-  static #getSavesFiles(input: HTMLInputElement) {
+  static #getSaveFiles() {
+    const input = <HTMLInputElement>document.getElementById('map-upload')
     if (input?.files && input.files.length > 0) {
       const file = input.files[0]
       if (file.type === 'application/json') {
-        const reader = new FileReader()
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader()
 
-        reader.onload = (e) => {
-          const fileContent = e.target?.result as string
-          const saves: GridSave[] = []
-          const dataJSON = <GridJSONSave[]>JSON.parse(fileContent)
-          dataJSON.forEach((save) => {
-            const grid = recreateNodeCircularReference(save.grid)
-            saves.push({ ...save, grid })
-          })
-          return saves
-        }
+          reader.onload = (e) => {
+            const fileContent = e.target?.result as string
+            const saves: Grid[] = []
+            const dataJSON = <GridJSON[]>JSON.parse(fileContent)
+            dataJSON.forEach((gridJSON) => {
+              const grid = recreateNodeCircularReference(gridJSON)
+              saves.push(grid)
+            })
+            resolve(saves)
+          }
 
-        reader.readAsText(file)
+          reader.readAsText(file)
+        })
       } else {
         alert('Please select a JSON file.')
       }
