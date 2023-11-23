@@ -68,9 +68,3 @@ export function createBarPlot(data: BarData[]) {
     .text((d) => d.stats.successRate.toFixed(2))
 }
 
-// Example usage
-const data: BarData[] = [
-  { name: 'Category A', stats: { comptime: 10, traveledDistance: 20, pushover: 5, successRate: 0.8 } },
-  { name: 'Category B', stats: { comptime: 15, traveledDistance: 25, pushover: 8, successRate: 0.6 } },
-  // Add more data as needed
-]
