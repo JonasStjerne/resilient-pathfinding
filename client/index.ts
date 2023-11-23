@@ -12,15 +12,16 @@ import {
 } from '../algo/grid.js'
 import { Node, NodeType } from '../algo/models/Node.js'
 import { computeMue } from '../algo/mue.js'
-import { initSaveControl } from './save.js'
+import { initSaveControl } from './save/index.js'
 import {
   ControlsData,
   getActiveGridFromLocalStorage,
   getControlsFromLocalStorage,
   saveActiveGridToLocalStorage,
   saveControlsToLocalStorage,
-} from './saveService.js'
-
+} from './save/saveService.js'
+export * from './genMaps/index.js'
+export * from './simulation/index.js'
 export default function clientInit() {
   const savedGrid = getActiveGridFromLocalStorage()
   if (savedGrid) {
@@ -227,7 +228,7 @@ function selectDrawType(id: drawType) {
   document.getElementById(id)!.classList.add('selected')
 }
 
-const canvasSize = 600
+const canvasSize = 500
 
 // const gridNumber = 10;
 const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
@@ -238,7 +239,7 @@ const cellSize = canvasSize / gridSize
 //Find maximum mu value
 
 function findMaxMu() {
-  return Math.max(...grid.flat().map((node) => node.mue))
+  return Math.max(...grid.flat().map((node) => (node.mue == grid.length * grid[0].length + 15 ? 0 : node.mue)))
 }
 
 let muMax = 0
@@ -298,6 +299,9 @@ export function drawGrid() {
 //Calculate the color for road cells
 function gradientCellColor(color: string, col: number, row: number) {
   let mueValue = grid[col][row].mue
+  if (mueValue == grid.length * grid[0].length + 15) {
+    return
+  }
   if (mueValue > 0) {
     let hue = 0
     if (mueValue == 1) {
@@ -327,7 +331,10 @@ function drawSquareInGrid(col: number, row: number, type: NodeType) {
 
   // Sets the color for road cells if Mu value > 0
   if (type == 'road' && (showMuRadios.item(1).checked || showMuRadios.item(2).checked)) {
-    hexColor = gradientCellColor(hexColor, col, row)
+    const gradient = gradientCellColor(hexColor, col, row)
+    if (gradient) {
+      hexColor = gradient
+    }
   }
 
   // Calculate the size of each grid cell
@@ -342,7 +349,7 @@ function drawSquareInGrid(col: number, row: number, type: NodeType) {
   ctx.fillRect(x + cellPadding / 2, y + cellPadding / 2, cellSize - cellPadding, cellSize - cellPadding)
   setTypeOfNode({ x: col, y: row }, type)
 
-  // There can only be one start and goal. Delete the previous start/finish if exists and not in the same pos
+  //There can only be one start and goal. Delete the previous start/finish if exists and not in the same pos
   if (type == 'goal' && endNode && !(col == endNode.x && row == endNode.y)) {
     setTypeOfNode({ x: endNode.x, y: endNode.y }, 'road')
     drawSquareInGrid(endNode.x, endNode.y, 'road')
@@ -351,11 +358,11 @@ function drawSquareInGrid(col: number, row: number, type: NodeType) {
     drawSquareInGrid(startNode.x, startNode.y, 'road')
   }
 
-  // If the draw type were of type start or goal save the new position of the node
+  //If the draw type were of type start or goal save the new position of the node
   type == 'start' ? (startNode = { x: col, y: row }) : null
   type == 'goal' ? (endNode = { x: col, y: row }) : null
 
-  // If a cell of type start or goal gets overridden by another type unset the start and the goal
+  //If a cell of type start or goal gets overridden by another type unset the start and the goal
   if (!['start', 'goal'].includes(type)) {
     col == startNode?.x && row == startNode.y ? (startNode = null) : null
     col == endNode?.x && row == endNode.y ? (endNode = null) : null

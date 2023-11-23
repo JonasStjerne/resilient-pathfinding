@@ -1,13 +1,14 @@
-import { grid, setGrid } from '../algo/grid.js'
-import { drawGrid } from './index.js'
+import { grid, setGrid } from '../../algo/grid.js'
+import { Grid } from '../../algo/models/Grid.js'
+import { trackTime } from '../../utils/telemetry.js'
+import { drawGrid } from '../index.js'
 import {
-  NodeJSON,
   addGridToSavesInLocalStorage,
   convertGridToJSONstring,
+  getFileFromFs,
   getGridsFromSavesInLocalStorage,
-  recreateNodeCircularReference,
   removeGridFromSavesInLocalStorage,
-  saveLocalGrid,
+  saveToFs,
 } from './saveService.js'
 
 export const initSaveControl = () => {
@@ -22,13 +23,12 @@ export const initSaveControl = () => {
   const saveGridLocalInput = <HTMLInputElement>document.getElementById('save-grid-local-input')!
 
   const loadLocalBtn = document.getElementById('load-local-btn')!
-  const loadGridLocalInput = <HTMLInputElement>document.getElementById('load-local-grid-input')!
 
   saveBtn.addEventListener('mouseup', () => validateSaveGrid(saveGridInput, saveList))
 
   saveLocalBtn.addEventListener('mouseup', () => validateLocalGrid(saveGridLocalInput))
 
-  loadLocalBtn.addEventListener('mouseup', () => loadLocalGrid(loadGridLocalInput))
+  loadLocalBtn.addEventListener('mouseup', () => loadLocalGrid('load-local-grid-input'))
 
   const loadBtn = document.getElementById('load-btn')!
   const savesList = <HTMLSelectElement>document.getElementById('save-list')!
@@ -40,24 +40,11 @@ export const initSaveControl = () => {
   deleteBtn.addEventListener('mouseup', () => deleteGridFromSave(savesList))
 }
 
-function loadLocalGrid(input: HTMLInputElement) {
-  if (input?.files && input.files.length > 0) {
-    const file = input.files[0]
-    if (file.type === 'application/json') {
-      const reader = new FileReader()
-
-      reader.onload = (e) => {
-        const fileContent = e.target?.result as string
-        const dataJSON = <NodeJSON[][]>JSON.parse(fileContent)
-        const newGrid = recreateNodeCircularReference(dataJSON)
-        setGrid(newGrid)
-        drawGrid()
-      }
-
-      reader.readAsText(file)
-    } else {
-      alert('Please select a JSON file.')
-    }
+async function loadLocalGrid(input: string) {
+  const newGrid = await getFileFromFs<Grid>(input)
+  if (newGrid) {
+    setGrid(newGrid)
+    drawGrid()
   }
 }
 
@@ -73,9 +60,8 @@ function validateLocalGrid(saveGridLocalInput: HTMLInputElement) {
   fileName = fileName + '_' + grid.length
 
   const content = convertGridToJSONstring(grid)
-  const contentType = 'application/json'
 
-  saveLocalGrid(content, fileName, contentType)
+  saveToFs(content, fileName)
 }
 
 function validateSaveGrid(saveGridInput: HTMLInputElement, savesList: HTMLSelectElement) {
@@ -123,17 +109,18 @@ function loadGridFromSaves(listEl: HTMLSelectElement) {
     listEl.classList.add('is-invalid')
     return
   }
+  trackTime(() => {
+    const gridsFromSave = getGridsFromSavesInLocalStorage()
+    const selectedGrid = gridsFromSave.find((grid) => grid.id.toString() == listEl.value)
 
-  const gridsFromSave = getGridsFromSavesInLocalStorage()
-  const selectedGrid = gridsFromSave.find((grid) => grid.id.toString() == listEl.value)
+    if (!selectedGrid) {
+      listEl.classList.remove('is-invalid')
+      throw new Error('Selected grid not found in saves')
+    }
 
-  if (!selectedGrid) {
-    listEl.classList.remove('is-invalid')
-    throw new Error('Selected grid not found in saves')
-  }
-
-  setGrid(selectedGrid.grid)
-  drawGrid()
+    setGrid(selectedGrid.grid)
+    drawGrid()
+  })
 
   listEl.classList.remove('is-invalid')
   listEl.classList.add('is-valid')

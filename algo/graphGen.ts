@@ -1,9 +1,10 @@
 // Experimental radius is bugged. And its use cases are commented out.
 
-import { disableContinuousDrawing, drawDisturbance, drawGrid, enableContinuousDrawing } from '../client/index.js'
-import { Position } from './models/Position.js'
+import { disableContinuousDrawing, drawGrid, enableContinuousDrawing } from '../client/index.js'
+import search from './AStarSearch.js'
 import { addDisturbance, makeGrid, setGrid } from './grid.js'
 import { Grid } from './models/Grid.js'
+import { Position } from './models/Position.js'
 import { computeMue } from './mue.js'
 
 interface Size {
@@ -152,6 +153,45 @@ export function generateOneGraph() {
   //   ctx.fillStyle = 'rgb(255, 51, 85)'
   //   ctx.fillRect(agent.originalPos.x * cellSize, agent.originalPos.y * cellSize, cellSize, cellSize)
   // })
+}
+
+export function generateRandomMaps(mapsCount: number) {
+  const maps: Grid[] = []
+  for (let i = 0; i < mapsCount; i++) {
+    const newGrid = makeGrid(GRID_SIZE)
+    generateWater(newGrid)
+    generateDisturbances(newGrid)
+    computeMue(newGrid)
+    setStartAndEnd(newGrid)
+    maps.push(newGrid)
+  }
+  return maps
+}
+
+function setStartAndEnd(grid: Grid) {
+  const minDistanceBetweenPoints = grid.length / 2 - 10
+  let path: undefined | (number | undefined)[] | null
+  let startX, startY, goalX, goalY
+
+  do {
+    if (startX && startY && goalX && goalY) {
+      grid[startX][startY].type = 'road'
+      grid[goalX][goalY].type = 'road'
+    }
+    startX = Math.floor(Math.random() * grid.length)
+    startY = Math.floor(Math.random() * grid[0].length)
+    grid[startX][startY].type = 'start'
+
+    goalX = Math.floor(Math.random() * grid.length)
+    goalY = Math.floor(Math.random() * grid[0].length)
+    grid[goalX][goalY].type = 'goal'
+
+    if (euclideanDistance({ x: startX, y: startY }, { x: goalX, y: goalY }) < minDistanceBetweenPoints) {
+      path = undefined
+    } else {
+      path = search({ x: startX, y: startY }, { x: goalX, y: goalY }, grid)
+    }
+  } while (!path)
 }
 
 function euclideanDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {

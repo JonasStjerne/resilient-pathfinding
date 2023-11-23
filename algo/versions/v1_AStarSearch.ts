@@ -70,11 +70,7 @@ const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: He
     if (newCurrentNode) currentNode = newCurrentNode
   }
 
-  // console.log("searchTable: ", searchTable);
-  console.log('open', openList)
-  console.log('closed', closedList)
   const route = backtrackPath(currentNode, searchTable)
-  console.log('route: ', route)
 
   const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
   const ctx = canvas.getContext('2d')!

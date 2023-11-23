@@ -3,16 +3,26 @@ body {
   display: grid;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  gap: 5rem;
+  padding: 5rem 0;
 }
+
+/* section,
+main {
+  margin-bottom: 5rem;
+} */
 
 .content {
   display: flex;
   background-color: white;
   padding: 2rem;
   border-radius: 10px;
+  gap: 2rem;
   align-items: flex-start;
-  justify-content: flex-start;
+}
+
+.content > div {
+  flex: 1;
 }
 
 .controls {
@@ -37,6 +47,20 @@ body {
   align-items: center;
 }
 
+.stat-container {
+  box-shadow: 0px 0px 20px 2px rgba(0, 0, 0, 0.1) inset;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.simulation-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: min-content;
+  gap: 1rem;
+  padding: 1rem;
+}
+
 .algo-settings {
   display: flex;
   gap: 1rem;
@@ -45,10 +69,10 @@ body {
 }
 
 .file-input {
-    align-self: flex-start;
-    padding: 0.25rem;
+  align-self: flex-start;
+  padding: 0.25rem;
 }
 
 .LocalStorage-section .FileSystem-section {
-    flex: 1;
+  flex: 1;
 }

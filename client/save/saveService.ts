@@ -1,7 +1,7 @@
-import { Edge } from '../algo/models/Edge.js'
-import { Grid } from '../algo/models/Grid.js'
-import { Node } from '../algo/models/Node.js'
-import { drawType } from './index.js'
+import { Edge } from '../../algo/models/Edge.js'
+import { Grid } from '../../algo/models/Grid.js'
+import { Node } from '../../algo/models/Node.js'
+import { drawType } from '../index.js'
 
 const CONTROLS_DATA_LS_KEY = 'controlsData'
 const ACTIVE_GRID_LS_KEY = 'activeGrid'
@@ -39,6 +39,13 @@ export function convertGridToJSONstring(grid: Grid) {
   const jsonSafeGrid = removeNodeCircularReference(grid)
   const data = JSON.stringify(jsonSafeGrid)
   return data
+}
+
+export function convertGridsToJSONString(grids: Grid[]) {
+  const jsonSafeGrids: GridJSON[] = []
+  grids.forEach((grid) => jsonSafeGrids.push(removeNodeCircularReference(grid)))
+  const json = JSON.stringify(jsonSafeGrids)
+  return json
 }
 
 export function saveActiveGridToLocalStorage(grid: Grid) {
@@ -171,25 +178,79 @@ export function recreateNodeCircularReference(jsonSafeGrid: NodeJSON[][]): Grid 
   return newGrid
 }
 
+export async function saveToFs(content: string, fileName: string, contentType = 'application/x-gzip') {
+  const stream = new Blob([content], { type: contentType }).stream()
+
+  const compressedReadableStream = stream.pipeThrough(new CompressionStream('gzip'))
+  const compressedResponse = await new Response(compressedReadableStream)
+  const blob = await compressedResponse.blob()
+  const a = document.createElement('a')
+  a.href = window.URL.createObjectURL(blob)
+  a.download = fileName + '.gzip'
+  a.click()
+  a.remove()
+  window.URL.revokeObjectURL(a.href)
+}
+
+export async function getFileFromFs<T>(inputElmId: string): Promise<T | undefined> {
+  const input = <HTMLInputElement>document.getElementById(inputElmId)
+  if (input?.files && input.files.length > 0) {
+    const file = input.files[0]
+    if (file.type === 'application/x-gzip') {
+      return new Promise<T>((resolve, reject) => {
+        const reader = new FileReader()
+
+        reader.onload = async (e) => {
+          const fileContent = e.target?.result as ArrayBuffer
+          const stream = new Blob([new Uint8Array(fileContent)], { type: 'application/x-gzip' }).stream()
+
+          const compressedReadableStream = stream.pipeThrough(new DecompressionStream('gzip'))
+          const compressedResponse = new Response(compressedReadableStream)
+
+          const blob = await compressedResponse.blob()
+
+          const dataJson = <GridJSON[] | GridJSON>JSON.parse(await blob.text())
+          let result: any
+
+          if (!isGridJson(dataJson)) {
+            result = []
+            dataJson.forEach((dataJson) => {
+              const grid = recreateNodeCircularReference(dataJson)
+              result.push(grid)
+            })
+          } else {
+            result = recreateNodeCircularReference(dataJson)
+          }
+          resolve(result)
+        }
+
+        reader.onerror = () => {
+          reject(new Error('Error reading file'))
+        }
+
+        reader.readAsArrayBuffer(file)
+      })
+    } else {
+      alert('Please select a gzip file.')
+    }
+  }
+}
+
+function isGridJson(arr: GridJSON | GridJSON[]): arr is GridJSON {
+  const isArray = Array.isArray(arr[0][0])
+  return !isArray
+}
+
 type EdgeJSON = Omit<Edge, 'adjacent'> & { adjacent: { x: number; y: number } }
+type NodeLookup = Pick<Node, 'x' | 'y'>
+
 export type NodeJSON = Omit<Node, 'edges' | 'incomingEdges' | 'distEdges' | 'incomingDistEdges'> & {
   edges: EdgeJSON[]
   incomingEdges: NodeLookup[]
   distEdges: EdgeJSON[]
   incomingDistEdges: NodeLookup[]
 }
-type NodeLookup = Pick<Node, 'x' | 'y'>
-type GridJSON = NodeJSON[][]
-type GridJSONSave = { title: string; id: number; grid: GridJSON }
+
+export type GridJSON = NodeJSON[][]
+export type GridJSONSave = { title: string; id: number; grid: GridJSON }
 export type GridSave = { title: string; id: number; grid: Grid }
-
-export function saveLocalGrid(content: string, fileName: string, contentType: string) {
-  const blob = new Blob([content], { type: contentType })
-
-  const a = document.createElement('a')
-  a.href = window.URL.createObjectURL(blob)
-  a.download = fileName
-  a.click()
-
-  window.URL.revokeObjectURL(a.href)
-}
