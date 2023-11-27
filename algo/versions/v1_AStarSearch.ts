@@ -50,6 +50,9 @@ const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: He
           }
       }
     })
+    if (openList.length == 0) {
+      return null
+    }
     closedList.push(currentNode)
     const openListSearchTableEntries = openList.map((node) => {
       return { id: node.id, entry: searchTable[node.id] }
@@ -66,7 +69,6 @@ const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: He
     })
     const newCurrentNode = openList.find((node) => node.id === entryWithLowestF.id)
     openList = openList.filter((node) => node.id !== entryWithLowestF.id)
-    if (openList.length == 0) return null
     if (newCurrentNode) currentNode = newCurrentNode
   }
 
