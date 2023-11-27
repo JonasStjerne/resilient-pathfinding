@@ -5,7 +5,7 @@ import { Grid } from '../../algo/models/Grid.js'
 import { Position } from '../../algo/models/Position.js'
 import { trackTime } from '../../utils/telemetry.js'
 import { endNode } from '../index.js'
-import { GridJSON, getFileFromFs, recreateNodeCircularReference } from '../save/saveService.js'
+import { getFileFromFs } from '../save/saveService.js'
 import { SimulationOptions, Stats } from './models.js'
 
 export class simulationService {
@@ -26,6 +26,7 @@ export class simulationService {
     const globalStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
 
     for (let mapIndex = 0; mapIndex < options.maps.length; mapIndex++) {
+      console.log('Running simulation on map ' + (mapIndex + 1) + '/' + options.maps.length)
       const startPos = this.#getStartOrEndPos(options.maps[mapIndex], 'start')
       const endPos = this.#getStartOrEndPos(options.maps[mapIndex], 'goal')
       const statsMap: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
@@ -33,6 +34,7 @@ export class simulationService {
         search(startPos!, endPos!, options.maps[mapIndex], options.riskFactor, options.algoVersion),
       )
       for (let i = 0; i < options.runCount; i++) {
+        console.log('Running simulation iteration ' + (i + 1) + '/' + options.runCount)
         path?.filter((nodeId) => nodeId)
         const simResult = simulateRoute(
           options.maps[mapIndex],
@@ -40,7 +42,7 @@ export class simulationService {
           startPos!,
           endNode!,
           search,
-          0.5,
+          0.3,
           options.riskFactor,
         )
 
@@ -131,36 +133,5 @@ export class simulationService {
     })
 
     return averageStats
-  }
-
-  static #getSaveFiles() {
-    const input = <HTMLInputElement>document.getElementById('map-upload')
-    if (input?.files && input.files.length > 0) {
-      const file = input.files[0]
-      if (file.type === 'application/json') {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader()
-
-          reader.onload = (e) => {
-            const fileContent = e.target?.result as string
-            const saves: Grid[] = []
-            const dataJSON = <GridJSON[]>JSON.parse(fileContent)
-            dataJSON.forEach((gridJSON) => {
-              const grid = recreateNodeCircularReference(gridJSON)
-              saves.push(grid)
-            })
-            resolve(saves)
-          }
-
-          reader.onerror = () => {
-            reject(new Error('Error reading file'))
-          }
-
-          reader.readAsText(file)
-        })
-      } else {
-        alert('Please select a JSON file.')
-      }
-    }
   }
 }

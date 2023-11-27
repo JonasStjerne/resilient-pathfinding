@@ -7,6 +7,7 @@ import {
   convertGridToJSONstring,
   getFileFromFs,
   getGridsFromSavesInLocalStorage,
+  isGrid,
   removeGridFromSavesInLocalStorage,
   saveToFs,
 } from './saveService.js'
@@ -41,11 +42,15 @@ export const initSaveControl = () => {
 }
 
 async function loadLocalGrid(input: string) {
-  const newGrid = await getFileFromFs<Grid>(input)
-  if (newGrid) {
+  const newGrid = await getFileFromFs<Grid | Grid[]>(input)
+
+  if (newGrid && isGrid(newGrid)) {
     setGrid(newGrid)
-    drawGrid()
+  } else if (newGrid) {
+    const mapIndex = Number((<HTMLInputElement>document.getElementById('map-index')!).value)
+    setGrid(newGrid[mapIndex])
   }
+  drawGrid()
 }
 
 function validateLocalGrid(saveGridLocalInput: HTMLInputElement) {
