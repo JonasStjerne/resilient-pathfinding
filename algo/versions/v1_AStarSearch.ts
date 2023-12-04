@@ -66,7 +66,7 @@ const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: He
     })
     const newCurrentNode = openList.find((node) => node.id === entryWithLowestF.id)
     openList = openList.filter((node) => node.id !== entryWithLowestF.id)
-    if (openList.length == 0) return null
+    if (openList.length == 0 && newCurrentNode?.id != destinationNode.id) return null
     if (newCurrentNode) currentNode = newCurrentNode
   }
 

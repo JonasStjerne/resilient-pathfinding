@@ -1,11 +1,13 @@
 import { Edge } from './models/Edge.js'
 import { Grid } from './models/Grid.js'
 import { Node, NodeType } from './models/Node.js'
+import { TestFunctionTSPapprox } from './tsp.js'
 
 // Create Grid
 export const grid = makeGrid()
 
 export function makeGrid(gridSize: number = 10): Grid {
+  TestFunctionTSPapprox()
   Node._id = 0
   const grid: Grid = new Array(gridSize)
   for (let x = 0; x < gridSize; x++) {
