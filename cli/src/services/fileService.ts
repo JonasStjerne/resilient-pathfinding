@@ -1,24 +1,29 @@
 import fs from 'fs-extra'
-import { Grid } from '../../../algo/models/Grid.js'
-import { GridJSON, recreateNodeCircularReference } from '../../../client/save/saveService.js'
+import zlib from 'zlib'
+import { Grid } from '../../../algo/models/Grid'
 import { Results } from '../../../shared/models'
 import { PROCESS_PATH } from '../utils'
 
 export class FileService {
   static async getMaps(filename: string) {
     const fileContent = fs.readFileSync(`${PROCESS_PATH}/${filename}`)
-    const stream = new Blob([new Uint8Array(fileContent)], { type: 'application/x-gzip' }).stream()
-    const compressedReadableStream = stream.pipeThrough(new DecompressionStream('gzip'))
-    const compressedResponse = new Response(compressedReadableStream)
-
-    const blob = await compressedResponse.blob()
-    const result: Grid[] = []
-    const dataJson = <GridJSON[]>JSON.parse(await blob.text())
-    dataJson.forEach((dataJson) => {
-      const grid = recreateNodeCircularReference(dataJson)
-      result.push(grid)
+    //  const test = fs.createReadStream(`${PROCESS_PATH}/${filename}`).pipe(zlib.createGunzip());
+    const result = await new Promise((resolve, reject) => {
+      zlib.gunzip(fileContent, (err, uncompressedData) => {
+        if (err) {
+          reject(new Error('Error decompressing gzip file:' + err))
+        }
+        // Parse the uncompressed data as JSON
+        try {
+          const jsonData = JSON.parse(uncompressedData.toString())
+          console.log('Parsed JSON object:', jsonData)
+          resolve(jsonData)
+        } catch (jsonError) {
+          reject(new Error('Error parsing JSON:' + jsonError))
+        }
+      })
     })
-    return result
+    return result as Grid[]
   }
 
   static async saveResults(results: Results) {
@@ -27,13 +32,14 @@ export class FileService {
       fs.emptyDirSync(savesDir)
     }
     const content = JSON.stringify(results)
-    const stream = new Blob([content], { type: 'application/x-gzip' }).stream()
+    zlib.gzip(content, (err, compressedData) => {
+      if (err) {
+        console.error('Error compressing JSON data:', err)
+        return
+      }
 
-    const compressedReadableStream = stream.pipeThrough(new CompressionStream('gzip'))
-    const compressedResponse = new Response(compressedReadableStream)
-    const blob = await compressedResponse.blob()
-
-    const fileName = new Date().toLocaleTimeString()
-    fs.writeFile(`${savesDir}/${fileName}.gzip`, blob.toString())
+      const fileName = new Date().toLocaleTimeString()
+      fs.writeFile(`${savesDir}/${fileName}.gzip`, compressedData)
+    })
   }
 }
