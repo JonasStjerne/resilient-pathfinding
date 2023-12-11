@@ -23,6 +23,7 @@ const search = (
   w: number = 0.5,
   drawLists = false,
 ) => {
+  const gridMaxSize = Math.sqrt(graph.length * graph.length + graph[0].length * graph[0].length)
   const searchTable: SearchTable = {}
   graph.forEach((graphRow) =>
     graphRow.forEach((graphCol) => {
@@ -52,7 +53,7 @@ const search = (
         //const f = g * w + h * (1 - w) * (1 - edge.adjacent.mue);
 
         //const f = g * w + h + (1 - w) * edge.adjacent.mue;
-        const f = g + h + penalization(s, (g + h) / 2)
+        const f = g + h + penalization(s, gridMaxSize)
 
         // console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
 
@@ -195,12 +196,12 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
   return path
 }
 
-const penalization = (robustness: number, averagePathCost: number = 1) => {
+const penalization = (robustness: number, gridMaxSize: number) => {
   const cutoff = 8
   const scale = 10
 
   // Apply a logarithmic penalization function, normalized by the grid size
-  let normalizedPenalization = Math.log(Math.min(robustness, cutoff)) / Math.log(10)
+  let normalizedPenalization = Math.log(Math.min(robustness, cutoff)) / Math.log(gridMaxSize)
   return scale * (1 - normalizedPenalization)
 }
 
