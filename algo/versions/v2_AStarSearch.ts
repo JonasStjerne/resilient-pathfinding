@@ -52,7 +52,7 @@ const search = (
         //const f = g * w + h * (1 - w) * (1 - edge.adjacent.mue);
 
         //const f = g * w + h + (1 - w) * edge.adjacent.mue;
-        const f = g * w + h - (1 - w) * s
+        const f = g + h + penalization(s, (g + h) / 2)
 
         // console.log(`Node (${edge.adjacent.x}, ${edge.adjacent.y}): f = ${f}`);
 
@@ -193,6 +193,15 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
   }
   path.reverse()
   return path
+}
+
+const penalization = (robustness: number, averagePathCost: number = 1) => {
+  const cutoff = 8
+  const scale = 10
+
+  // Apply a logarithmic penalization function, normalized by the grid size
+  let normalizedPenalization = Math.log(Math.min(robustness, cutoff)) / Math.log(10)
+  return scale * (1 - normalizedPenalization)
 }
 
 export default search
