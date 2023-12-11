@@ -9,13 +9,15 @@ export let projectRootPath: string
 const main = async () => {
   const options = await runCli()
   console.info('Running simulations... This may take a little while.')
-  runSimulations(options)
+  const results = await runSimulations(options)
+  console.info(results)
 }
 
 const runSimulations = async (options: options) => {
   const simulationService = new SimulationService(options)
   const results = await simulationService.runSimulation()
   FileService.saveResults(results)
+  return results
 }
 
 main().catch((err) => {

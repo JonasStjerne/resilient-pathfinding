@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import zlib from 'zlib'
 import { Grid } from '../../../algo/models/Grid'
 import { Results } from '../../../shared/models'
-import { PROCESS_PATH } from '../utils'
+import { PROCESS_PATH } from '../utils/consts.js'
 
 export class FileService {
   static async getMaps(filename: string) {
@@ -16,7 +16,6 @@ export class FileService {
         // Parse the uncompressed data as JSON
         try {
           const jsonData = JSON.parse(uncompressedData.toString())
-          console.log('Parsed JSON object:', jsonData)
           resolve(jsonData)
         } catch (jsonError) {
           reject(new Error('Error parsing JSON:' + jsonError))

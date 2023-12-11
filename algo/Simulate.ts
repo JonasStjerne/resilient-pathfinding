@@ -51,7 +51,21 @@ export const simulateRoute = (
   let distTaken: number = 0
   let gotPushedHere: Node[] = []
   let successProp: number = 0
-
+  if (!path) {
+    const results = {
+      grid: grid,
+      idealPath: path,
+      pathtaken: pathtaken,
+      didReachGoal: didReachGoal,
+      gotPushedHere: gotPushedHere,
+      fallInWater: fallInWater,
+      pushProp: pushProp,
+      successProp: successProp,
+      distTaken: distTaken,
+      distTouched: distTouched,
+    }
+    return results
+  }
   grid.forEach((row) => {
     row.forEach((cell) => {
       if (path.some((obj) => obj == cell.id && obj != path[path.length - 1])) {
