@@ -34,6 +34,7 @@ export class SimulationService {
       )
       for (let i = 0; i < this._iterationCount; i++) {
         console.log('Running simulation iteration ' + (i + 1) + '/' + this._iterationCount)
+        console.log('Running simulation iteration ' + (i + 1) + '/' + this._iterationCount + ' on map ' + mapIndex)
         path?.filter((nodeId) => nodeId)
         const simResult = simulateRoute(
           maps[mapIndex],
@@ -41,8 +42,9 @@ export class SimulationService {
           startPos!,
           endPos!,
           search,
-          0.3,
+          0.2,
           this._riskFactor,
+          this._algoVersion,
         )
 
         statsMap.pushover += simResult.distTaken / (simResult.distTouched ? simResult.distTouched : 1)

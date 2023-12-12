@@ -2,12 +2,12 @@ import fs from 'fs-extra'
 import zlib from 'zlib'
 import { Grid } from '../../../algo/models/Grid'
 import { Results } from '../../../shared/models'
-import { PROCESS_PATH } from '../utils/consts.js'
+import { PKG_ROOT } from '../utils/consts.js'
 import { GridJSON, recreateNodeCircularReference } from './saveService.js'
 
 export class FileService {
   static async getMaps(filename: string) {
-    const fileContent = fs.readFileSync(`${PROCESS_PATH}/${filename}`)
+    const fileContent = fs.readFileSync(`${PKG_ROOT}maps/${filename}`)
     //  const test = fs.createReadStream(`${PROCESS_PATH}/${filename}`).pipe(zlib.createGunzip());
     const result = await new Promise((resolve, reject) => {
       zlib.gunzip(fileContent, (err, uncompressedData) => {
@@ -32,19 +32,21 @@ export class FileService {
   }
 
   static async saveResults(results: Results) {
-    const savesDir = `${PROCESS_PATH}/saves`
+    const savesDir = `${PKG_ROOT}/results`
     if (!fs.existsSync(savesDir)) {
       fs.emptyDirSync(savesDir)
     }
-    const content = JSON.stringify(results)
-    zlib.gzip(content, (err, compressedData) => {
-      if (err) {
-        console.error('Error compressing JSON data:', err)
-        return
-      }
+    const content = JSON.stringify(results.statsByMap)
+    const fileName = new Date().toLocaleTimeString()
+    fs.writeFile(`${savesDir}/${fileName}.json`, content)
+    // zlib.gzip(content, (err, compressedData) => {
+    //   if (err) {
+    //     console.error('Error compressing JSON data:', err)
+    //     return
+    //   }
 
-      const fileName = new Date().toLocaleTimeString()
-      fs.writeFile(`${savesDir}/${fileName}.gzip`, compressedData)
-    })
+    //   const fileName = new Date().toLocaleTimeString()
+    //   fs.writeFile(`${savesDir}/${fileName}.gzip`, compressedData)
+    // })
   }
 }
