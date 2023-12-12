@@ -7,7 +7,7 @@ import { TestFunctionTSPapprox } from './tsp.js'
 export const grid = makeGrid()
 
 export function makeGrid(gridSize: number = 10): Grid {
-  TestFunctionTSPapprox()
+  TestFunctionTSPapprox() //Does Exact here
   Node._id = 0
   const grid: Grid = new Array(gridSize)
   for (let x = 0; x < gridSize; x++) {

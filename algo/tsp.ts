@@ -111,8 +111,12 @@ export const tSPExact = (
     }
 
     // Check and update
-    if (bitmapTable[key][current] != undefined) {
-      if (!(bitmapTable[key][current] > cost)) {
+    if (!bitmapTable[key]) {
+      bitmapTable[key] = {}
+    }
+
+    if (bitmapTable[key]?.[current] != undefined) {
+      if (bitmapTable[key][current] > cost) {
         //Does this do the right thing
         bitmapTable[key][current] = cost
         return true
@@ -120,18 +124,20 @@ export const tSPExact = (
         return false
       }
     } else {
-      bitmapTable[key][current] = cost
+      bitmapTable[key][current] = cost //Error cant set
       return true
     }
   }
 
+  // Big Error !!!
   // Set of visited nodes and the node id of the current node
   const bitmapTableLookUp = (visited: Node[], current: number): number | undefined => {
     let key: number = 0
     for (let i = 0; i < visited.length; i++) {
       key = key | (1 << indexTable[visited[i].id])
     }
-    return bitmapTable[key][current]
+
+    return bitmapTable[key]?.[current]
   }
 
   // Finde ordering
@@ -141,33 +147,54 @@ export const tSPExact = (
   let foundtsp: boolean = false
 
   // Rekursic TSP optimizer
-  // Fills Lookuptable -> path can be computed via lookup table!
   const TspOpt = (S: Node[], currentNode: Node, cost: number, prevNode?: Node): { ordering: Node[]; cost: number } => {
-    if (S.length != destinations.length - 1) {
+    //implicitly started from v_0 and no nodes visited
+
+    if (S.length < destinations.length - 2) {
+      // if can still append new nodes
+
       //For all nodes that could still be added to S check if its current best
-      let bestOrdering: Node[]
+      let bestOrdering: Node[] = []
       let bestCost: number = -1
+
       // Base case
       destinations.forEach((newNode) => {
-        if (S.some((node) => newNode.id != node.id && node.id != destinations[0].id)) {
+        //Rethink this !!! Error if S empthy
+        if (
+          newNode.id != destinations[0].id && //cant for now go back to start
+          newNode.id != currentNode.id && // cant go back to itslef
+          !S.some((node) => newNode.id === node.id) //new node not contained in S
+        ) {
           //iterate over all not in S
           let lookupval: number | undefined = bitmapTableLookUp(S.concat(currentNode), newNode.id)
           if (
-            lookupval != undefined &&
-            lookupval < cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[newNode.id]].length
+            //Error here
+            (lookupval != undefined &&
+              lookupval < cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[newNode.id]].length) ||
+            lookupval == undefined
           ) {
             //check if is the current best for combination
             //if current best for S end continue TSP
+
             addBitmapTableEnty(
               S.concat(currentNode),
               cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[newNode.id]].length,
               newNode.id,
             )
-            let bestset = TspOpt(
-              S.concat(currentNode),
-              newNode,
-              cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[newNode.id]].length,
-            )
+            let bestset: { ordering: Node[]; cost: number }
+            if (currentNode.id != destinations[0].id) {
+              bestset = TspOpt(
+                S.concat(currentNode),
+                newNode,
+                cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[newNode.id]].length,
+              )
+            } else {
+              bestset = TspOpt(
+                S,
+                newNode,
+                cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[newNode.id]].length,
+              )
+            }
             if (bestCost == -1 && bestset.cost != -1) {
               bestOrdering = bestset.ordering
               bestCost = bestset.cost
@@ -177,22 +204,35 @@ export const tSPExact = (
                 bestCost = bestset.cost
               }
             }
+          } else {
+            //No hit with lookup
+            if (false && lookupval == undefined) {
+              addBitmapTableEnty(
+                S.concat(currentNode),
+                cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[newNode.id]].length,
+                newNode.id,
+              )
+            }
           }
         }
-        //Check which best => return ordering and cost => is in order (guess yes)
-        if (bestCost != -1) {
-          return { ordering: bestOrdering, cost: bestCost }
-        } else {
-          return { ordering: [], cost: -1 }
-        }
       })
+      //Check which best => return ordering and cost => is in order (guess yes)
+      // After check for all nodes if can be put in
+      if (bestCost != -1 && bestOrdering != undefined) {
+        return { ordering: bestOrdering, cost: bestCost }
+      } else {
+        return { ordering: [], cost: -1 }
+      }
     } else {
       // try adding x_0 and check if best return appropriatly
       let endval = cost + adjacentMatrix[indexTable[currentNode.id]][indexTable[destinations[0].id]].length
-      let best = bitmapTableLookUp(S, destinations[0].id)
+      let best = bitmapTableLookUp(S.concat(currentNode), destinations[0].id)
       if (best != undefined && endval < best) {
-        addBitmapTableEnty(S, endval, destinations[0].id)
-        return { ordering: S.concat(destinations[0]), cost: endval }
+        addBitmapTableEnty(S.concat(currentNode), endval, destinations[0].id) //Does not add the better. Take away protect
+        return { ordering: S.concat(currentNode, destinations[0]), cost: endval }
+      } else if (best == undefined) {
+        addBitmapTableEnty(S.concat(currentNode), endval, destinations[0].id)
+        return { ordering: S.concat(currentNode, destinations[0]), cost: endval }
       }
     }
     // default should not be reached
@@ -201,24 +241,63 @@ export const tSPExact = (
 
   // Needs to be revamped
   // start rekursion
-  let temp = TspOpt([], destinations[1], 0)
+  let temp = TspOpt([], destinations[0], 0)
   ordering = temp.ordering
+  ordering.unshift(destinations[0])
   length = temp.cost
-
+  console.log(ordering)
   // Set path found
-  if (ordering.length == destinations.length) {
+  if (ordering.length == destinations.length + 1) {
+    // Needs debugging
     foundtsp = true
 
-    //Cut out the most expensiv link and reorder but not a must do
-    // else set -2 as i limit
-    //compute TSP path
-    for (let i = 0; i < ordering.length - 2; i++) {
-      if ((i = 0)) {
-        tspPath.concat(adjacentMatrix[0][indexTable[ordering[i].id]].path)
-      } else {
-        tspPath.concat(adjacentMatrix[indexTable[ordering[i - 1].id]][indexTable[ordering[i].id]].path.slice(1))
+    //Cut out the most expensiv link and reorder
+    let longestEdgeOrigin: number = 0
+    let longestEdgeValue: number = -1
+    for (let i = 0; i < ordering.length - 1; i++) {
+      if (longestEdgeValue == -1) {
+        longestEdgeOrigin = 0
+        indexTable[ordering[0].id]
+        longestEdgeValue = adjacentMatrix[indexTable[ordering[0].id]][indexTable[ordering[1].id]].length
+      } else if (adjacentMatrix[indexTable[ordering[i].id]][indexTable[ordering[i + 1].id]].length > longestEdgeValue) {
+        longestEdgeOrigin = i
+        longestEdgeValue = adjacentMatrix[indexTable[ordering[i].id]][indexTable[ordering[i + 1].id]].length
       }
     }
+    let newOrdering: Node[] = []
+    // have indecies now cut, watch out for edge cases
+    for (let i = longestEdgeOrigin + 1; i < ordering.length; i++) {
+      newOrdering.push(ordering[i])
+    }
+    for (let i = 0; i < longestEdgeOrigin; i++) {
+      newOrdering.push(ordering[i])
+    }
+    newOrdering.push(ordering[longestEdgeOrigin])
+
+    // Remove duplicats
+    const uniqueIds = new Set<number>()
+
+    // Use filter to remove duplicates based on the 'id' property
+    const uniqueNodeArray = newOrdering.filter((node) => {
+      if (!uniqueIds.has(node.id)) {
+        uniqueIds.add(node.id)
+        return true
+      }
+      return false
+    })
+    ordering = uniqueNodeArray
+    //Compute new path lenght opt - longest lenth
+    length = length - longestEdgeValue
+    //Set TSP path from orderin
+    for (let i = 0; i < ordering.length - 1; i++) {
+      //Works until here!
+      let current: Node = ordering[i]
+      let next: Node = ordering[i + 1] //Nothing gets added here
+      let temp2 = adjacentMatrix[indexTable[current.id]][indexTable[next.id]].path
+      tspPath = [...tspPath, ...temp2]
+      tspPath.pop()
+    }
+    tspPath.push(ordering[ordering.length - 1])
   }
 
   if (length == undefined) {
@@ -378,7 +457,7 @@ export const TestFunctionTSPapprox = (): void => {
   grid[0][1].edges.push(new Edge(grid[0][3], 15, grid[0][1]))
   computeMue(grid)
 
-  let results: results = tSPApproximation(
+  let results: results = tSPExact(
     grid,
     search,
     [grid[0][0], grid[0][1], grid[0][2], grid[0][3]],
@@ -387,6 +466,6 @@ export const TestFunctionTSPapprox = (): void => {
     'manhattan',
     false,
   )
-  //Node is are fucked
+  //Node is fucked
   console.log(results)
 }
