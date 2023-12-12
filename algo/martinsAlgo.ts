@@ -5,43 +5,50 @@ import { Position } from './Simulate.js'
 import { addEdge } from './grid.js'
 
 // Compute the distance of every node to goal
-export const martinsDist = (grid: Grid, endNodePos: Position): void => {
+export const SetDistFromGoal = (grid: Grid, endNodePos: Position): void => {
   let endNode: Node = grid[endNodePos.x][endNodePos.y]
   endNode.GoalDistance = 0
   let Attr: Node[] = [endNode]
   let AttrRprev: Node[] = []
-  let iter = 0
 
   do {
     AttrRprev = Attr
-    iter += 1
-
-    // Expand the set the GoalDistance, only if better value, add all new nodes into next set
     Attr = []
+    // Iterate over all nodes AttrRprev
     for (let i = 0; i < AttrRprev.length; i++) {
-      let distcurrent = AttrRprev[i].GoalDistance
-      for (let j = 0; j < AttrRprev[i].edges.length; j++) {
-        let distnext = AttrRprev[i].edges[j].adjacent.GoalDistance
-        if (
-          distnext != undefined &&
-          distcurrent != undefined &&
-          distnext > distcurrent + AttrRprev[i].edges[j].weight &&
-          AttrRprev[i].edges[j].adjacent.type != 'water'
-        ) {
-          Attr.push(AttrRprev[i].edges[j].adjacent)
-          AttrRprev[i].edges[j].adjacent.GoalDistance = distcurrent + AttrRprev[i].edges[j].weight
-        } else {
-          if (distnext == undefined && distcurrent != undefined && AttrRprev[i].edges[j].adjacent.type != 'water') {
-            AttrRprev[i].edges[j].adjacent.GoalDistance = distcurrent + AttrRprev[i].edges[j].weight
-            Attr.push(AttrRprev[i].edges[j].adjacent)
+      let distCurrent = AttrRprev[i].GoalDistance
+      for (let j = 0; j < AttrRprev[i].incomingEdges.length; j++) {
+        let distToCurrent: number | undefined
+        AttrRprev[i].incomingEdges[j].edges.forEach((outEdge) => {
+          if (outEdge.adjacent.id == AttrRprev[i].id) {
+            distToCurrent = AttrRprev[i].incomingEdges[j].GoalDistance
+
+            if (
+              distToCurrent != undefined &&
+              distCurrent != undefined &&
+              AttrRprev[i].incomingEdges[j].type != 'water' &&
+              distToCurrent > distCurrent + outEdge.weight
+            ) {
+              AttrRprev[i].incomingEdges[j].GoalDistance = distCurrent + outEdge.weight
+              Attr.push(AttrRprev[i].incomingEdges[j])
+            } else {
+              if (
+                distToCurrent == undefined &&
+                distCurrent != undefined &&
+                AttrRprev[i].incomingEdges[j].type != 'water'
+              ) {
+                AttrRprev[i].incomingEdges[j].GoalDistance = distCurrent + outEdge.weight
+                Attr.push(AttrRprev[i].incomingEdges[j])
+              }
+            }
           }
-        }
+        })
       }
     }
   } while (Attr.length != 0)
 }
 
-export const testMartinDistance = (): void => {
+export const testDistanceFunktion = (): void => {
   const gridSize = 10
   Node._id = 0
   const grid: Grid = new Array(gridSize)
@@ -113,6 +120,6 @@ export const testMartinDistance = (): void => {
     }
   }
 
-  martinsDist(grid, { x: 0, y: 0 })
+  SetDistFromGoal(grid, { x: 0, y: 0 })
   console.log(grid)
 }
