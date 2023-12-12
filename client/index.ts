@@ -40,9 +40,13 @@ export default function clientInit() {
 const cellPadding = 2
 
 let riskFactor = 0.0
+let cutoff = 1
 
 const riskFactorSlider = <HTMLInputElement>document.getElementById('risk-factor')!
 const riskFactorView = <HTMLSpanElement>document.getElementById('risk-factor-view')!
+
+const cutoffSlider = <HTMLInputElement>document.getElementById('mue-cutoff')!
+const cutoffView = <HTMLSpanElement>document.getElementById('mue-cutoff-view')!
 
 let algoVersion = 'v1'
 const selectedAlgoRadio = document.getElementsByName('algo-version')!
@@ -106,16 +110,29 @@ riskFactorSlider.addEventListener('input', () => {
   console.log('RiskFactor set to: ' + riskFactor)
 })
 
+cutoffSlider.addEventListener('input', () => {
+  cutoff = Number(cutoffSlider.value)
+
+  cutoffView.textContent = 'Cutoff set to: ' + cutoff.toString()
+})
+
 selectedAlgoRadio.forEach((radio) => {
   radio.addEventListener('change', () => {
     algoVersion = (<HTMLInputElement>radio).value
 
-    if (algoVersion == 'v1') {
-      riskFactorSlider.disabled = true
-      riskFactorSlider.style.opacity = '0.5'
-    } else {
+    riskFactorSlider.disabled = true
+    riskFactorSlider.style.opacity = '0.5'
+
+    cutoffSlider.disabled = true
+    cutoffSlider.style.opacity = '0.5'
+
+    if (algoVersion == 'v2') {
       riskFactorSlider.disabled = false
       riskFactorSlider.style.opacity = '1'
+    }
+    if (algoVersion == 'v2.1') {
+      cutoffSlider.disabled = false
+      cutoffSlider.style.opacity = '1'
     }
     console.log('Algo version set to: ' + algoVersion)
   })
@@ -144,6 +161,10 @@ function setControls() {
   riskFactorView.textContent = 'Risk factor set to: ' + controls.options.riskFactor.toString()
   riskFactorSlider.value = controls.options.riskFactor.toString()
   riskFactor = controls.options.riskFactor
+
+  cutoffView.textContent = 'Cutoff set to: ' + controls.options.cutoff.toString()
+  cutoffSlider.value = controls.options.cutoff.toString()
+  cutoff = controls.options.cutoff
 
   selectedAlgoRadio.forEach((radio) => {
     const radioElement = radio as HTMLInputElement
@@ -191,6 +212,7 @@ function saveControls() {
       riskFactor: riskFactor,
       algoVersion: algoVersion,
       heuristic: heuristic,
+      cutoff: cutoff,
     },
   }
   saveControlsToLocalStorage(controlsData)
@@ -246,6 +268,7 @@ let muMax = 0
 
 export function drawGrid() {
   muMax = findMaxMu()
+  cutoffSlider.max = muMax.toString()
   // Get the canvas element by its ID
   const gridSize = grid.length
 
@@ -479,6 +502,7 @@ function runPathFinding() {
     algoVersion,
     heuristic,
     showOpenAndClosedListsCheckbox.checked,
+    cutoff,
   )
   if (!path) {
     return

@@ -18,6 +18,7 @@ export type ControlsData = {
     riskFactor: number
     algoVersion: string
     heuristic: string
+    cutoff: number
   }
 }
 

@@ -3,6 +3,7 @@ import { Grid } from './models/Grid'
 import { Position } from './models/Position'
 import runv1 from './versions/v1_AStarSearch.js'
 import runv2 from './versions/v2_AStarSearch.js'
+import runv2_1 from './versions/V2.1_AStarSearch.js'
 
 const search = (
   startPos: Position,
@@ -15,6 +16,7 @@ const search = (
   algoVersion: string = 'v2',
   heuristic: string = 'manhattan',
   drawLists = false,
+  cutoff: number = 8,
 ) => {
   let selectedHeuristic: HeuristicFunction
 
@@ -48,6 +50,10 @@ const search = (
     case 'v2': {
       // console.log('Running v2')
       return runv2(startPos, endPos, graph, selectedHeuristic, w, drawLists)
+    }
+    case 'v2.1': {
+      // console.log('Running v2.1')
+      return runv2_1(startPos, endPos, graph, selectedHeuristic, cutoff, drawLists)
     }
     default: {
       // console.log('Invalid algo version. Got ' + algoVersion + '. Using v2')
