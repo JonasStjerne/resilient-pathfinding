@@ -33,7 +33,6 @@ export class SimulationService {
         search(startPos!, endPos!, maps[mapIndex], this._riskFactor, this._algoVersion),
       )
       for (let i = 0; i < this._iterationCount; i++) {
-        console.log('Running simulation iteration ' + (i + 1) + '/' + this._iterationCount)
         console.log('Running simulation iteration ' + (i + 1) + '/' + this._iterationCount + ' on map ' + mapIndex)
         path?.filter((nodeId) => nodeId)
         const simResult = simulateRoute(
