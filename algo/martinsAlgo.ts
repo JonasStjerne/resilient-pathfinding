@@ -7,7 +7,7 @@ import { addEdge } from './grid.js'
 // Compute the distance of every node to goal
 export const SetDistFromGoal = (grid: Grid, endNodePos: Position): void => {
   let endNode: Node = grid[endNodePos.x][endNodePos.y]
-  endNode.GoalDistance = 0
+  endNode.goalDistance = 0
   let Attr: Node[] = [endNode]
   let AttrRprev: Node[] = []
 
@@ -16,12 +16,12 @@ export const SetDistFromGoal = (grid: Grid, endNodePos: Position): void => {
     Attr = []
     // Iterate over all nodes AttrRprev
     for (let i = 0; i < AttrRprev.length; i++) {
-      let distCurrent = AttrRprev[i].GoalDistance
+      let distCurrent = AttrRprev[i].goalDistance
       for (let j = 0; j < AttrRprev[i].incomingEdges.length; j++) {
         let distToCurrent: number | undefined
         AttrRprev[i].incomingEdges[j].edges.forEach((outEdge) => {
           if (outEdge.adjacent.id == AttrRprev[i].id) {
-            distToCurrent = AttrRprev[i].incomingEdges[j].GoalDistance
+            distToCurrent = AttrRprev[i].incomingEdges[j].goalDistance
 
             if (
               distToCurrent != undefined &&
@@ -29,7 +29,7 @@ export const SetDistFromGoal = (grid: Grid, endNodePos: Position): void => {
               AttrRprev[i].incomingEdges[j].type != 'water' &&
               distToCurrent > distCurrent + outEdge.weight
             ) {
-              AttrRprev[i].incomingEdges[j].GoalDistance = distCurrent + outEdge.weight
+              AttrRprev[i].incomingEdges[j].goalDistance = distCurrent + outEdge.weight
               Attr.push(AttrRprev[i].incomingEdges[j])
             } else {
               if (
@@ -37,7 +37,7 @@ export const SetDistFromGoal = (grid: Grid, endNodePos: Position): void => {
                 distCurrent != undefined &&
                 AttrRprev[i].incomingEdges[j].type != 'water'
               ) {
-                AttrRprev[i].incomingEdges[j].GoalDistance = distCurrent + outEdge.weight
+                AttrRprev[i].incomingEdges[j].goalDistance = distCurrent + outEdge.weight
                 Attr.push(AttrRprev[i].incomingEdges[j])
               }
             }
