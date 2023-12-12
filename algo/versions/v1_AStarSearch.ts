@@ -29,7 +29,7 @@ const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: He
   while (currentNode !== destinationNode) {
     currentNode.edges.forEach((edge) => {
       if (!legalMoveNodeTypes.includes(edge.adjacent.type)) return
-      if (!closedList.includes(edge.adjacent) && !openList.includes(edge.adjacent)) {
+      if (!closedList.includes(edge.adjacent)) {
         openList.push(edge.adjacent)
 
         const prevNodeG = searchTable[currentNode.id]?.g
@@ -50,6 +50,9 @@ const search = (startPos: Position, endPos: Position, graph: Grid, heuristic: He
           }
       }
     })
+    if (openList.length == 0) {
+      return null
+    }
     closedList.push(currentNode)
     const openListSearchTableEntries = openList.map((node) => {
       return { id: node.id, entry: searchTable[node.id] }

@@ -241,6 +241,11 @@ function isGridJson(arr: GridJSON | GridJSON[]): arr is GridJSON {
   return !isArray
 }
 
+export function isGrid(arr: Grid | Grid[]): arr is Grid {
+  const isArray = Array.isArray(arr[0][0])
+  return !isArray
+}
+
 type EdgeJSON = Omit<Edge, 'adjacent'> & { adjacent: { x: number; y: number } }
 type NodeLookup = Pick<Node, 'x' | 'y'>
 

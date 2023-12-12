@@ -12,10 +12,10 @@ const octile: HeuristicFunction = (startPos, endPos): number => {
   const dx = Math.abs(endPos.x - startPos.x)
   const dy = Math.abs(endPos.y - startPos.y)
 
-  const F = Math.SQRT2 - 1 // Factor for diagonal movement cost
-  const D = Math.SQRT2 // Cost of diagonal movement
+  const D = 1 // Cost of regular movement
+  const D2 = Math.SQRT2 // Cost of diagonal movement
 
-  return D * (dx + dy) + (F - 2 * D) * Math.min(dx, dy)
+  return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy)
 }
 
 const chebyshev: HeuristicFunction = (startPos, endPos): number => {
