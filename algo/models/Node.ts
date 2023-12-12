@@ -14,7 +14,7 @@ export class Node {
   incomingEdges: Node[] = []
   distEdges: Edge[] = []
   incomingDistEdges: Node[] = []
-  GoalDistance: number | undefined
+  goalDistance: number | undefined
 
   constructor(x: number, y: number, type: NodeType, mue?: number, id?: number) {
     this.id = id ?? Node._id++
