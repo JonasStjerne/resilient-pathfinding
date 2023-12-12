@@ -3,6 +3,7 @@ import { Node } from './models/Node.js'
 import { Edge } from './models/Edge.js'
 import { Position } from './Simulate.js'
 import { addEdge } from './grid.js'
+import { computeMue } from './mue.js'
 
 // Compute the distance of every node to goal
 export const SetDistFromGoal = (grid: Grid, endNodePos: Position): void => {
@@ -38,6 +39,56 @@ export const SetDistFromGoal = (grid: Grid, endNodePos: Position): void => {
                 AttrRprev[i].incomingEdges[j].type != 'water'
               ) {
                 AttrRprev[i].incomingEdges[j].goalDistance = distCurrent + outEdge.weight
+                Attr.push(AttrRprev[i].incomingEdges[j])
+              }
+            }
+          }
+        })
+      }
+    }
+  } while (Attr.length != 0)
+}
+
+export const SetDistAndMueFromGoal = (grid: Grid, endNodePos: Position): void => {
+  let endNode: Node = grid[endNodePos.x][endNodePos.y]
+  endNode.goalDistance = 0
+  endNode.mueSum = endNode.mue
+  let Attr: Node[] = [endNode]
+  let AttrRprev: Node[] = []
+  computeMue(grid)
+
+  // Sum mue of the opt path -> Each time dist updates also updates mue sum
+  do {
+    AttrRprev = Attr
+    Attr = []
+    // Iterate over all nodes AttrRprev
+    for (let i = 0; i < AttrRprev.length; i++) {
+      let distCurrent = AttrRprev[i].goalDistance
+      let currenMueSum = AttrRprev[i].mueSum
+      for (let j = 0; j < AttrRprev[i].incomingEdges.length; j++) {
+        let distToCurrent: number | undefined
+        AttrRprev[i].incomingEdges[j].edges.forEach((outEdge) => {
+          if (outEdge.adjacent.id == AttrRprev[i].id) {
+            distToCurrent = AttrRprev[i].incomingEdges[j].goalDistance
+            if (
+              distToCurrent != undefined &&
+              distCurrent != undefined &&
+              AttrRprev[i].incomingEdges[j].type != 'water' &&
+              distToCurrent > distCurrent + outEdge.weight &&
+              currenMueSum != undefined
+            ) {
+              AttrRprev[i].incomingEdges[j].goalDistance = distCurrent + outEdge.weight
+              AttrRprev[i].incomingEdges[j].mueSum = currenMueSum + AttrRprev[i].incomingEdges[j].mue
+              Attr.push(AttrRprev[i].incomingEdges[j])
+            } else {
+              if (
+                distToCurrent == undefined &&
+                distCurrent != undefined &&
+                AttrRprev[i].incomingEdges[j].type != 'water' &&
+                currenMueSum != undefined
+              ) {
+                AttrRprev[i].incomingEdges[j].goalDistance = distCurrent + outEdge.weight
+                AttrRprev[i].incomingEdges[j].mueSum = currenMueSum + AttrRprev[i].incomingEdges[j].mue
                 Attr.push(AttrRprev[i].incomingEdges[j])
               }
             }
