@@ -8,7 +8,7 @@ export const runCli = async () => {
     name: 'mapPoolFileName',
     type: 'input',
     message: 'What is the path to the map pool?',
-    defaultOption: 'my-maps.gzip',
+    defaultOption: 'test.gzip',
   })
 
   options['algoVersion'] = await prompt<'v1' | 'v2'>({
@@ -22,9 +22,9 @@ export const runCli = async () => {
   if (options['algoVersion'] == 'v2') {
     options['riskFactor'] = await prompt<number>({
       name: 'riskFactor',
-      type: 'list',
+      type: 'number',
       message: 'Choose Risk Factor',
-      choices: ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'],
+      defaultOption: 0,
     })
   }
 

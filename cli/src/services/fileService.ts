@@ -3,6 +3,7 @@ import zlib from 'zlib'
 import { Grid } from '../../../algo/models/Grid'
 import { Results } from '../../../shared/models'
 import { PROCESS_PATH } from '../utils/consts.js'
+import { GridJSON, recreateNodeCircularReference } from './saveService.js'
 
 export class FileService {
   static async getMaps(filename: string) {
@@ -15,8 +16,13 @@ export class FileService {
         }
         // Parse the uncompressed data as JSON
         try {
-          const jsonData = JSON.parse(uncompressedData.toString())
-          resolve(jsonData)
+          const maps: Grid[] = []
+          const jsonData = <GridJSON[]>JSON.parse(uncompressedData.toString())
+          jsonData.forEach((gridJSON) => {
+            const grid = recreateNodeCircularReference(gridJSON)
+            maps.push(grid)
+          })
+          resolve(maps)
         } catch (jsonError) {
           reject(new Error('Error parsing JSON:' + jsonError))
         }
