@@ -7,5 +7,5 @@
     "strict": true,
     "moduleResolution": "Node"
   },
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "cli"]
 }
