@@ -10,7 +10,7 @@ const main = async () => {
   const options = await runCli()
   console.info('Running simulations... This may take a little while.')
   const results = await runSimulations(options)
-  console.info(results)
+  console.info(results.statsGlobal)
 }
 
 const runSimulations = async (options: options) => {
