@@ -5,9 +5,9 @@ import { Position } from '../models/Position'
 
 interface SearchTable {
   [index: number]: {
-    g?: number
-    h?: number
-    f?: number
+    g: number
+    h: number
+    f: number
     prevNode?: number
   }
 }
@@ -27,9 +27,14 @@ const search = (
   const gridMaxSize = Math.sqrt(graph.length * graph.length + graph[0].length * graph[0].length)
 
   const searchTable: SearchTable = {}
-  graph.forEach((graphRow) =>
-    graphRow.forEach((graphCol) => {
-      if (['road', 'start', 'goal'].includes(graphCol.type)) searchTable[graphCol.id] = {}
+  graph.forEach((col) =>
+    col.forEach((node) => {
+      if (['road', 'start', 'goal'].includes(node.type)) {
+        const h = heuristic({ x: node.x, y: node.y }, endPos)
+        const g = 0
+        const f = g + h
+        searchTable[node.id] = { h, g, f }
+      }
     }),
   )
 
@@ -38,150 +43,159 @@ const search = (
   let currentNode = graph[startPos.x][startPos.y]
   const destinationNode = graph[endPos.x][endPos.y]
   const legalMoveNodeTypes = ['road', 'start', 'goal']
+  openList.push(currentNode)
 
-  while (currentNode !== destinationNode) {
-    currentNode.edges.forEach((edge) => {
-      if (!legalMoveNodeTypes.includes(edge.adjacent.type)) return
-      if (!closedList.includes(edge.adjacent) && !openList.includes(edge.adjacent)) {
-        openList.push(edge.adjacent)
-
-        const prevNodeG = searchTable[currentNode.id]?.g
-        const g = prevNodeG ? prevNodeG + edge.weight : edge.weight
-        const h = heuristic(edge.adjacent, endPos)
-        const s = edge.adjacent.mue === -1 ? Number.MAX_VALUE : edge.adjacent.mue
-        const f = g + h + penalization(s, gridMaxSize, cutoff)
-
-        const prevF = searchTable[edge.adjacent.id]?.f
-        if (prevF == undefined || f < prevF)
-          searchTable[edge.adjacent.id] = {
-            ...searchTable[edge.adjacent.id],
-            g: g,
-            f: f,
-            prevNode: currentNode.id,
-          }
+  while (openList.length > 0) {
+    let entryWithLowestF = searchTable[openList[0].id]
+    currentNode = openList[0]
+    openList.forEach((node) => {
+      const entry = searchTable[node.id]
+      if (entry.f < entryWithLowestF.f) {
+        entryWithLowestF = entry
+        currentNode = node
       }
     })
-    if (openList.length == 0) {
-      return null
+    if (currentNode == destinationNode) {
+      return backtrackPath(currentNode, searchTable)
     }
+    openList = openList.filter((node) => node.id !== currentNode.id)
     closedList.push(currentNode)
-    const openListSearchTableEntries = openList.map((node) => {
-      return { id: node.id, entry: searchTable[node.id] }
-    })
-    let entryWithLowestF = openListSearchTableEntries[0]
 
-    openListSearchTableEntries.forEach((entry) => {
-      if (
-        entry.entry.f !== undefined &&
-        entryWithLowestF.entry.f !== undefined &&
-        entry.entry.f < entryWithLowestF.entry.f
-      )
-        entryWithLowestF = entry
+    //Add connected nodes to openlist if they are not already in open or closed list
+    currentNode.edges.forEach((edge) => {
+      const neighbor = edge.adjacent
+      if (!legalMoveNodeTypes.includes(neighbor.type)) return
+      if (closedList.includes(neighbor)) return
+
+      const currentNodeEntry = searchTable[currentNode.id]
+      const neighborNodeEntry = searchTable[neighbor.id]
+
+      const g = currentNodeEntry.g + edge.weight + penalization(neighbor.mue, gridMaxSize, cutoff)
+      const h = neighborNodeEntry.h
+      const f = g + h
+
+      if (!openList.includes(neighbor) || g < neighborNodeEntry.g) {
+        neighborNodeEntry.prevNode = currentNode.id
+        neighborNodeEntry.g = g
+        neighborNodeEntry.f = f
+
+        if (!openList.includes(neighbor)) {
+          openList.push(neighbor)
+        } else {
+        }
+      }
+      // const prevF = searchTable[neighbor.id].f
+      // if (f < prevF)
+      //   searchTable[neighbor.id] = {
+      //     h,
+      //     g,
+      //     f,
+      //     prevNode: currentNode.id,
+      //   }
     })
-    const newCurrentNode = openList.find((node) => node.id === entryWithLowestF.id)
-    openList = openList.filter((node) => node.id !== entryWithLowestF.id)
-    if (newCurrentNode) currentNode = newCurrentNode
+    // closedList.push(currentNode)
+    // openList.filter((node) => node.id !== currentNode.id)
+
+    // openList = openList.filter((node) => node !== currentNode)
   }
+  return null
 
-  const route = backtrackPath(currentNode, searchTable)
+  // const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
+  // const ctx = canvas.getContext('2d')!
+  // const gridSize = graph.length
+  // ctx.lineWidth = 2
 
-  const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
-  const ctx = canvas.getContext('2d')!
-  const gridSize = graph.length
-  ctx.lineWidth = 2
+  // if (drawLists) {
+  //   const openListToDraw = openList.filter((node) => !route.includes(node.id))
+  //   openListToDraw.forEach((node) => {
+  //     ctx.strokeStyle = '#57fa57' // Set fill color to color
+  //     const cellSize = canvas.width / gridSize
+  //     ctx.beginPath()
+  //     // Top border
+  //     let fromX = node.x * cellSize
+  //     let fromY = node.y * cellSize
+  //     let toX = node.x * cellSize + cellSize
+  //     let toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-  if (drawLists) {
-    const openListToDraw = openList.filter((node) => !route.includes(node.id))
-    openListToDraw.forEach((node) => {
-      ctx.strokeStyle = '#57fa57' // Set fill color to color
-      const cellSize = canvas.width / gridSize
-      ctx.beginPath()
-      // Top border
-      let fromX = node.x * cellSize
-      let fromY = node.y * cellSize
-      let toX = node.x * cellSize + cellSize
-      let toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     //Left border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize
+  //     toX = node.x * cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      //Left border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize
-      toX = node.x * cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     // Bottom border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Bottom border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     // Right border
+  //     fromX = node.x * cellSize + cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
+  //   })
 
-      // Right border
-      fromX = node.x * cellSize + cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
-    })
+  //   const closedListToDraw = closedList.filter((node) => !route.includes(node.id))
+  //   closedListToDraw.forEach((node) => {
+  //     ctx.strokeStyle = '#9e1515' // Set fill color to color
+  //     const cellSize = canvas.width / gridSize
+  //     ctx.beginPath()
+  //     // Top border
+  //     let fromX = node.x * cellSize
+  //     let fromY = node.y * cellSize
+  //     let toX = node.x * cellSize + cellSize
+  //     let toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-    const closedListToDraw = closedList.filter((node) => !route.includes(node.id))
-    closedListToDraw.forEach((node) => {
-      ctx.strokeStyle = '#9e1515' // Set fill color to color
-      const cellSize = canvas.width / gridSize
-      ctx.beginPath()
-      // Top border
-      let fromX = node.x * cellSize
-      let fromY = node.y * cellSize
-      let toX = node.x * cellSize + cellSize
-      let toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     // Left border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize
+  //     toX = node.x * cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Left border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize
-      toX = node.x * cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     // Bottom border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Bottom border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
-
-      // Right border
-      fromX = node.x * cellSize + cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
-    })
-  }
-  return route
+  //     // Right border
+  //     fromX = node.x * cellSize + cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
+  //   })
+  // }
+  // return route
 }
 
 const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
   let path = []
   let curNodeId: number | undefined = endNode.id
-  path.push(curNodeId)
   while (curNodeId !== undefined && searchTable[curNodeId] && searchTable[curNodeId].prevNode !== undefined) {
     curNodeId = searchTable[curNodeId].prevNode
     path.push(curNodeId)
@@ -192,11 +206,18 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
 
 const penalization = (robustness: number, gridMaxSize: number, cutoff: number) => {
   const scale = 10
-  const realCutoff = cutoff === 0 ? robustness : Math.min(robustness, cutoff)
+  const realCutoff = Math.min(robustness, 100)
 
   // Apply a logarithmic penalization function, normalized by the grid size
-  const normalizedPenalization = Math.log(realCutoff) / Math.log(gridMaxSize)
-  return scale * (1 - normalizedPenalization)
+  const normalizedPenalization = Math.log(realCutoff - cutoff) / Math.log(gridMaxSize)
+  const alternative = cutoff === 0 ? 0 : 5 * Math.pow(0.2, robustness - cutoff)
+  return alternative
 }
 
 export default search
+
+interface NodeWithFGH extends Node {
+  f: number
+  g: number
+  h: number
+}

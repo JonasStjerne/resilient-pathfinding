@@ -268,7 +268,7 @@ let muMax = 0
 
 export function drawGrid() {
   muMax = findMaxMu()
-  cutoffSlider.max = muMax.toString()
+  // cutoffSlider.max = muMax.toString()
   // Get the canvas element by its ID
   const gridSize = grid.length
 

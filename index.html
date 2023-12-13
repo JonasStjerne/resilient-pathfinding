@@ -1,303 +1,283 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>P7</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-      crossorigin="anonymous"
-    />
-    <link rel="stylesheet" href="./styles.css" />
-    <script defer src="dist/index.js" type="module"></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://d3js.org/d3.v6.js"></script>
-    <script defer id="__bs_script__">
-      //<![CDATA[
-      ;(function () {
-        try {
-          var script = document.createElement('script')
-          if ('async') {
-            script.async = true
-          }
-          script.src = 'http://HOST:3000/browser-sync/browser-sync-client.js?v=2.29.3'.replace(
-            'HOST',
-            location.hostname,
-          )
-          if (document.body) {
-            document.body.appendChild(script)
-          } else if (document.head) {
-            document.head.appendChild(script)
-          }
-        } catch (e) {
-          console.error('Browsersync: could not append script tag', e)
-        }
-      })()
-      //]]>
-    </script>
-  </head>
 
-  <body>
-    <main class="content">
-      <canvas id="canvas"></canvas>
-      <div class="controls">
-        <div class="risk-controler-container">
-          <label for="risk-factor" class="form-label">Risk factor (between 0.0 and 1.0)</label>
-          <input type="range" class="form-range" min="0.0" max="1.0" step="0.1" value="0.0" id="risk-factor" />
-          <span id="risk-factor-view">Risk factor set to: 0</span>
-        </div>
-        <div class="cutoff-controler-container">
-          <label for="mue-cutoff" class="form-label">Logarythmic safety cutoff</label>
-          <input type="range" class="form-range" min="0" max="100" step="1" value="1" id="mue-cutoff" />
-          <span id="mue-cutoff-view">Cutoff set to: 0</span>
-        </div>
-        <div class="draw-types-container">
-          <p>Select draw type</p>
-          <div class="button-container">
-            <div class="btn-group draw-type" role="group">
-              <button id="start" class="btn btn-success">Start</button>
-              <button id="water" class="selected btn btn-primary">Water</button>
-              <button id="road" class="btn btn-secondary">Road</button>
-              <button id="goal" class="btn btn-danger">Goal</button>
-            </div>
-            <div class="btn-group draw-type" role="group">
-              <button id="edge" class="btn btn-dark">Edges</button>
-              <button id="disturbance" class="btn btn-warning">Disturbances</button>
-            </div>
-            <div>
-              <input class="form-check-input" type="checkbox" value="" id="delete-mode" />
-              <label class="form-check-label" for="delete-mode"> Delete mode </label>
-            </div>
+<head>
+  <title>P7</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="dist/index.js" type="module"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+  <script src="https://d3js.org/d3.v6.js"></script>
+  <script defer id="__bs_script__">
+    //<![CDATA[
+    ; (function () {
+      try {
+        var script = document.createElement('script')
+        if ('async') {
+          script.async = true
+        }
+        script.src = 'http://HOST:3000/browser-sync/browser-sync-client.js?v=2.29.3'.replace(
+          'HOST',
+          location.hostname,
+        )
+        if (document.body) {
+          document.body.appendChild(script)
+        } else if (document.head) {
+          document.head.appendChild(script)
+        }
+      } catch (e) {
+        console.error('Browsersync: could not append script tag', e)
+      }
+    })()
+    //]]>
+  </script>
+</head>
+
+<body>
+  <main class="content">
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+      <div class="risk-controler-container">
+        <label for="risk-factor" class="form-label">Risk factor (between 0.0 and 1.0)</label>
+        <input type="range" class="form-range" min="0.0" max="1.0" step="0.1" value="0.0" id="risk-factor" />
+        <span id="risk-factor-view">Risk factor set to: 0</span>
+      </div>
+      <div class="cutoff-controler-container">
+        <label for="mue-cutoff" class="form-label">Logarythmic safety cutoff</label>
+        <input type="range" class="form-range" min="0" max="20" step="0.1" value="1" id="mue-cutoff" />
+        <span id="mue-cutoff-view">Cutoff set to: 0</span>
+      </div>
+      <div class="draw-types-container">
+        <p>Select draw type</p>
+        <div class="button-container">
+          <div class="btn-group draw-type" role="group">
+            <button id="start" class="btn btn-success">Start</button>
+            <button id="water" class="selected btn btn-primary">Water</button>
+            <button id="road" class="btn btn-secondary">Road</button>
+            <button id="goal" class="btn btn-danger">Goal</button>
           </div>
-        </div>
-        <div class="switches">
-          <p>Settings</p>
-          <span>Show μ: </span>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-number" value="number" />
-            <label class="form-check-label" for="show-mu-number">Number</label>
+          <div class="btn-group draw-type" role="group">
+            <button id="edge" class="btn btn-dark">Edges</button>
+            <button id="disturbance" class="btn btn-warning">Disturbances</button>
           </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-color" value="color" />
-            <label class="form-check-label" for="show-mu-color">Color</label>
+          <div>
+            <input class="form-check-input" type="checkbox" value="" id="delete-mode" />
+            <label class="form-check-label" for="delete-mode"> Delete mode </label>
           </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-both" value="both" />
-            <label class="form-check-label" for="show-mu-both">Both</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="mu-options" id="show-mu-none" value="none" />
-            <label class="form-check-label" for="show-mu-none">None</label>
-          </div>
-          <p></p>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="show-directed-edges" />
-            <label class="form-check-label" for="show-directed-edges">Show directed edges</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="show-disturbances" />
-            <label class="form-check-label" for="show-disturbances">Show disturbances</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="show-node-id" />
-            <label class="form-check-label" for="show-node-id">Show node ID</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="show-open-and-closed-lists" />
-            <label class="form-check-label" for="show-open-and-closed-lists">Show open and closed lists</label>
-          </div>
-        </div>
-        <div class="algo-settings">
-          <div class="algo-version-container">
-            <p>Algorithm version</p>
-            <div id="algo-version">
-              <div>
-                <input type="radio" id="version1" name="algo-version" value="v1" />
-                <label for="version1">Version 1 (Ignore algorithm)</label><br />
-              </div>
-              <div>
-                <input type="radio" id="version2" name="algo-version" value="v2" checked />
-                <label for="version2">Version 2 (Dynamic risk algorithm)</label>
-              </div>
-              <div>
-                <input type="radio" id="version2.1" name="algo-version" value="v2.1" />
-                <label for="version2.1">Version 2.1 (Logarythmic Penalizer)</label>
-              </div>
-            </div>
-          </div>
-          <div class="algo-heuristics-container">
-            <p>Heuristics</p>
-            <div>
-              <input type="radio" id="heuristic1" name="algo-heuristics" value="manhattan" checked />
-              <label for="heuristic1">Manhattan</label>
-            </div>
-            <div>
-              <input type="radio" id="heuristic2" name="algo-heuristics" value="chebyshev" />
-              <label for="heuristic2">Chebyshev</label>
-            </div>
-            <div>
-              <input type="radio" id="heuristic3" name="algo-heuristics" value="octile" />
-              <label for="heuristic3">Octile</label>
-            </div>
-          </div>
-        </div>
-        <div class="run-algo-container button-container">
-          <button class="btn btn-success" id="run-algo">Run algorithm ></button>
-          <button class="btn btn-danger" id="reset-grid-btn">Reset grid</button>
-          <button class="btn btn-success" id="gen-grid-btn">Generate random grid</button>
         </div>
       </div>
-    </main>
-    <div class="content">
-      <section class="LocalStorage-section">
-        <div class="save-menu content">
-          <div class="saves-container">
-            <label for="save-list" class="form-label">Local Storage Saves</label>
-            <div class="input-group mb-3">
-              <button class="btn btn-primary" type="button" id="load-btn">Load</button>
-              <button class="btn btn-danger" type="button" id="delete-btn">Delete</button>
-              <select class="form-select" id="save-list">
-                <option selected value="-1">Choose...</option>
-              </select>
+      <div class="switches">
+        <p>Settings</p>
+        <span>Show μ: </span>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-number" value="number" />
+          <label class="form-check-label" for="show-mu-number">Number</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-color" value="color" />
+          <label class="form-check-label" for="show-mu-color">Color</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-both" value="both" />
+          <label class="form-check-label" for="show-mu-both">Both</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="mu-options" id="show-mu-none" value="none" />
+          <label class="form-check-label" for="show-mu-none">None</label>
+        </div>
+        <p></p>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="show-directed-edges" />
+          <label class="form-check-label" for="show-directed-edges">Show directed edges</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="show-disturbances" />
+          <label class="form-check-label" for="show-disturbances">Show disturbances</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="show-node-id" />
+          <label class="form-check-label" for="show-node-id">Show node ID</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="show-open-and-closed-lists" />
+          <label class="form-check-label" for="show-open-and-closed-lists">Show open and closed lists</label>
+        </div>
+      </div>
+      <div class="algo-settings">
+        <div class="algo-version-container">
+          <p>Algorithm version</p>
+          <div id="algo-version">
+            <div>
+              <input type="radio" id="version1" name="algo-version" value="v1" />
+              <label for="version1">Version 1 (Ignore algorithm)</label><br />
             </div>
-            <div class="input-group mb-3">
-              <button class="btn btn-success" type="button" id="save-grid">Save current grid</button>
-              <input type="text" class="form-control" placeholder="Save name" id="save-grid-input" />
+            <div>
+              <input type="radio" id="version2" name="algo-version" value="v2" checked />
+              <label for="version2">Version 2 (Dynamic risk algorithm)</label>
+            </div>
+            <div>
+              <input type="radio" id="version2.1" name="algo-version" value="v2.1" />
+              <label for="version2.1">Version 2.1 (Logarythmic Penalizer)</label>
             </div>
           </div>
         </div>
-      </section>
+        <div class="algo-heuristics-container">
+          <p>Heuristics</p>
+          <div>
+            <input type="radio" id="heuristic1" name="algo-heuristics" value="manhattan" checked />
+            <label for="heuristic1">Manhattan</label>
+          </div>
+          <div>
+            <input type="radio" id="heuristic2" name="algo-heuristics" value="chebyshev" />
+            <label for="heuristic2">Chebyshev</label>
+          </div>
+          <div>
+            <input type="radio" id="heuristic3" name="algo-heuristics" value="octile" />
+            <label for="heuristic3">Octile</label>
+          </div>
+        </div>
+      </div>
+      <div class="run-algo-container button-container">
+        <button class="btn btn-success" id="run-algo">Run algorithm ></button>
+        <button class="btn btn-danger" id="reset-grid-btn">Reset grid</button>
+        <button class="btn btn-success" id="gen-grid-btn">Generate random grid</button>
+      </div>
+    </div>
+  </main>
+  <div class="content">
+    <section class="LocalStorage-section">
+      <div class="save-menu content">
+        <div class="saves-container">
+          <label for="save-list" class="form-label">Local Storage Saves</label>
+          <div class="input-group mb-3">
+            <button class="btn btn-primary" type="button" id="load-btn">Load</button>
+            <button class="btn btn-danger" type="button" id="delete-btn">Delete</button>
+            <select class="form-select" id="save-list">
+              <option selected value="-1">Choose...</option>
+            </select>
+          </div>
+          <div class="input-group mb-3">
+            <button class="btn btn-success" type="button" id="save-grid">Save current grid</button>
+            <input type="text" class="form-control" placeholder="Save name" id="save-grid-input" />
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <section class="FileSystem-section">
-        <div class="local-fs content">
-          <div class="local-fs-container">
-            <label for="" class="form-label">Local File System Saves</label>
-            <div class="input-group mb-3">
-              <button class="btn btn-primary" type="button" id="load-local-btn">Load local</button>
-              <input class="file-input" type="file" id="load-local-grid-input" accept=".gzip, application/x-gzip" />
-            </div>
-            <div class="input-group mb-3">
-              <button class="btn btn-success" type="button" id="save-grid-local">Save current grid locally</button>
-              <input type="text" class="form-control" placeholder="Save name" id="save-grid-local-input" />
-            </div>
-            <div class="mb-4">
-              <label for="map-index" class="form-label">Map index to show</label>
-              <input type="number" class="form-control" id="map-index" value="0" />
-            </div>
+    <section class="FileSystem-section">
+      <div class="local-fs content">
+        <div class="local-fs-container">
+          <label for="" class="form-label">Local File System Saves</label>
+          <div class="input-group mb-3">
+            <button class="btn btn-primary" type="button" id="load-local-btn">Load local</button>
+            <input class="file-input" type="file" id="load-local-grid-input" accept=".gzip, application/x-gzip" />
+          </div>
+          <div class="input-group mb-3">
+            <button class="btn btn-success" type="button" id="save-grid-local">Save current grid locally</button>
+            <input type="text" class="form-control" placeholder="Save name" id="save-grid-local-input" />
+          </div>
+          <div class="mb-4">
+            <label for="map-index" class="form-label">Map index to show</label>
+            <input type="number" class="form-control" id="map-index" value="0" />
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Simulation Dashboard</h2>
+
+    <div class="content">
+      <form class="simulation-options" id="simulation-form">
+        <div class="mb-4">
+          <label for="map-upload" class="form-label">Map(s) to run simulation on</label>
+          <input type="file" class="form-control" id="map-upload" aria-describedby="inputGroupFileAddon04"
+            aria-label="Upload" />
+        </div>
+
+        <div class="mb-4">
+          <label for="#" class="form-label">Version of algorithm</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="algo-version-sim" id="v-01" value="v1" />
+            <label class="form-check-label" for="v-01"> v1 </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="algo-version-sim" id="v-0.2" value="v2" checked />
+            <label class="form-check-label" for="v-0.2"> v2 </label>
+          </div>
+        </div>
+
+        <div class="risk-controler-container mb-4">
+          <label for="risk-factor-sim" class="form-label">Risk factor (between 0.0 and 1.0)</label>
+          <input type="range" class="form-range" min="0.0" max="1.0" step="0.1" value="0.0" id="risk-factor-sim" />
+        </div>
+
+        <div class="mb-4">
+          <label for="iteration-count" class="form-label">Iteration count</label>
+          <input type="number" class="form-control" id="iteration-count" value="1" />
+        </div>
+
+        <button class="btn btn-success" id="run-sim" type="submit">
+          <span id="sim-running-spinner" class="spinner-border spinner-border-sm d-none" role="status"
+            aria-hidden="true"></span>
+          Run
+        </button>
+      </form>
+
+      <div class="simulation-stats">
+        <div class="stat-container">
+          <div><small>Average computation time</small></div>
+          <div>
+            <h5 class="text-center" id="comp-time">-</h5>
+          </div>
+        </div>
+
+        <div class="stat-container">
+          <div><small>Average traveled distance</small></div>
+          <div>
+            <h5 class="text-center" id="traveledDistance">-</h5>
+          </div>
+        </div>
+
+        <div class="stat-container">
+          <div><small>Pushover rate</small></div>
+          <div>
+            <h5 class="text-center" id="pushover">-</h5>
+          </div>
+        </div>
+
+        <div class="stat-container">
+          <div><small>Average success rate</small></div>
+          <div>
+            <h5 class="text-center" id="success-rate">-</h5>
+          </div>
+        </div>
+        <div class="progress">
+          <div id="sim-progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+            aria-valuemax="100"></div>
+        </div>
+      </div>
     </div>
 
-    <section>
-      <h2>Simulation Dashboard</h2>
+    <div id="my_data"></div>
+  </section>
 
-      <div class="content">
-        <form class="simulation-options" id="simulation-form">
-          <div class="mb-4">
-            <label for="map-upload" class="form-label">Map(s) to run simulation on</label>
-            <input
-              type="file"
-              class="form-control"
-              id="map-upload"
-              aria-describedby="inputGroupFileAddon04"
-              aria-label="Upload"
-            />
-          </div>
-
-          <div class="mb-4">
-            <label for="#" class="form-label">Version of algorithm</label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="algo-version-sim" id="v-01" value="v1" />
-              <label class="form-check-label" for="v-01"> v1 </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="algo-version-sim" id="v-0.2" value="v2" checked />
-              <label class="form-check-label" for="v-0.2"> v2 </label>
-            </div>
-          </div>
-
-          <div class="risk-controler-container mb-4">
-            <label for="risk-factor-sim" class="form-label">Risk factor (between 0.0 and 1.0)</label>
-            <input type="range" class="form-range" min="0.0" max="1.0" step="0.1" value="0.0" id="risk-factor-sim" />
-          </div>
-
-          <div class="mb-4">
-            <label for="iteration-count" class="form-label">Iteration count</label>
-            <input type="number" class="form-control" id="iteration-count" value="1" />
-          </div>
-
-          <button class="btn btn-success" id="run-sim" type="submit">
-            <span
-              id="sim-running-spinner"
-              class="spinner-border spinner-border-sm d-none"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            Run
-          </button>
-        </form>
-
-        <div class="simulation-stats">
-          <div class="stat-container">
-            <div><small>Average computation time</small></div>
-            <div>
-              <h5 class="text-center" id="comp-time">-</h5>
-            </div>
-          </div>
-
-          <div class="stat-container">
-            <div><small>Average traveled distance</small></div>
-            <div>
-              <h5 class="text-center" id="traveledDistance">-</h5>
-            </div>
-          </div>
-
-          <div class="stat-container">
-            <div><small>Pushover rate</small></div>
-            <div>
-              <h5 class="text-center" id="pushover">-</h5>
-            </div>
-          </div>
-
-          <div class="stat-container">
-            <div><small>Average success rate</small></div>
-            <div>
-              <h5 class="text-center" id="success-rate">-</h5>
-            </div>
-          </div>
-          <div class="progress">
-            <div
-              id="sim-progress-bar"
-              class="progress-bar"
-              role="progressbar"
-              aria-valuenow="0"
-              aria-valuemin="0"
-              aria-valuemax="100"
-            ></div>
-          </div>
-        </div>
+  <section>
+    <h2>Maps generator</h2>
+    <div class="content d-flex flex-column">
+      <div class="mb-4">
+        <label for="gernerate-maps-count-input" class="form-label">Number of maps</label>
+        <input type="number" class="form-control" id="gernerate-maps-count-input" value="1" />
       </div>
+      <button class="btn btn-success" id="generate-maps-btn">Generate</button>
+    </div>
+  </section>
+</body>
 
-      <div id="my_data"></div>
-    </section>
-
-    <section>
-      <h2>Maps generator</h2>
-      <div class="content d-flex flex-column">
-        <div class="mb-4">
-          <label for="gernerate-maps-count-input" class="form-label">Number of maps</label>
-          <input type="number" class="form-control" id="gernerate-maps-count-input" value="1" />
-        </div>
-        <button class="btn btn-success" id="generate-maps-btn">Generate</button>
-      </div>
-    </section>
-  </body>
 </html>

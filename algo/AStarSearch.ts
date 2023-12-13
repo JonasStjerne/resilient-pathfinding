@@ -1,9 +1,9 @@
 import { HeuristicFunction, chebyshev, manhattan, octile } from './heuristic.js'
 import { Grid } from './models/Grid'
 import { Position } from './models/Position'
+import runv2_1 from './versions/V2.1_AStarSearch.js'
 import runv1 from './versions/v1_AStarSearch.js'
 import runv2 from './versions/v2_AStarSearch.js'
-import runv2_1 from './versions/V2.1_AStarSearch.js'
 
 const search = (
   startPos: Position,
