@@ -194,10 +194,11 @@ const search = (
 }
 
 const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
-  let path = []
+  let path: number[] = []
   let curNodeId: number | undefined = endNode.id
+  path.push(curNodeId)
   while (curNodeId !== undefined && searchTable[curNodeId] && searchTable[curNodeId].prevNode !== undefined) {
-    curNodeId = searchTable[curNodeId].prevNode
+    curNodeId = searchTable[curNodeId].prevNode!
     path.push(curNodeId)
   }
   path.reverse()
@@ -210,7 +211,7 @@ const penalization = (robustness: number, gridMaxSize: number, cutoff: number) =
 
   // Apply a logarithmic penalization function, normalized by the grid size
   const normalizedPenalization = Math.log(realCutoff - cutoff) / Math.log(gridMaxSize)
-  const alternative = cutoff === 0 ? 0 : 5 * Math.pow(0.2, robustness - cutoff)
+  const alternative = cutoff === 0 ? 0 : 2 * Math.pow(0.2, robustness - cutoff)
   return alternative
 }
 
