@@ -3,6 +3,8 @@ import { Edge } from './models/Edge.js'
 import { Grid } from './models/Grid.js'
 import { Node } from './models/Node.js'
 import { computeMue } from './mue.js'
+import { tSPApproximation } from './tsp.js'
+import { tSPExact } from './tsp.js'
 export interface Position {
   x: number
   y: number
@@ -124,6 +126,9 @@ export const simulateRoute = (
   }
   if (currentPos && currentPos.x == endPos.x && currentPos.y == endPos.y) {
     didReachGoal = true
+    if (pathtaken[pathtaken.length - 1].x != currentPos.x || pathtaken[pathtaken.length - 1].y != currentPos.y) {
+      pathtaken.push(grid[currentPos.x][currentPos.y])
+    }
   }
   results = {
     grid: grid,
@@ -140,6 +145,86 @@ export const simulateRoute = (
   return results
 }
 
+export const simTsp = (
+  grid: Grid,
+  tspPath: Node[],
+  destinations: Node[],
+  pathFindingAlgo: (
+    startPos: Position,
+    endPos: Position,
+    grid: Grid,
+    w?: number,
+    algoVersion?: string,
+  ) => (number | undefined)[] | null,
+  pushProp: number,
+  w?: number,
+  algoVersion?: string,
+): results => {
+  // id path
+  let idPath: number[] = []
+  for (let i = 0; i < tspPath.length; i++) {
+    idPath.push(tspPath[i].id)
+  }
+  let finalResults: results | undefined = {
+    grid: grid,
+    idealPath: idPath,
+    pushProp: pushProp,
+    successProp: 1,
+    didReachGoal: true,
+    fallInWater: false,
+    pathtaken: [],
+    distTouched: 0,
+    distTaken: 0,
+    gotPushedHere: [],
+  }
+
+  let start: number = 0
+  let goal: number = 0
+  for (let i = 0; i < destinations.length - 1; i++) {
+    // pathtaken does not append last node
+    start = goal
+    // Finde new goal
+    for (let j = start; j < tspPath.length; j++) {
+      if (tspPath[j].id == destinations[i + 1].id) {
+        goal = j
+        break
+      }
+    }
+
+    let startPos: Position = tspPath[start]
+    let endPos: Position = tspPath[goal]
+    let tempPath: number[] = []
+
+    // converte the path from node to position
+    let temp = tspPath.slice(start, goal)
+    for (let j = 0; j < temp.length; j++) {
+      tempPath.push(temp[j].id)
+    }
+    //simulate from destination[i] to destination[i + 1]
+    let tempResult: results = simulateRoute(grid, tempPath, startPos, endPos, pathFindingAlgo, pushProp, w, algoVersion)
+    // Collect tempresults and combine with finalResults
+    finalResults = {
+      grid: grid, // stays the same
+      idealPath: idPath, // stays
+      pushProp: pushProp,
+      successProp: finalResults.successProp * tempResult.successProp,
+      didReachGoal: finalResults.didReachGoal && tempResult.didReachGoal,
+      fallInWater: finalResults.fallInWater || tempResult.fallInWater,
+      pathtaken: finalResults.pathtaken.concat(tempResult.pathtaken),
+      distTouched: finalResults.distTouched + tempResult.distTouched,
+      distTaken: finalResults.distTaken + tempResult.distTaken,
+      gotPushedHere: finalResults.gotPushedHere.concat(tempResult.gotPushedHere),
+    }
+
+    // If fell into water
+    if (finalResults.fallInWater == true) {
+      break
+    }
+  }
+  console.log(finalResults)
+
+  return finalResults
+}
 export const testPushBackTest = (): void => {
   let v1 = new Node(0, 0, 'road')
   let v2 = new Node(0, 1, 'road')
@@ -215,4 +300,45 @@ export const simTestFunktion = (): void => {
     search,
     pushProp,
   )
+}
+
+export const tspSimTestFunktion = (): void => {
+  let v1 = new Node(0, 0, 'road')
+  let v2 = new Node(0, 1, 'road')
+  let v3 = new Node(0, 2, 'road')
+  let v4 = new Node(0, 3, 'road')
+  let v5 = new Node(0, 4, 'road')
+  let v6 = new Node(0, 5, 'water')
+
+  let grid: Grid = new Array(1)
+  grid[0] = new Array(6)
+
+  grid[0][0] = v1
+  grid[0][1] = v2
+  grid[0][2] = v3
+  grid[0][3] = v4
+  grid[0][4] = v5
+  grid[0][5] = v6
+
+  grid[0][0].edges.push(new Edge(grid[0][1], 1, grid[0][0]))
+  grid[0][0].distEdges.push(new Edge(grid[0][4], 1))
+  grid[0][4].incomingDistEdges.push(grid[0][0])
+
+  grid[0][1].edges.push(new Edge(grid[0][2], 1, grid[0][1]))
+  grid[0][1].distEdges.push(new Edge(grid[0][5], 1))
+  grid[0][5].incomingDistEdges.push(grid[0][1])
+
+  grid[0][2].edges.push(new Edge(grid[0][3], 1, grid[0][2]))
+  grid[0][2].distEdges.push(new Edge(grid[0][5], 1))
+  grid[0][5].incomingDistEdges.push(grid[0][2])
+
+  grid[0][4].edges.push(new Edge(grid[0][5], 1, grid[0][4]))
+
+  // Adapt to TSP instance !
+
+  let path: Node[] = [grid[0][0], grid[0][1], grid[0][2], grid[0][3]]
+  let pushProp: number = 0.5
+  computeMue(grid)
+
+  simTsp(grid, path, [grid[0][0], grid[0][3], grid[0][3]], search, 0.2)
 }
