@@ -25,11 +25,13 @@ export class SimulationService {
     const globalStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
     const maxMue = this.#getMaxMue(maps)
     const penMap: number[] = []
-    for (let i = 0; i <= maxMue; i++) {
-      if (i == 0) {
+    const inverseNormalizedValue = (1 - this._riskFactor) * 20
+    for (let i = 0; i <= 120; i++) {
+      console.log('Calculating penelization for mue ' + i)
+      if (this._riskFactor == 1) {
         penMap[i] = 0
       } else {
-        penMap[i] = 2 * Math.pow(0.2, i - this._riskFactor)
+        penMap[i] = 2 * Math.pow(0.2, i - inverseNormalizedValue)
       }
     }
 
