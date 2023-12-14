@@ -69,9 +69,8 @@ const search = (
 
       const currentNodeEntry = searchTable[currentNode.id]
       const neighborNodeEntry = searchTable[neighbor.id]
-
       const g = penMap
-        ? currentNodeEntry.g + edge.weight + penMap[neighbor.mue]
+        ? currentNodeEntry.g + edge.weight + (penMap[neighbor.mue] ?? penalization(neighbor.mue, w))
         : currentNodeEntry.g + edge.weight + penalization(neighbor.mue, w)
       const h = neighborNodeEntry.h
       const f = g + h
@@ -208,7 +207,8 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
 }
 
 const penalization = (robustness: number, w: number) => {
-  const alternative = w === 0 ? 0 : 2 * Math.pow(0.2, robustness - w)
+  console.log('Calculating mue')
+  const alternative = w === 0 ? 0 : 2 * Math.pow(0.15, robustness - w)
   return alternative
 }
 

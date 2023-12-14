@@ -5,7 +5,7 @@ import { Stats } from '../../../shared/models'
 import { options } from '../models/index.js'
 import { trackTime } from '../utils/index.js'
 import { FileService } from './fileService.js'
-
+const pushProp = 0.15
 export class SimulationService {
   private _iterationCount
   private _algoVersion
@@ -26,12 +26,12 @@ export class SimulationService {
     const maxMue = this.#getMaxMue(maps)
     const penMap: number[] = []
     const inverseNormalizedValue = (1 - this._riskFactor) * 20
-    for (let i = 0; i <= 120; i++) {
+    for (let i = 0; i <= maxMue; i++) {
       console.log('Calculating penelization for mue ' + i)
       if (this._riskFactor == 1) {
         penMap[i] = 0
       } else {
-        penMap[i] = 2 * Math.pow(0.2, i - inverseNormalizedValue)
+        penMap[i] = 2 * Math.pow(pushProp, i - inverseNormalizedValue)
       }
     }
 
@@ -41,7 +41,7 @@ export class SimulationService {
       const endPos = this.#getStartOrEndPos(maps[mapIndex], 'goal')
       const statsMap: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
       const { result: path, deltaTime } = trackTime(() =>
-        search(startPos!, endPos!, maps[mapIndex], this._riskFactor, this._algoVersion),
+        search(startPos!, endPos!, maps[mapIndex], this._riskFactor, this._algoVersion, undefined, undefined, penMap),
       )
       for (let i = 0; i < this._iterationCount; i++) {
         console.log('Running simulation iteration ' + (i + 1) + '/' + this._iterationCount + ' on map ' + mapIndex)
@@ -52,7 +52,7 @@ export class SimulationService {
           startPos!,
           endPos!,
           search,
-          0.2,
+          pushProp,
           this._riskFactor,
           this._algoVersion,
           penMap,

@@ -39,7 +39,7 @@ export class FileService {
     }
     const content = JSON.stringify(results.statsByMap)
     const fileName = new Date().toLocaleTimeString()
-    const riskFactorName = options.algoVersion == 'v2' ? '_ri' + options.riskFactor : ''
+    const riskFactorName = options.algoVersion == 'v2.1' ? '_rf' + options.riskFactor : ''
     fs.writeFile(
       `${savesDir}/${fileName}_${options.algoVersion}${riskFactorName}_${options.iterationCount}_byMaps.json`,
       content,
