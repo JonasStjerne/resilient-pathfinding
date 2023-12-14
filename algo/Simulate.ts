@@ -93,8 +93,6 @@ export const simulateRoute = (
   startPos && (currentPos = startPos)
   pathtaken.push(grid[startPos.x][startPos.y])
   let iter: number = 1
-  let backTrackList: Node[] = []
-  let backTrackTriedCount = 0
 
   while (currentPos != undefined && !(currentPos.x == endPos.x && currentPos.y == endPos.y)) {
     let next: Node | undefined
@@ -103,38 +101,22 @@ export const simulateRoute = (
       grid[currentPos.x][currentPos.y].distEdges.forEach((distedge) => {
         if (Math.random() < pushProp) {
           next = distedge.adjacent
+          currentPos && gotPushedHere.push(grid[currentPos.x][currentPos.y])
         }
       })
       if (next != undefined) {
-        gotPushedHere.push(grid[currentPos.x][currentPos.y])
         distTaken++
-        let recalcPath = false
-        if (
-          next.edges.some((edge) => edge.adjacent.id == grid[currentPos!.x][currentPos!.y].id) &&
-          backTrackTriedCount < 100
-        ) {
-          backTrackList.push(grid[currentPos!.x][currentPos!.y])
-        } else {
-          backTrackList = []
-          recalcPath = true
-        }
         currentPos = { x: next.x, y: next.y }
         if (grid[currentPos.x][currentPos.y].mue != 0 && endPos != undefined) {
-          let temp
-          if (recalcPath) {
-            temp = pathFindingAlgo(currentPos, endPos, grid, w, algoVersion, undefined, undefined, penMap)
-            iter = 1
+          iter = 1
+          const temp = pathFindingAlgo(currentPos, endPos, grid, w, algoVersion, undefined, undefined, penMap)
+          if (temp != null) {
+            path = temp.filter((num: number | undefined): num is number => num !== undefined)
+          } else {
+            noPath = true
           }
-          // const { result: temp } = trackTime(() => pathFindingAlgo(currentPos!, endPos, grid, w, algoVersion))
-          if (recalcPath) {
-            if (temp != null) {
-              path = temp.filter((num: number | undefined): num is number => num !== undefined)
-            } else {
-              noPath = true
-            }
-            if (path.length == 0) {
-              noPath = true
-            }
+          if (path.length == 0) {
+            noPath = true
           }
         } else {
           noPath = true
@@ -146,8 +128,7 @@ export const simulateRoute = (
     if (noPath) {
       break
     }
-    if (next == undefined && backTrackList.length == 0) {
-      backTrackTriedCount = 0
+    if (next == undefined) {
       grid[currentPos.x][currentPos.y].edges.forEach((edge) => {
         if (edge.adjacent.id == path[iter]) {
           next = grid[edge.adjacent.x][edge.adjacent.y]
@@ -156,11 +137,6 @@ export const simulateRoute = (
       })
 
       iter++
-    } else if (next == undefined && backTrackList.length > 0) {
-      // console.log('Used backTrackList')
-      next = backTrackList.pop()!
-      currentPos = { x: next.x, y: next.y }
-      backTrackTriedCount++
     }
     next && pathtaken.push(next)
   }
