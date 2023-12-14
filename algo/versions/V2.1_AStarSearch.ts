@@ -69,7 +69,7 @@ const search = (
       const currentNodeEntry = searchTable[currentNode.id]
       const neighborNodeEntry = searchTable[neighbor.id]
 
-      const g = currentNodeEntry.g + edge.weight + penalization(neighbor.mue, gridMaxSize, cutoff)
+      const g = currentNodeEntry.g + edge.weight + penalization(neighbor.mue, w)
       const h = neighborNodeEntry.h
       const f = g + h
 
@@ -203,10 +203,6 @@ const backtrackPath = (endNode: Node, searchTable: SearchTable) => {
   path.reverse()
   return path
 }
-
-const penalization = (robustness: number, gridMaxSize: number, cutoff: number) => {
-  const scale = 10
-  const realCutoff = Math.min(robustness, 100)
 
 const penalization = (robustness: number, w: number) => {
   const alternative = w === 0 ? 0 : 2 * Math.pow(0.2, robustness - w)
