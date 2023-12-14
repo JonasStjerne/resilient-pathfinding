@@ -181,9 +181,8 @@ export const simTsp = (
   let start: number = 0
   let goal: number = 0
   for (let i = 0; i < destinations.length - 1; i++) {
-    // pathtaken does not append last node
+    // Finde new start and goal
     start = goal
-    // Finde new goal
     for (let j = start; j < tspPath.length; j++) {
       if (tspPath[j].id == destinations[i + 1].id) {
         goal = j
@@ -202,10 +201,11 @@ export const simTsp = (
     }
     //simulate from destination[i] to destination[i + 1]
     let tempResult: results = simulateRoute(grid, tempPath, startPos, endPos, pathFindingAlgo, pushProp, w, algoVersion)
+
     // Collect tempresults and combine with finalResults
     finalResults = {
-      grid: grid, // stays the same
-      idealPath: idPath, // stays
+      grid: grid,
+      idealPath: idPath,
       pushProp: pushProp,
       successProp: finalResults.successProp * tempResult.successProp,
       didReachGoal: finalResults.didReachGoal && tempResult.didReachGoal,
@@ -221,7 +221,13 @@ export const simTsp = (
       break
     }
   }
-  console.log(finalResults)
+  if (
+    finalResults.didReachGoal == true &&
+    finalResults.idealPath.length > finalResults.pathtaken.length &&
+    finalResults.pathtaken[finalResults.pathtaken.length - 1].id != tspPath[tspPath.length - 1].id
+  ) {
+    finalResults.pathtaken.push(tspPath[tspPath.length - 1])
+  }
 
   return finalResults
 }
