@@ -32,7 +32,7 @@ export const runCli = async () => {
     name: 'iterationCount',
     type: 'number',
     message: 'How many times should the simulation run on EACH map?',
-    defaultOption: 10,
+    defaultOption: 100,
   })
 
   return options

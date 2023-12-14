@@ -34,6 +34,7 @@ export class SimulationService {
         penMap[i] = 2 * Math.pow(pushProp, i - inverseNormalizedValue)
       }
     }
+    penMap[maps[0].length * maps[0][0].length + 15] = 0
 
     for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
       console.log('Running simulation on map ' + (mapIndex + 1) + '/' + maps.length)
@@ -115,7 +116,9 @@ export class SimulationService {
   #getMaxMue(grids: Grid[]) {
     let highest = 0
     grids.forEach((grid) => {
-      const gridMax = Math.max(...grid.flat().map((node) => node.mue))
+      const gridMax = Math.max(
+        ...grid.flat().map((node) => (node.mue == grid.length * grid[0].length + 15 ? 0 : node.mue)),
+      )
       if (highest < gridMax) {
         highest = gridMax
       }
