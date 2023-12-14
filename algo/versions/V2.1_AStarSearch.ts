@@ -20,11 +20,10 @@ const search = (
   // 0 = only risk (take the safest path)
   // 1 = only distance (take the shortest path)
   heuristic: HeuristicFunction,
-  cutoff: number = 8,
+  w: number = 0,
   drawLists = false,
 ) => {
-  // Diagonal distance
-  const gridMaxSize = Math.sqrt(graph.length * graph.length + graph[0].length * graph[0].length)
+  // const memorizedPen = memorizePen(w)
 
   const searchTable: SearchTable = {}
   graph.forEach((col) =>
@@ -209,9 +208,8 @@ const penalization = (robustness: number, gridMaxSize: number, cutoff: number) =
   const scale = 10
   const realCutoff = Math.min(robustness, 100)
 
-  // Apply a logarithmic penalization function, normalized by the grid size
-  const normalizedPenalization = Math.log(realCutoff - cutoff) / Math.log(gridMaxSize)
-  const alternative = cutoff === 0 ? 0 : 2 * Math.pow(0.2, robustness - cutoff)
+const penalization = (robustness: number, w: number) => {
+  const alternative = w === 0 ? 0 : 2 * Math.pow(0.2, robustness - w)
   return alternative
 }
 

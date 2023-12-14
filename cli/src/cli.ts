@@ -11,19 +11,19 @@ export const runCli = async () => {
     defaultOption: 'test.gzip',
   })
 
-  options['algoVersion'] = await prompt<'v1' | 'v2'>({
+  options['algoVersion'] = await prompt<'v1' | 'v2' | 'v2.1'>({
     name: 'algoVersion',
     type: 'list',
     message: 'Choose algorithm version to use',
-    defaultOption: 'v2',
-    choices: ['v1', 'v2'],
+    defaultOption: 'v2.1',
+    choices: ['v1', 'v2', 'v2.1'],
   })
 
-  if (options['algoVersion'] == 'v2') {
+  if (options['algoVersion'] == 'v2' || options['algoVersion'] == 'v2.1') {
     options['riskFactor'] = await prompt<number>({
       name: 'riskFactor',
       type: 'number',
-      message: 'Choose Risk Factor',
+      message: 'Choose Risk Factor (0-1)',
       defaultOption: 0,
     })
   }

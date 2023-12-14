@@ -39,18 +39,15 @@ export class FileService {
     }
     const content = JSON.stringify(results.statsByMap)
     const fileName = new Date().toLocaleTimeString()
+    const riskFactorName = options.algoVersion == 'v2' ? '_ri' + options.riskFactor : ''
     fs.writeFile(
-      `${savesDir}/${fileName}_${options.algoVersion}${options.algoVersion == 'v2' ? '_ri' + options.riskFactor : ''}_${
-        options.iterationCount
-      }_byMaps.json`,
+      `${savesDir}/${fileName}_${options.algoVersion}${riskFactorName}_${options.iterationCount}_byMaps.json`,
       content,
     )
 
     const contentGlobal = JSON.stringify(results.statsGlobal)
     fs.writeFile(
-      `${savesDir}/${fileName}_${options.algoVersion}${options.algoVersion == 'v2' ? '_ri' + options.riskFactor : ''}_${
-        options.iterationCount
-      }_global.json`,
+      `${savesDir}/${fileName}_${options.algoVersion}${riskFactorName}_${options.iterationCount}_global.json`,
       contentGlobal,
     )
     // zlib.gzip(content, (err, compressedData) => {
