@@ -54,7 +54,7 @@ const search = (
     case 'v2.1': {
       // console.log('Running v2.1')
       const inverseNormalizedValue = (1 - w) * 20
-      return runv2_1(startPos, endPos, graph, selectedHeuristic, inverseNormalizedValue, drawLists, memorizePen)
+      return runv2_1(startPos, endPos, graph, selectedHeuristic, inverseNormalizedValue, drawLists)
     }
     default: {
       // console.log('Invalid algo version. Got ' + algoVersion + '. Using v2')
