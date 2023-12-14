@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import zlib from 'zlib'
 import { Grid } from '../../../algo/models/Grid'
 import { Results } from '../../../shared/models'
+import { options } from '../models'
 import { PKG_ROOT } from '../utils/consts.js'
 import { GridJSON, recreateNodeCircularReference } from './saveService.js'
 
@@ -31,14 +32,27 @@ export class FileService {
     return result as Grid[]
   }
 
-  static async saveResults(results: Results) {
+  static async saveResults(results: Results, options: options) {
     const savesDir = `${PKG_ROOT}/results`
     if (!fs.existsSync(savesDir)) {
       fs.emptyDirSync(savesDir)
     }
     const content = JSON.stringify(results.statsByMap)
     const fileName = new Date().toLocaleTimeString()
-    fs.writeFile(`${savesDir}/${fileName}.json`, content)
+    fs.writeFile(
+      `${savesDir}/${fileName}_${options.algoVersion}${options.algoVersion == 'v2' ? '_ri' + options.riskFactor : ''}_${
+        options.iterationCount
+      }_byMaps.json`,
+      content,
+    )
+
+    const contentGlobal = JSON.stringify(results.statsGlobal)
+    fs.writeFile(
+      `${savesDir}/${fileName}_${options.algoVersion}${options.algoVersion == 'v2' ? '_ri' + options.riskFactor : ''}_${
+        options.iterationCount
+      }_global.json`,
+      contentGlobal,
+    )
     // zlib.gzip(content, (err, compressedData) => {
     //   if (err) {
     //     console.error('Error compressing JSON data:', err)

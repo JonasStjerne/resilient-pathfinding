@@ -16,7 +16,7 @@ const main = async () => {
 const runSimulations = async (options: options) => {
   const simulationService = new SimulationService(options)
   const results = await simulationService.runSimulation()
-  FileService.saveResults(results)
+  FileService.saveResults(results, options)
   return results
 }
 
