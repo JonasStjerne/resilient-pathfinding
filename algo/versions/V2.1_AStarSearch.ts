@@ -22,6 +22,7 @@ const search = (
   heuristic: HeuristicFunction,
   w: number = 0,
   drawLists = false,
+  penMap?: number[],
 ) => {
   // const memorizedPen = memorizePen(w)
 
@@ -69,7 +70,9 @@ const search = (
       const currentNodeEntry = searchTable[currentNode.id]
       const neighborNodeEntry = searchTable[neighbor.id]
 
-      const g = currentNodeEntry.g + edge.weight + penalization(neighbor.mue, w)
+      const g = penMap
+        ? currentNodeEntry.g + edge.weight + penMap[neighbor.mue]
+        : currentNodeEntry.g + edge.weight + penalization(neighbor.mue, w)
       const h = neighborNodeEntry.h
       const f = g + h
 

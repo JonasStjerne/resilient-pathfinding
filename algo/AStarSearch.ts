@@ -16,7 +16,7 @@ const search = (
   algoVersion: string = 'v2',
   heuristic: string = 'manhattan',
   drawLists = false,
-  cutoff: number = 8,
+  penMap?: number[],
 ) => {
   let selectedHeuristic: HeuristicFunction
 
@@ -54,7 +54,7 @@ const search = (
     case 'v2.1': {
       // console.log('Running v2.1')
       const inverseNormalizedValue = (1 - w) * 20
-      return runv2_1(startPos, endPos, graph, selectedHeuristic, inverseNormalizedValue, drawLists)
+      return runv2_1(startPos, endPos, graph, selectedHeuristic, inverseNormalizedValue, drawLists, penMap)
     }
     default: {
       // console.log('Invalid algo version. Got ' + algoVersion + '. Using v2')

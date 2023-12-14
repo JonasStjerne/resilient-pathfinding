@@ -37,10 +37,14 @@ export const simulateRoute = (
     grid: Grid,
     w?: number,
     algoVersion?: string,
+    heuristic?: string,
+    drawLists?: boolean,
+    penMap?: number[],
   ) => (number | undefined)[] | null,
   pushProp: number,
   w?: number,
   algoVersion?: string,
+  penMap?: number[],
 ): results => {
   let noPath: boolean = false
   let results: results
@@ -118,7 +122,7 @@ export const simulateRoute = (
         if (grid[currentPos.x][currentPos.y].mue != 0 && endPos != undefined) {
           let temp
           if (recalcPath) {
-            temp = pathFindingAlgo(currentPos, endPos, grid, w, algoVersion)
+            temp = pathFindingAlgo(currentPos, endPos, grid, w, algoVersion, undefined, undefined, penMap)
             iter = 1
           }
           // const { result: temp } = trackTime(() => pathFindingAlgo(currentPos!, endPos, grid, w, algoVersion))

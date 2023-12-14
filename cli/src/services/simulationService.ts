@@ -23,6 +23,15 @@ export class SimulationService {
     const maps = await FileService.getMaps(this._mapPoolFileName!)
     const statsByMap: Array<{ name: string; stats: Stats }> = []
     const globalStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
+    const maxMue = this.#getMaxMue(maps)
+    const penMap: number[] = []
+    for (let i = 0; i <= maxMue; i++) {
+      if (i == 0) {
+        penMap[i] = 0
+      } else {
+        penMap[i] = 2 * Math.pow(0.2, i - this._riskFactor)
+      }
+    }
 
     for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
       console.log('Running simulation on map ' + (mapIndex + 1) + '/' + maps.length)
@@ -44,6 +53,7 @@ export class SimulationService {
           0.2,
           this._riskFactor,
           this._algoVersion,
+          penMap,
         )
 
         statsMap.pushover += simResult.distTaken / (simResult.distTouched ? simResult.distTouched : 1)
@@ -98,5 +108,21 @@ export class SimulationService {
     })
 
     return averageStats
+  }
+
+  #getMaxMue(grids: Grid[]) {
+    let highest = 0
+    grids.forEach((grid) => {
+      const gridMax = Math.max(...grid.flat().map((node) => node.mue))
+      if (highest < gridMax) {
+        highest = gridMax
+      }
+    })
+    return highest
+  }
+
+  #penalization(robustness: number, w: number) {
+    const alternative = w === 0 ? 0 : 2 * Math.pow(0.2, robustness - w)
+    return alternative
   }
 }
