@@ -240,42 +240,6 @@ export const tSPExact = (
   if (ordering.length == destinations.length + 1) {
     foundtsp = true
 
-    //Cut out the most expensiv link and reorder
-    let longestEdgeOrigin: number = 0
-    let longestEdgeValue: number = -1
-    for (let i = 0; i < ordering.length - 1; i++) {
-      if (longestEdgeValue == -1) {
-        longestEdgeOrigin = 0
-        indexTable[ordering[0].id]
-        longestEdgeValue = adjacentMatrix[indexTable[ordering[0].id]][indexTable[ordering[1].id]].length
-      } else if (adjacentMatrix[indexTable[ordering[i].id]][indexTable[ordering[i + 1].id]].length > longestEdgeValue) {
-        longestEdgeOrigin = i
-        longestEdgeValue = adjacentMatrix[indexTable[ordering[i].id]][indexTable[ordering[i + 1].id]].length
-      }
-    }
-    let newOrdering: Node[] = []
-    // have indecies now cut, watch out for edge cases
-    for (let i = longestEdgeOrigin + 1; i < ordering.length; i++) {
-      newOrdering.push(ordering[i])
-    }
-    for (let i = 0; i < longestEdgeOrigin; i++) {
-      newOrdering.push(ordering[i])
-    }
-    newOrdering.push(ordering[longestEdgeOrigin])
-
-    // Remove duplicats
-    const uniqueIds = new Set<number>()
-    const uniqueNodeArray = newOrdering.filter((node) => {
-      if (!uniqueIds.has(node.id)) {
-        uniqueIds.add(node.id)
-        return true
-      }
-      return false
-    })
-    ordering = uniqueNodeArray
-    //Compute new path lenght opt - longest lenth
-    length = length - longestEdgeValue
-
     //Set TSP path from orderin
     for (let i = 0; i < ordering.length - 1; i++) {
       let current: Node = ordering[i]
@@ -330,6 +294,7 @@ export const tSPApproximation = (
   let x: number = -1
   let y: number = -1
   let min: number | undefined
+
   //Missing one element per row!
   for (let i = 0; i < destinations.length; i++) {
     for (let j = 0; j < destinations.length; j++) {
@@ -369,7 +334,8 @@ export const tSPApproximation = (
       }
     }
   }
-
+  let startX = x
+  let startY = y
   // Finde ordering
   let ordering: Node[] = [destinations[x]] //Ordering in which nodes will be visited
   let length: number = 0 // length of computed path
@@ -408,10 +374,38 @@ export const tSPApproximation = (
     for (let i = 0; i < adjacentMatrix.length; i++) {
       adjacentMatrix[i][xNew].length = -1
     }
+    if (x == xNew) {
+      // Must safe the starting node
+      ordering.push(grid[ordering[0].x][ordering[0].x])
+      let pathid: (number | undefined)[] | null = pathFindingAlgo(
+        { x: ordering[ordering.length - 2].x, y: ordering[ordering.length - 2].y },
+        { x: ordering[ordering.length - 1].x, y: ordering[ordering.length - 1].y },
+        grid,
+        w,
+        algoVersion,
+        heuristic,
+        drawLists,
+      )
+      let path: Node[] = []
+      if (pathid != null) {
+        pathid = pathid.filter((num: number | undefined): num is number => num !== undefined)
+        pathid.forEach((id) => {
+          if (id != undefined) {
+            path.push(SearchTable[id])
+          }
+        })
+        length = length + calculatePathLength(path, grid)
+        let temp2 = adjacentMatrix[x][0].path
+        temp2.shift()
+        for (let i = 0; i < temp2.length; i++) {
+          tspPath.push(temp2[i]) //WOOOOOOORKKKKKKKKK HOE
+        }
+      }
+    }
   } while (x != xNew)
 
   let foundpath: boolean = false
-  if (ordering.length == destinations.length) {
+  if (ordering.length == destinations.length + 1) {
     foundpath = true
   }
   return { ordering: ordering, length: length, tspPath: tspPath, foundpath: foundpath }
@@ -445,7 +439,7 @@ export const TestFunctionTSPapprox = (): void => {
   grid[0][1].edges.push(new Edge(grid[0][3], 15, grid[0][1]))
   computeMue(grid)
 
-  let results: results = tSPExact(
+  let results: results = tSPApproximation(
     grid,
     search,
     [grid[0][0], grid[0][1], grid[0][2], grid[0][3]],
