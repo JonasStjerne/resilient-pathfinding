@@ -255,7 +255,7 @@ export const evalResults = () => {
   return toExport
 }
 
-export type ExportResults = {
+export type ExportResultsTsp = {
   gridSize: number
   numberOfDestiations: number
   timeTspApprox: number
