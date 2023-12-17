@@ -70,8 +70,8 @@ export class FileService {
 }
 
 function isSimResults(results: Results | ExportResultsTsp): results is Results {
-  const statsGlobal = results['statsGlobal']
-  if (statsGlobal) {
+  const isArray = Array.isArray(results)
+  if (!isArray) {
     return true
   }
   return false

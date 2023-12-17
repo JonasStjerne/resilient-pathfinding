@@ -1,3 +1,0 @@
-class tspEvaluationService {
-  static runEvaluation() {}
-}

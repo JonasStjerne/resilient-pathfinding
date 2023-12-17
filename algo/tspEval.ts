@@ -1,10 +1,11 @@
-import { Grid } from '../../algo/models/Grid.js'
-import { Node } from '../../algo/models/Node.js'
-import search from '../../algo/AStarSearch.js'
-import { generateRandomMaps } from '../../algo/graphGen.js'
-import { grid } from '../../algo/grid.js'
-import { Position, tSPApproximation, tSPExact } from '../../algo/tsp.js'
-import { trackTime } from '../../utils/telemetry.js'
+import { trackTime } from '../utils/telemetry.js'
+import search from './AStarSearch.js'
+import { Node } from './models/Node.js'
+import { Grid } from './models/Grid.js'
+import { Position } from './tsp.js'
+import { tSPApproximation, tSPExact } from './tsp.js'
+import { generateRandomMaps } from './graphGen.js'
+
 //Random map generation is imported
 
 interface results {
@@ -19,6 +20,7 @@ export const setDestinations = (grid: Grid, n: number): Node[] => {
   const minDistanceBetweenPoints = grid.length / 2 - 10
   let destination: Node[] = []
 
+  // Finde new
   for (let i = 0; i < n; i++) {
     let destX = -1
     let destY = -1
@@ -58,7 +60,7 @@ export const setDestinations = (grid: Grid, n: number): Node[] => {
   return destination
 }
 const timeTspExact = (
-  gird: Grid,
+  grid: Grid,
   destinations: Node[],
   pathFindingAlgo: (
     startPos: Position,
@@ -81,7 +83,7 @@ const timeTspExact = (
 }
 
 const timeTspApprox = (
-  gird: Grid,
+  grid: Grid,
   destinations: Node[],
   pathFindingAlgo: (
     startPos: Position,
@@ -104,7 +106,7 @@ const timeTspApprox = (
 }
 //Function that generated ordering with boath TSP algos + timeing
 const testTspAlgo = (
-  gird: Grid,
+  grid: Grid,
   destinations: Node[],
   pathFindingAlgo: (
     startPos: Position,
@@ -174,8 +176,9 @@ const tspMainTest = (
   deltaTimeApprox: number
 }[] => {
   // Generate a set of maps
+  console.log('Start Grid generation')
   let testGridSet: Grid[] = generateRandomMaps(numberOfMaps)
-
+  console.log('Grids generated ', testGridSet.length)
   let results: {
     grid: Grid
     resultsExact: results
@@ -185,19 +188,20 @@ const tspMainTest = (
   }[] = []
   testGridSet.forEach((testGrid) => {
     // For different maps try different number of destinations
-    for (let i = 0; i < numberOfDestiations; i++) {
+    for (let i = 3; i < numberOfDestiations; i++) {
       // Set destinations
       let destinations = setDestinations(testGrid, i)
       // Run TSP Exact and Approx and safe results (ordering, time and map)
       // May need to timeout here -> Hardcode limit by trial and error
       results.push(testTspAlgo(testGrid, destinations, pathFindingAlgo, w, algoVersion, heuristic, drawList))
     }
+    console.log('Map ', results.length, 'finished')
   })
   return results
 }
 
 //Function to eval results
-export const evalResults = (): void => {
+export const evalResults = () => {
   /*
    ----- Test parameters settings ------
    */
@@ -207,7 +211,7 @@ export const evalResults = (): void => {
   let drawList: boolean = false
 
   let numberOfDestiations: number = 4 //Will usd from 0 - numberOfDestinations
-  let numberOfMaps: number = 2
+  let numberOfMaps: number = 1
 
   /*
   ----- End Settings -------------------
@@ -223,6 +227,7 @@ export const evalResults = (): void => {
     drawLists: boolean,
   ) => (number | undefined)[] | null = search
 
+  console.log('Start TSP Main')
   let results = tspMainTest(numberOfMaps, numberOfDestiations, pathFindingAlgo, w, algoVersion, heuristic, drawList)
 
   let toExport: {
@@ -252,7 +257,17 @@ export const evalResults = (): void => {
       })
     }
   }
-
-  // Do the export
-  console.log('Still need export functio!!')
+  return toExport
 }
+
+export type ExportResultsTsp = {
+  gridSize: number
+  numberOfDestiations: number
+  timeTspApprox: number
+  lengthApprox: number
+  timeTspExact: number
+  lengthExact: number
+  algoVersion: string
+  heuristic: string
+  mapId: number
+}[]

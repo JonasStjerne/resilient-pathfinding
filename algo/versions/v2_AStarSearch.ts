@@ -90,96 +90,96 @@ const search = (
 
   const route = backtrackPath(currentNode, searchTable)
 
-  const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
-  const ctx = canvas.getContext('2d')!
-  const gridSize = graph.length
-  ctx.lineWidth = 2
+  // const canvas = <HTMLCanvasElement>document.getElementById('canvas')!
+  // const ctx = canvas.getContext('2d')!
+  // const gridSize = graph.length
+  // ctx.lineWidth = 2
 
-  if (drawLists) {
-    const openListToDraw = openList.filter((node) => !route.includes(node.id))
-    openListToDraw.forEach((node) => {
-      ctx.strokeStyle = '#57fa57' // Set fill color to color
-      const cellSize = canvas.width / gridSize
-      ctx.beginPath()
-      // Top border
-      let fromX = node.x * cellSize
-      let fromY = node.y * cellSize
-      let toX = node.x * cellSize + cellSize
-      let toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  // if (drawLists) {
+  //   const openListToDraw = openList.filter((node) => !route.includes(node.id))
+  //   openListToDraw.forEach((node) => {
+  //     ctx.strokeStyle = '#57fa57' // Set fill color to color
+  //     const cellSize = canvas.width / gridSize
+  //     ctx.beginPath()
+  //     // Top border
+  //     let fromX = node.x * cellSize
+  //     let fromY = node.y * cellSize
+  //     let toX = node.x * cellSize + cellSize
+  //     let toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      //Left border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize
-      toX = node.x * cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     //Left border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize
+  //     toX = node.x * cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Bottom border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     // Bottom border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Right border
-      fromX = node.x * cellSize + cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
-    })
+  //     // Right border
+  //     fromX = node.x * cellSize + cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
+  //   })
 
-    const closedListToDraw = closedList.filter((node) => !route.includes(node.id))
-    closedListToDraw.forEach((node) => {
-      ctx.strokeStyle = '#9e1515' // Set fill color to color
-      const cellSize = canvas.width / gridSize
-      ctx.beginPath()
-      // Top border
-      let fromX = node.x * cellSize
-      let fromY = node.y * cellSize
-      let toX = node.x * cellSize + cellSize
-      let toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //   const closedListToDraw = closedList.filter((node) => !route.includes(node.id))
+  //   closedListToDraw.forEach((node) => {
+  //     ctx.strokeStyle = '#9e1515' // Set fill color to color
+  //     const cellSize = canvas.width / gridSize
+  //     ctx.beginPath()
+  //     // Top border
+  //     let fromX = node.x * cellSize
+  //     let fromY = node.y * cellSize
+  //     let toX = node.x * cellSize + cellSize
+  //     let toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Left border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize
-      toX = node.x * cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     // Left border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize
+  //     toX = node.x * cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Bottom border
-      fromX = node.x * cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize + cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
+  //     // Bottom border
+  //     fromX = node.x * cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize + cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
 
-      // Right border
-      fromX = node.x * cellSize + cellSize
-      fromY = node.y * cellSize + cellSize
-      toX = node.x * cellSize + cellSize
-      toY = node.y * cellSize
-      ctx.moveTo(fromX, fromY)
-      ctx.lineTo(toX, toY)
-      ctx.stroke()
-    })
-  }
+  //     // Right border
+  //     fromX = node.x * cellSize + cellSize
+  //     fromY = node.y * cellSize + cellSize
+  //     toX = node.x * cellSize + cellSize
+  //     toY = node.y * cellSize
+  //     ctx.moveTo(fromX, fromY)
+  //     ctx.lineTo(toX, toY)
+  //     ctx.stroke()
+  //   })
+  // }
   return route
 }
 

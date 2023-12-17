@@ -1,6 +1,6 @@
 // Experimental radius is bugged. And its use cases are commented out.
 
-import { disableContinuousDrawing, drawGrid, enableContinuousDrawing } from '../client/index.js'
+// import { disableContinuousDrawing, drawGrid, enableContinuousDrawing } from '../client/index.js'
 import search from './AStarSearch.js'
 import { addDisturbance, makeGrid, setGrid } from './grid.js'
 import { Grid } from './models/Grid.js'
@@ -139,10 +139,10 @@ export function generateOneGraph() {
     console.debug('WATER nodes: ', newGrid.flat().filter((node) => node.type === 'water').length)
     generateDisturbances(newGrid)
     computeMue(newGrid)
-    drawGrid()
+    // drawGrid()
 
-    disableContinuousDrawing(canvas)
-    enableContinuousDrawing(canvas)
+    // disableContinuousDrawing(canvas)
+    // enableContinuousDrawing(canvas)
   }, 100)
 
   // DEBUG: Mark starting point of each water drawing agent
@@ -162,7 +162,7 @@ export function generateRandomMaps(mapsCount: number) {
     generateWater(newGrid)
     generateDisturbances(newGrid)
     computeMue(newGrid)
-    setStartAndEnd(newGrid)
+    // setStartAndEnd(newGrid)
     maps.push(newGrid)
   }
   return maps
