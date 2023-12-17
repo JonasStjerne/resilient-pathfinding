@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "es2020",
+    "lib": ["es6", "es2018", "dom"],
+    "allowJs": true,
+    "outDir": "build",
+    "rootDir": "../",
+    "esModuleInterop": true,
+    "types": ["node"],
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "strict": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.ts", "node_modules", "build", "src/base-templates/**", "src/installers/*/templates/**"]
+}

@@ -109,11 +109,9 @@ riskFactorSlider.addEventListener('input', () => {
 selectedAlgoRadio.forEach((radio) => {
   radio.addEventListener('change', () => {
     algoVersion = (<HTMLInputElement>radio).value
-
-    if (algoVersion == 'v1') {
-      riskFactorSlider.disabled = true
-      riskFactorSlider.style.opacity = '0.5'
-    } else {
+    riskFactorSlider.disabled = true
+    riskFactorSlider.style.opacity = '0.5'
+    if (algoVersion == 'v2' || algoVersion == 'v2.1') {
       riskFactorSlider.disabled = false
       riskFactorSlider.style.opacity = '1'
     }
@@ -246,6 +244,7 @@ let muMax = 0
 
 export function drawGrid() {
   muMax = findMaxMu()
+  // cutoffSlider.max = muMax.toString()
   // Get the canvas element by its ID
   const gridSize = grid.length
 
