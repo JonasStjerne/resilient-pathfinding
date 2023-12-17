@@ -194,7 +194,7 @@ function setStartAndEnd(grid: Grid) {
   } while (!path)
 }
 
-function euclideanDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {
+export function euclideanDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {
   const dx = point1.x - point2.x
   const dy = point1.y - point2.y
   return Math.sqrt(dx * dx + dy * dy)

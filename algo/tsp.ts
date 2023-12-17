@@ -398,7 +398,7 @@ export const tSPApproximation = (
         let temp2 = adjacentMatrix[x][0].path
         temp2.shift()
         for (let i = 0; i < temp2.length; i++) {
-          tspPath.push(temp2[i]) //WOOOOOOORKKKKKKKKK HOE
+          tspPath.push(temp2[i])
         }
       }
     }
