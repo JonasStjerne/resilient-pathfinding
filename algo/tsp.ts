@@ -64,7 +64,7 @@ export const tSPExact = (
       SearchTable[grid[i][j].id] = grid[i][j]
     }
   }
-
+  let maxPathLenght: number = grid.length * grid.length
   // Fill adjacents matrix
   for (let i = 0; i < destinations.length; i++) {
     for (let j = 0; j < destinations.length; j++) {
@@ -87,6 +87,8 @@ export const tSPExact = (
             }
           })
           adjacentMatrix[i][j] = { path: path, length: calculatePathLength(path, grid) }
+        } else {
+          adjacentMatrix[i][j] = { path: [], length: maxPathLenght }
         }
       } else {
         adjacentMatrix[i][j] = { path: [], length: 0 }
