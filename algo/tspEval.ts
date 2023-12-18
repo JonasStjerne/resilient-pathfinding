@@ -191,6 +191,7 @@ const tspMainTest = (
   deltaTimeExact: number
   resultsApprox: results
   deltaTimeApprox: number
+  mapId: number
 }[] => {
   // Generate a set of maps
   console.log('Start Grid generation')
@@ -208,8 +209,9 @@ const tspMainTest = (
     deltaTimeExact: number
     resultsApprox: results
     deltaTimeApprox: number
+    mapId: number
   }[] = []
-  testGridSet.forEach((testGrid) => {
+  testGridSet.forEach((testGrid, index) => {
     // For different maps try different number of destinations
     for (let j = 0; j < numberOfTests; j++) {
       for (let i = 3; i <= numberOfDestiations; i++) {
@@ -217,7 +219,10 @@ const tspMainTest = (
         let destinations = setDestinations(testGrid, i)
         // Run TSP Exact and Approx and safe results (ordering, time and map)
         // May need to timeout here -> Hardcode limit by trial and error
-        results.push(testTspAlgo(testGrid, destinations, pathFindingAlgo, w, algoVersion, heuristic, drawList))
+        results.push({
+          ...testTspAlgo(testGrid, destinations, pathFindingAlgo, w, algoVersion, heuristic, drawList),
+          mapId: index,
+        })
       }
       console.log('Map ', results.length, '.', j, 'finished')
     }
@@ -281,7 +286,7 @@ export const evalResults = (mapPool?: Grid[]) => {
         algoVersion: algoVersion,
         tspPathExact: results[i].resultsExact.tspPath,
         heuristic: heuristic,
-        mapId: i,
+        mapId: results[i].mapId,
       })
     }
   }
