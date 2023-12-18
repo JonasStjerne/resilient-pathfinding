@@ -403,7 +403,9 @@ export const tSPApproximation = (
         })
         length = length + calculatePathLength(path, grid)
         path.shift()
-        tspPath.concat(path)
+        for (let k = 0; k < path.length; k++) {
+          tspPath.push(path[k])
+        }
       }
     }
   } while (x != xNew)
