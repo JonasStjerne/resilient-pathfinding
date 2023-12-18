@@ -334,6 +334,8 @@ export const tSPApproximation = (
               y = j
             }
           }
+        } else {
+          adjacentMatrix[i][j] = { path: [], length: -1 }
         }
       } else {
         adjacentMatrix[i][j] = { path: [], length: -1 }
