@@ -1,7 +1,7 @@
+import search from './AStarSearch.js'
+import { Edge } from './models/Edge.js'
 import { Grid } from './models/Grid.js'
 import { Node } from './models/Node.js'
-import { Edge } from './models/Edge.js'
-import search from './AStarSearch.js'
 import { computeMue } from './mue.js'
 
 export interface Position {
@@ -252,7 +252,8 @@ export const tSPExact = (
       tspPath = [...tspPath, ...posArr]
       tspPath.pop()
     }
-    tspPath.push(ordering[ordering.length - 1])
+    const { x, y } = ordering[ordering.length - 1]
+    tspPath.push({ x, y })
   }
 
   // Give undefined value

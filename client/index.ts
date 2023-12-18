@@ -11,8 +11,10 @@ import {
   setTypeOfNode,
 } from '../algo/grid.js'
 import { Node, NodeType } from '../algo/models/Node.js'
+import { Position } from '../algo/models/Position.js'
 import { computeMue } from '../algo/mue.js'
-import { ExportResultsTsp, evalResults } from '../algo/tspEval.js'
+import { ExportResultsTsp } from '../algo/tspEval.js'
+// import results from '../algo/results/results.json'
 import { initSaveControl } from './save/index.js'
 import {
   ControlsData,
@@ -20,22 +22,26 @@ import {
   getControlsFromLocalStorage,
   saveActiveGridToLocalStorage,
   saveControlsToLocalStorage,
-  saveToFs,
 } from './save/saveService.js'
 export * from './genMaps/index.js'
 export * from './simulation/index.js'
-// import data from '../algo/results/results.json';
-export default function clientInit() {
+export default async function clientInit() {
   const savedGrid = getActiveGridFromLocalStorage()
   if (savedGrid) {
     setGrid(savedGrid)
   }
-  const results = evalResults()
-  const jsonResults = JSON.stringify(results)
-  saveToFs(jsonResults, 'results_tsp')
-
-  // const results = <ExportResultsTsp>JSON.parse(data)
-  // drawPath(results[0].tspPathApprox)
+  // const results = evalResults()
+  // const jsonResults = JSON.stringify(results)
+  // saveToFs(jsonResults, 'results_tsp')
+  const baseUrl = document.URL
+  const response = await fetch(`${baseUrl}algo/results/results.json`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+  const results = <ExportResultsTsp>await response.json()
+  drawPath(results[0].tspPathApprox)
 
   setControls()
   drawGrid()
@@ -859,12 +865,12 @@ function getDividingDiagonalNodes(fromNode: Node, toNode: Node) {
   }
 }
 
-function drawPath(nodePath: Node[]) {
-  nodePath.forEach((node) => {
+function drawPath(positionPath: Position[]) {
+  positionPath.forEach((position) => {
     ctx.fillStyle = 'rgba(128, 128, 128, 0.7)' // Set the fill color
     ctx.fillRect(
-      node.x * cellSize + cellPadding / 2,
-      node.y * cellSize + cellPadding / 2,
+      position.x * cellSize + cellPadding / 2,
+      position.y * cellSize + cellPadding / 2,
       cellSize - cellPadding,
       cellSize - cellPadding,
     )
