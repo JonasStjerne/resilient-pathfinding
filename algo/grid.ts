@@ -1,6 +1,7 @@
 import { Edge } from './models/Edge.js'
 import { Grid } from './models/Grid.js'
 import { Node, NodeType } from './models/Node.js'
+import { evalResults } from './tspEval.js'
 
 // Create Grid
 export const grid = makeGrid()

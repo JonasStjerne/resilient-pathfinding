@@ -12,6 +12,7 @@ import {
 } from '../algo/grid.js'
 import { Node, NodeType } from '../algo/models/Node.js'
 import { computeMue } from '../algo/mue.js'
+import { ExportResultsTsp, evalResults } from '../algo/tspEval.js'
 import { initSaveControl } from './save/index.js'
 import {
   ControlsData,
@@ -19,18 +20,23 @@ import {
   getControlsFromLocalStorage,
   saveActiveGridToLocalStorage,
   saveControlsToLocalStorage,
+  saveToFs,
 } from './save/saveService.js'
 export * from './genMaps/index.js'
 export * from './simulation/index.js'
+// import data from '../algo/results/results.json';
 export default function clientInit() {
   const savedGrid = getActiveGridFromLocalStorage()
   if (savedGrid) {
     setGrid(savedGrid)
   }
-  // grid[0][0].edges = [];
-  // grid[0][1].edges = [];
-  // grid[1][0].edges = [];
-  // grid[2][1].edges = [];
+  const results = evalResults()
+  const jsonResults = JSON.stringify(results)
+  saveToFs(jsonResults, 'results_tsp')
+
+  // const results = <ExportResultsTsp>JSON.parse(data)
+  // drawPath(results[0].tspPathApprox)
+
   setControls()
   drawGrid()
   enableContinuousDrawing(canvas)
@@ -851,4 +857,16 @@ function getDividingDiagonalNodes(fromNode: Node, toNode: Node) {
     case 'top-left':
       return [GetNeighboringNode(fromNode, 'top'), GetNeighboringNode(fromNode, 'right')]
   }
+}
+
+function drawPath(nodePath: Node[]) {
+  nodePath.forEach((node) => {
+    ctx.fillStyle = 'rgba(128, 128, 128, 0.7)' // Set the fill color
+    ctx.fillRect(
+      node.x * cellSize + cellPadding / 2,
+      node.y * cellSize + cellPadding / 2,
+      cellSize - cellPadding,
+      cellSize - cellPadding,
+    )
+  })
 }

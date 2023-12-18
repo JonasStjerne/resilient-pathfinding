@@ -11,8 +11,8 @@ export interface Position {
 
 interface results {
   ordering: Node[]
-  length: number
-  tspPath: Node[]
+  pathlength: number
+  tspPath: Position[]
   foundpath: boolean
 }
 
@@ -140,7 +140,7 @@ export const tSPExact = (
 
   // Finde ordering
   let length: number | undefined = 0
-  let tspPath: Node[] = []
+  let tspPath: Position[] = []
   let ordering: Node[] = []
   let foundtsp: boolean = false
 
@@ -245,7 +245,11 @@ export const tSPExact = (
       let current: Node = ordering[i]
       let next: Node = ordering[i + 1]
       let temp2 = adjacentMatrix[indexTable[current.id]][indexTable[next.id]].path
-      tspPath = [...tspPath, ...temp2]
+      const posArr: Position[] = temp2.map((node) => {
+        const pos = { x: node.x, y: node.y }
+        return pos
+      })
+      tspPath = [...tspPath, ...posArr]
       tspPath.pop()
     }
     tspPath.push(ordering[ordering.length - 1])
@@ -255,7 +259,8 @@ export const tSPExact = (
   if (length == undefined) {
     length = -1
   }
-  return { ordering: ordering, length: length, tspPath: tspPath, foundpath: foundtsp }
+  //Here
+  return { ordering: ordering, pathlength: length, tspPath: tspPath, foundpath: foundtsp }
 }
 
 // Greedy algo for TSP
@@ -408,7 +413,11 @@ export const tSPApproximation = (
   if (ordering.length == destinations.length + 1) {
     foundpath = true
   }
-  return { ordering: ordering, length: length, tspPath: tspPath, foundpath: foundpath }
+  const posArr: Position[] = tspPath.map((node) => {
+    const pos = { x: node.x, y: node.y }
+    return pos
+  })
+  return { ordering: ordering, pathlength: length, tspPath: posArr, foundpath: foundpath }
 }
 
 export const TestFunctionTSPapprox = (): void => {

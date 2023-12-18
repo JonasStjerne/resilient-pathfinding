@@ -155,14 +155,17 @@ export function generateOneGraph() {
   // })
 }
 
-export function generateRandomMaps(mapsCount: number) {
+export function generateRandomMaps(mapsCount: number, generateStartAndEnd: boolean = true) {
   const maps: Grid[] = []
   for (let i = 0; i < mapsCount; i++) {
+    console.log('Generating the ' + i + 'th map')
     const newGrid = makeGrid(GRID_SIZE)
     generateWater(newGrid)
     generateDisturbances(newGrid)
     computeMue(newGrid)
-    // setStartAndEnd(newGrid)
+    if (generateStartAndEnd) {
+      setStartAndEnd(newGrid)
+    }
     maps.push(newGrid)
   }
   return maps
