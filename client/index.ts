@@ -1,5 +1,5 @@
 import search from '../algo/AStarSearch.js'
-import { generateOneGraph } from '../algo/graphGen.js'
+import { generateOneGraph, generateRandomMaps } from '../algo/graphGen.js'
 import {
   addDisturbance,
   addEdge,
@@ -13,15 +13,19 @@ import {
 import { Node, NodeType } from '../algo/models/Node.js'
 import { Position } from '../algo/models/Position.js'
 import { computeMue } from '../algo/mue.js'
-import { ExportResultsTsp } from '../algo/tspEval.js'
+import { evalResults } from '../algo/tspEval.js'
 // import results from '../algo/results/results.json'
 import { initSaveControl } from './save/index.js'
 import {
   ControlsData,
+  GridJSON,
+  convertGridsToJSONString,
   getActiveGridFromLocalStorage,
   getControlsFromLocalStorage,
+  recreateNodeCircularReference,
   saveActiveGridToLocalStorage,
   saveControlsToLocalStorage,
+  saveToFs,
 } from './save/saveService.js'
 export * from './genMaps/index.js'
 export * from './simulation/index.js'
@@ -30,18 +34,38 @@ export default async function clientInit() {
   if (savedGrid) {
     setGrid(savedGrid)
   }
-  // const results = evalResults()
-  // const jsonResults = JSON.stringify(results)
-  // saveToFs(jsonResults, 'results_tsp')
+  //To generate maps uncomment below
+  const mapsCount = 10
+  const mapPool = generateRandomMaps(mapsCount, false)
+  const mapPoolJson = convertGridsToJSONString(mapPool)
+  saveToFs(mapPoolJson, 'TSP_mapPool_' + mapsCount)
+
+  //To use an existing map from a file, uncomment below
   const baseUrl = document.URL
-  const response = await fetch(`${baseUrl}algo/results/results.json`, {
+  const response = await fetch(`${baseUrl}algo/maps/TSP_mapPool_${mapsCount}.json`, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
     },
   })
-  const results = <ExportResultsTsp>await response.json()
-  drawPath(results[0].tspPathApprox)
+  const resultsJsonGrid = <GridJSON[]>await response.json()
+  const grids = resultsJsonGrid.map((gridJson) => recreateNodeCircularReference(gridJson))
+
+  //To save results uncomment below
+  const results = evalResults(grids)
+  const jsonResults = JSON.stringify(results)
+  saveToFs(jsonResults, 'results_tsp')
+
+  //To visualize the result on the curretn grid uncomment below
+  // const baseUrl = document.URL
+  // const response = await fetch(`${baseUrl}algo/results/results.json`, {
+  //   method: 'GET',
+  //   headers: {
+  //     Accept: 'application/json',
+  //   },
+  // })
+  // const results = <ExportResultsTsp>await response.json()
+  // drawPath(results[0].tspPathApprox)
 
   setControls()
   drawGrid()

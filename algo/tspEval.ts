@@ -1,9 +1,9 @@
-import { Grid } from './models/Grid.js'
-import { Node } from './models/Node.js'
+import { trackTime } from '../utils/telemetry.js'
 import search from './AStarSearch.js'
 import { generateRandomMaps } from './graphGen.js'
-import { tSPApproximation, tSPExact, Position } from './tsp.js'
-import { trackTime } from '../utils/telemetry.js'
+import { Grid } from './models/Grid.js'
+import { Node } from './models/Node.js'
+import { Position, tSPApproximation, tSPExact } from './tsp.js'
 //Random map generation is imported
 
 interface results {
@@ -183,6 +183,7 @@ const tspMainTest = (
   heuristic: string,
   drawList: boolean,
   numberOfTests: number,
+  mapPool?: Grid[],
 ): {
   grid: Grid
   destinations: number[]
@@ -193,7 +194,12 @@ const tspMainTest = (
 }[] => {
   // Generate a set of maps
   console.log('Start Grid generation')
-  let testGridSet: Grid[] = generateRandomMaps(numberOfMaps, false)
+  let testGridSet: Grid[] = []
+  if (mapPool) {
+    testGridSet = mapPool
+  } else {
+    testGridSet = generateRandomMaps(numberOfMaps, false)
+  }
   console.log('Grids generated ', testGridSet.length)
   let results: {
     grid: Grid
@@ -220,7 +226,7 @@ const tspMainTest = (
 }
 
 //Function to eval results
-export const evalResults = () => {
+export const evalResults = (mapPool?: Grid[]) => {
   /*
    ----- Test parameters settings ------
    */
@@ -256,6 +262,7 @@ export const evalResults = () => {
     heuristic,
     drawList,
     numberOfTests,
+    mapPool,
   )
 
   let toExport: ExportResultsTsp = []
