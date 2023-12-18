@@ -152,7 +152,7 @@ const testTspAlgo = (
     drawList,
   )
   let destinations_id: number[] = []
-  for (let i = 0; destinations.length < i; i++) {
+  for (let i = 0; i < destinations.length; i++) {
     destinations_id.push(destinations[i].id)
   }
   return {
@@ -206,7 +206,7 @@ const tspMainTest = (
   testGridSet.forEach((testGrid) => {
     // For different maps try different number of destinations
     for (let j = 0; j < numberOfTests; j++) {
-      for (let i = 3; i < numberOfDestiations; i++) {
+      for (let i = 3; i <= numberOfDestiations; i++) {
         // Set destinations
         let destinations = setDestinations(testGrid, i)
         // Run TSP Exact and Approx and safe results (ordering, time and map)
@@ -229,7 +229,7 @@ export const evalResults = () => {
   let heuristic: string = 'manhattan'
   let drawList: boolean = false
 
-  const numberOfDestiations: number = 4 //Will usd from 0 - numberOfDestinations
+  const numberOfDestiations: number = 4 //never lower than 3
   const numberOfMaps: number = 1
   const numberOfTests: number = 1 // How many different destinations sets per map and destination number
 

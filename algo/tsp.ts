@@ -380,8 +380,9 @@ export const tSPApproximation = (
       adjacentMatrix[i][xNew].length = -1
     }
     if (x == xNew) {
+      //Something wrong here!
       // Must safe the starting node
-      ordering.push(grid[ordering[0].x][ordering[0].x])
+      ordering.push(ordering[0])
       let pathid: (number | undefined)[] | null = pathFindingAlgo(
         { x: ordering[ordering.length - 2].x, y: ordering[ordering.length - 2].y },
         { x: ordering[ordering.length - 1].x, y: ordering[ordering.length - 1].y },
@@ -400,11 +401,8 @@ export const tSPApproximation = (
           }
         })
         length = length + calculatePathLength(path, grid)
-        let temp2 = adjacentMatrix[x][0].path
-        temp2.shift()
-        for (let i = 0; i < temp2.length; i++) {
-          tspPath.push(temp2[i])
-        }
+        path.shift()
+        tspPath.concat(path)
       }
     }
   } while (x != xNew)
