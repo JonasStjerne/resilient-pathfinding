@@ -29,24 +29,28 @@ export const setDestinations = (grid: Grid, n: number): Node[] => {
       destX = Math.floor(Math.random() * grid.length)
       destY = Math.floor(Math.random() * grid[0].length)
 
-      // Check reachbility for boath directions for only one node (for all the same!)
+      // Check reachbility for boath directions for for all the same
       if (destination.length != 0) {
-        let path: undefined | (number | undefined)[] | null = search(
-          { x: grid[destX][destY].x, y: grid[destX][destY].y },
-          { x: destination[0].x, y: destination[0].y },
-          grid,
-        )
-        if (path) {
+        for (let k = 0; k < destination.length; k++) {
+          let path: undefined | (number | undefined)[] | null = null
           path = search(
-            { x: destination[0].x, y: destination[0].y },
             { x: grid[destX][destY].x, y: grid[destX][destY].y },
+            { x: destination[0].x, y: destination[0].y },
             grid,
           )
-          if (!path) {
+          if (path != null) {
+            path = search(
+              { x: destination[0].x, y: destination[0].y },
+              { x: grid[destX][destY].x, y: grid[destX][destY].y },
+              grid,
+            )
+            if (path != null) {
+            } else {
+              reachable = false
+            }
+          } else {
             reachable = false
           }
-        } else {
-          reachable = false
         }
       } else {
         if (grid[destX][destY].type == 'water') {
@@ -57,6 +61,7 @@ export const setDestinations = (grid: Grid, n: number): Node[] => {
         grid[destX][destY].type = 'road'
       }
     } while (!reachable)
+
     destination.push(grid[destX][destY])
     grid[destX][destY].type = 'road'
   }
@@ -108,7 +113,7 @@ const timeTspApprox = (
   return { results: resultApprox, deltaTime: deltaTime }
 }
 //Function that generated ordering with boath TSP algos + timeing
-const testTspAlgo = (
+export const testTspAlgo = (
   grid: Grid,
   destinations: Node[],
   pathFindingAlgo: (
