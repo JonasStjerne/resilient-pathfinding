@@ -73,14 +73,16 @@ const timeTspExact = (
     algoVersion: string,
     heuristic: string,
     drawLists: boolean,
+    penMap: number[],
   ) => (number | undefined)[] | null,
   w: number,
   algoVersion: string,
   heuristic: string,
   drawList: boolean,
+  penMap: number[],
 ): { results: results; deltaTime: number } => {
   const { result: resultExact, deltaTime } = trackTime(() =>
-    tSPExact(grid, pathFindingAlgo, destinations, w, algoVersion, heuristic, drawList),
+    tSPExact(grid, pathFindingAlgo, destinations, w, algoVersion, heuristic, drawList, penMap),
   )
   return { results: resultExact, deltaTime: deltaTime }
 }
@@ -101,9 +103,10 @@ const timeTspApprox = (
   algoVersion: string,
   heuristic: string,
   drawList: boolean,
+  penMap: number[],
 ): { results: results; deltaTime: number } => {
   const { result: resultApprox, deltaTime } = trackTime(() =>
-    tSPApproximation(grid, pathFindingAlgo, destinations, w, algoVersion, heuristic, drawList),
+    tSPApproximation(grid, pathFindingAlgo, destinations, w, algoVersion, heuristic, drawList, penMap),
   )
   return { results: resultApprox, deltaTime: deltaTime }
 }
@@ -132,6 +135,19 @@ const testTspAlgo = (
   resultsApprox: results
   deltaTimeApprox: number
 } => {
+  const maxMu = getMaxMue([grid])
+  const penMap: number[] = []
+  const inverseNormalizedValue = (1 - w) * 20
+  for (let i = 0; i <= maxMu; i++) {
+    console.log('Calculating penelization for mue ' + i)
+    if (w == 1) {
+      penMap[i] = 0
+    } else {
+      penMap[i] = 2 * Math.pow(0.15, i - inverseNormalizedValue)
+    }
+  }
+  penMap[grid.length * grid[0].length + 15] = 0
+
   // Get the results and the execution times
   let resultsApprox: { results: results; deltaTime: number } = timeTspApprox(
     grid,
@@ -141,6 +157,7 @@ const testTspAlgo = (
     algoVersion,
     heuristic,
     drawList,
+    penMap,
   )
   let resultsExact: { results: results; deltaTime: number } = timeTspExact(
     grid,
@@ -150,6 +167,7 @@ const testTspAlgo = (
     algoVersion,
     heuristic,
     drawList,
+    penMap,
   )
   let destinations_id: number[] = []
   for (let i = 0; i < destinations.length; i++) {
@@ -163,6 +181,19 @@ const testTspAlgo = (
     resultsApprox: resultsApprox.results,
     deltaTimeApprox: resultsApprox.deltaTime,
   }
+}
+
+function getMaxMue(grids: Grid[]) {
+  let highest = 0
+  grids.forEach((grid) => {
+    const gridMax = Math.max(
+      ...grid.flat().map((node) => (node.mue == grid.length * grid[0].length + 15 ? 0 : node.mue)),
+    )
+    if (highest < gridMax) {
+      highest = gridMax
+    }
+  })
+  return highest
 }
 
 // TSP Eval main hub

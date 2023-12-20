@@ -899,10 +899,27 @@ function drawPath(positionPath: Position[]) {
   positionPath.forEach((position) => {
     ctx.fillStyle = 'rgba(128, 128, 128, 0.7)' // Set the fill color
     ctx.fillRect(
-      position.x * cellSize + cellPadding / 2,
-      position.y * cellSize + cellPadding / 2,
-      cellSize - cellPadding,
-      cellSize - cellPadding,
+      position.x * 10 + cellPadding / 2,
+      position.y * 10 + cellPadding / 2,
+      10 - cellPadding,
+      10 - cellPadding,
+    )
+  })
+  destinations.forEach((dest) => {
+    let position: Position = { x: 0, y: 0 }
+    grid.forEach((col) =>
+      col.forEach((node) => {
+        if (node.id == dest) {
+          position = { x: node.x, y: node.y }
+        }
+      }),
+    )
+    ctx.fillStyle = 'rgba(0, 245, 16, 0.7)' // Set the fill color
+    ctx.fillRect(
+      position.x * 10 + cellPadding / 2,
+      position.y * 10 + cellPadding / 2,
+      10 - cellPadding,
+      10 - cellPadding,
     )
   })
 }

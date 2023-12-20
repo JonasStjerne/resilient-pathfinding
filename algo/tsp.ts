@@ -44,12 +44,14 @@ export const tSPExact = (
     algoVersion: string,
     heuristic: string,
     drawLists: boolean,
+    penMap: number[],
   ) => (number | undefined)[] | null,
   destinations: Node[],
   w: number,
   algoVersion: string,
   heuristic: string,
   drawLists: boolean,
+  penMap: number[],
 ): results => {
   // Adjacent matrix
   const adjacentMatrix: adjacent[][] = new Array(destinations.length)
@@ -77,6 +79,7 @@ export const tSPExact = (
           algoVersion,
           heuristic,
           drawLists,
+          penMap,
         )
         let path: Node[] = []
         if (pathid != null) {
@@ -277,12 +280,14 @@ export const tSPApproximation = (
     algoVersion: string,
     heuristic: string,
     drawLists: boolean,
+    penMap: number[],
   ) => (number | undefined)[] | null,
   destinations: Node[],
   w: number,
   algoVersion: string,
   heuristic: string,
   drawLists: boolean,
+  penMap: number[],
 ): results => {
   // Adjacent matrix
   const adjacentMatrix: adjacent[][] = new Array(destinations.length)
@@ -315,6 +320,7 @@ export const tSPApproximation = (
           algoVersion,
           heuristic,
           drawLists,
+          penMap,
         )
         let path: Node[] = []
         if (pathid != null) {
@@ -396,6 +402,7 @@ export const tSPApproximation = (
         algoVersion,
         heuristic,
         drawLists,
+        penMap,
       )
       let path: Node[] = []
       if (pathid != null) {
@@ -462,6 +469,7 @@ export const TestFunctionTSPapprox = (): void => {
     'v1',
     'manhattan',
     false,
+    [],
   )
   //Node is fucked
   console.log(results)
