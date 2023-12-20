@@ -358,13 +358,13 @@ function gradientCellColor(color: string, col: number, row: number) {
   }
 }
 
-function drawSquareInGrid(col: number, row: number, type: NodeType) {
+function drawSquareInGrid(col: number, row: number, type: NodeType, autoHandleDiagonalWaterEdges: boolean = false) {
   // To disallow the path to "jump" diagonal water cells, we remove those edges.
   //If the water cell is overwritten by something else than water, we want to restore those edges
   if (type == 'water') {
-    removeEdgesJumpingDiagonalWater(grid[col][row])
+    autoHandleDiagonalWaterEdges ? removeEdgesJumpingDiagonalWater(grid[col][row]) : null
   } else if (grid[col][row].type == 'water') {
-    recreateDiagonalEdges(grid[col][row])
+    autoHandleDiagonalWaterEdges ? recreateDiagonalEdges(grid[col][row]) : null
   }
 
   const ctx = canvas.getContext('2d')!
@@ -471,7 +471,7 @@ export const mouseDownHandler = (event: MouseEvent) => {
   }
 
   isDrawing = true
-  drawSquareInGrid(col, row, selectedType)
+  drawSquareInGrid(col, row, selectedType, true)
 }
 
 export const mouseMoveHandler = (event: MouseEvent) => {
@@ -895,7 +895,7 @@ function getDividingDiagonalNodes(fromNode: Node, toNode: Node) {
   }
 }
 
-function drawPath(positionPath: Position[]) {
+function drawPath(positionPath: Position[], destinations: number[]) {
   positionPath.forEach((position) => {
     ctx.fillStyle = 'rgba(128, 128, 128, 0.7)' // Set the fill color
     ctx.fillRect(
