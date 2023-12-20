@@ -88,6 +88,7 @@ export const tSPExact = (
           })
           adjacentMatrix[i][j] = { path: path, length: calculatePathLength(path, grid) }
         } else {
+          console.log('TSP-E: Max lnght included')
           adjacentMatrix[i][j] = { path: [], length: maxPathLenght }
         }
       } else {
@@ -312,7 +313,12 @@ export const tSPExact = (
     tspNodePath.push(grid[tspPath[i].x][tspPath[i].y])
   }
   console.log('TSP-E: ' + length)
-  console.log('TSP-E calc path:' + calculatePathLength(tspNodePath, grid))
+  try {
+    console.log('TSP-E calc path:' + calculatePathLength(tspNodePath, grid))
+  } catch (error) {
+    return { ordering: [], pathlength: -1, tspPath: [], foundpath: false } //I dont know how else to fix
+  }
+
   //Here
   return { ordering: ordering, pathlength: length, tspPath: tspPath, foundpath: foundtsp }
 }
