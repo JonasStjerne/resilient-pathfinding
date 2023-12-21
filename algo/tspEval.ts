@@ -253,8 +253,6 @@ const tspMainTest = (
       for (let i = 3; i <= numberOfDestiations; i++) {
         // Set destinations
         let destinations = setDestinations(testGrid, i)
-        // Run TSP Exact and Approx and safe results (ordering, time and map)
-        // May need to timeout here -> Hardcode limit by trial and error
         results.push({
           ...testTspAlgo(testGrid, destinations, pathFindingAlgo, w, algoVersion, heuristic, drawList),
           mapId: index,
@@ -271,14 +269,14 @@ export const evalResults = (mapPool?: Grid[]) => {
   /*
    ----- Test parameters settings ------
    */
-  let w: number = 0
+  let w: number = 1
   let algoVersion: string = 'v1'
-  let heuristic: string = 'manhattan'
+  let heuristic: string = 'octail'
   let drawList: boolean = false
 
-  const numberOfDestiations: number = 4 //never lower than 3
-  const numberOfMaps: number = 1
-  const numberOfTests: number = 1 // How many different destinations sets per map and destination number
+  const numberOfDestiations: number = 13 //never lower than 3
+  const numberOfMaps: number = 10
+  const numberOfTests: number = 5
 
   /*
   ----- End Settings -------------------
