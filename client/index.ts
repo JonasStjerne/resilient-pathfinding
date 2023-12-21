@@ -62,7 +62,7 @@ export default async function clientInit() {
 */
 
   //To visualize the result on the curretn grid uncomment below
-
+  /*
   const baseUrl = document.URL
   const response = await fetch(`${baseUrl}algo/results/results.json`, {
     method: 'GET',
@@ -72,7 +72,7 @@ export default async function clientInit() {
   })
   const results = <ExportResultsTsp>await response.json()
   drawPath(results[0].tspPathApprox)
-
+*/
   setControls()
   drawGrid()
   enableContinuousDrawing(canvas)
