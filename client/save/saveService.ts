@@ -196,7 +196,7 @@ export async function getFileFromFs<T>(inputElmId: string): Promise<T | undefine
   const input = <HTMLInputElement>document.getElementById(inputElmId)
   if (input?.files && input.files.length > 0) {
     const file = input.files[0]
-    if (file.type === 'application/x-gzip') {
+    if (true) {
       return new Promise<T>((resolve, reject) => {
         const reader = new FileReader()
 

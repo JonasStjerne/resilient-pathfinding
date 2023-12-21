@@ -1,5 +1,5 @@
 import search from '../algo/AStarSearch.js'
-import { generateOneGraph } from '../algo/graphGen.js'
+import { generateOneGraph, generateRandomMaps } from '../algo/graphGen.js'
 import {
   addDisturbance,
   addEdge,
@@ -11,26 +11,68 @@ import {
   setTypeOfNode,
 } from '../algo/grid.js'
 import { Node, NodeType } from '../algo/models/Node.js'
+import { Position } from '../algo/models/Position.js'
 import { computeMue } from '../algo/mue.js'
+import { ExportResultsTsp, evalResults } from '../algo/tspEval.js'
+// import results from '../algo/results/results.json'
 import { initSaveControl } from './save/index.js'
 import {
   ControlsData,
+  GridJSON,
+  convertGridsToJSONString,
   getActiveGridFromLocalStorage,
   getControlsFromLocalStorage,
+  recreateNodeCircularReference,
   saveActiveGridToLocalStorage,
   saveControlsToLocalStorage,
+  saveToFs,
 } from './save/saveService.js'
 export * from './genMaps/index.js'
 export * from './simulation/index.js'
-export default function clientInit() {
+export default async function clientInit() {
   const savedGrid = getActiveGridFromLocalStorage()
   if (savedGrid) {
     setGrid(savedGrid)
   }
-  // grid[0][0].edges = [];
-  // grid[0][1].edges = [];
-  // grid[1][0].edges = [];
-  // grid[2][1].edges = [];
+  //To generate maps uncomment below
+  const mapsCount = 10
+  // const mapPool = generateRandomMaps(mapsCount, false)
+  // const mapPoolJson = convertGridsToJSONString(mapPool)
+  // saveToFs(mapPoolJson, 'TSP_mapPool_' + mapsCount)
+
+  //To use an existing map from a file, uncomment below
+  /*
+  const baseUrl = document.URL
+  const response = await fetch(`${baseUrl}algo/maps/TSP_mapPool_${mapsCount}.json`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+
+  const resultsJsonGrid = <GridJSON[]>await response.json()
+  const grids = resultsJsonGrid.map((gridJson) => recreateNodeCircularReference(gridJson))
+*/
+
+  //To save results uncomment below
+  /*
+  const results = evalResults(grids)
+  const jsonResults = JSON.stringify(results)
+  saveToFs(jsonResults, 'results')
+*/
+
+  //To visualize the result on the curretn grid uncomment below
+  /*
+  const baseUrl = document.URL
+  const response = await fetch(`${baseUrl}algo/results/results.json`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+  const results = <ExportResultsTsp>await response.json()
+  drawPath(results[0].tspPathApprox)
+*/
   setControls()
   drawGrid()
   enableContinuousDrawing(canvas)
@@ -316,13 +358,13 @@ function gradientCellColor(color: string, col: number, row: number) {
   }
 }
 
-function drawSquareInGrid(col: number, row: number, type: NodeType) {
+function drawSquareInGrid(col: number, row: number, type: NodeType, autoHandleDiagonalWaterEdges: boolean = false) {
   // To disallow the path to "jump" diagonal water cells, we remove those edges.
   //If the water cell is overwritten by something else than water, we want to restore those edges
   if (type == 'water') {
-    removeEdgesJumpingDiagonalWater(grid[col][row])
+    autoHandleDiagonalWaterEdges ? removeEdgesJumpingDiagonalWater(grid[col][row]) : null
   } else if (grid[col][row].type == 'water') {
-    recreateDiagonalEdges(grid[col][row])
+    autoHandleDiagonalWaterEdges ? recreateDiagonalEdges(grid[col][row]) : null
   }
 
   const ctx = canvas.getContext('2d')!
@@ -429,7 +471,7 @@ export const mouseDownHandler = (event: MouseEvent) => {
   }
 
   isDrawing = true
-  drawSquareInGrid(col, row, selectedType)
+  drawSquareInGrid(col, row, selectedType, true)
 }
 
 export const mouseMoveHandler = (event: MouseEvent) => {
@@ -851,4 +893,33 @@ function getDividingDiagonalNodes(fromNode: Node, toNode: Node) {
     case 'top-left':
       return [GetNeighboringNode(fromNode, 'top'), GetNeighboringNode(fromNode, 'right')]
   }
+}
+
+function drawPath(positionPath: Position[], destinations: number[]) {
+  positionPath.forEach((position) => {
+    ctx.fillStyle = 'rgba(128, 128, 128, 0.7)' // Set the fill color
+    ctx.fillRect(
+      position.x * 10 + cellPadding / 2,
+      position.y * 10 + cellPadding / 2,
+      10 - cellPadding,
+      10 - cellPadding,
+    )
+  })
+  destinations.forEach((dest) => {
+    let position: Position = { x: 0, y: 0 }
+    grid.forEach((col) =>
+      col.forEach((node) => {
+        if (node.id == dest) {
+          position = { x: node.x, y: node.y }
+        }
+      }),
+    )
+    ctx.fillStyle = 'rgba(0, 245, 16, 0.7)' // Set the fill color
+    ctx.fillRect(
+      position.x * 10 + cellPadding / 2,
+      position.y * 10 + cellPadding / 2,
+      10 - cellPadding,
+      10 - cellPadding,
+    )
+  })
 }

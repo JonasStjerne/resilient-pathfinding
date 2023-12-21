@@ -1,6 +1,6 @@
 // Experimental radius is bugged. And its use cases are commented out.
 
-import { disableContinuousDrawing, drawGrid, enableContinuousDrawing } from '../client/index.js'
+// import { disableContinuousDrawing, drawGrid, enableContinuousDrawing } from '../client/index.js'
 import search from './AStarSearch.js'
 import { addDisturbance, makeGrid, setGrid } from './grid.js'
 import { Grid } from './models/Grid.js'
@@ -139,10 +139,10 @@ export function generateOneGraph() {
     console.debug('WATER nodes: ', newGrid.flat().filter((node) => node.type === 'water').length)
     generateDisturbances(newGrid)
     computeMue(newGrid)
-    drawGrid()
+    // drawGrid()
 
-    disableContinuousDrawing(canvas)
-    enableContinuousDrawing(canvas)
+    // disableContinuousDrawing(canvas)
+    // enableContinuousDrawing(canvas)
   }, 100)
 
   // DEBUG: Mark starting point of each water drawing agent
@@ -155,14 +155,17 @@ export function generateOneGraph() {
   // })
 }
 
-export function generateRandomMaps(mapsCount: number) {
+export function generateRandomMaps(mapsCount: number, generateStartAndEnd: boolean = true) {
   const maps: Grid[] = []
   for (let i = 0; i < mapsCount; i++) {
+    console.log('Generating the ' + i + 'th map')
     const newGrid = makeGrid(GRID_SIZE)
     generateWater(newGrid)
     generateDisturbances(newGrid)
     computeMue(newGrid)
-    setStartAndEnd(newGrid)
+    if (generateStartAndEnd) {
+      setStartAndEnd(newGrid)
+    }
     maps.push(newGrid)
   }
   return maps
@@ -194,7 +197,7 @@ function setStartAndEnd(grid: Grid) {
   } while (!path)
 }
 
-function euclideanDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {
+export function euclideanDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {
   const dx = point1.x - point2.x
   const dy = point1.y - point2.y
   return Math.sqrt(dx * dx + dy * dy)

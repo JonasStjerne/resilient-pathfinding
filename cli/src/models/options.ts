@@ -1,6 +1,7 @@
 export type options = Partial<
   prompt<'mapPoolFileName', string> &
     prompt<'algoVersion', 'v1' | 'v2' | 'v2.1'> &
+    prompt<'runType', string> &
     prompt<'riskFactor', number> &
     prompt<'iterationCount', number>
 >

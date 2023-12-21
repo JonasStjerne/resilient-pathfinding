@@ -4,6 +4,17 @@ import { prompt } from './utils/prompt.js'
 export const runCli = async () => {
   const options: options = {}
 
+  options['runType'] = await prompt<'Algorithm simulation' | 'TSP evaluation'>({
+    name: 'runType',
+    type: 'list',
+    message: 'What do you want to run?',
+    defaultOption: 'Algorithm simulation',
+    choices: ['Algorithm simulation', 'TSP evaluation'],
+  })
+
+  if (options['runType'] == 'TSP evaluation') {
+    return options
+  }
   options['mapPoolFileName'] = await prompt<string>({
     name: 'mapPoolFileName',
     type: 'input',

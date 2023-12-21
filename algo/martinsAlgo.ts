@@ -121,5 +121,4 @@ export const testDistanceFunktion = (): void => {
   }
 
   SetDistFromGoal(grid, { x: 0, y: 0 })
-  console.log(grid)
 }

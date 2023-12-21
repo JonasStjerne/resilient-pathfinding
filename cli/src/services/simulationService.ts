@@ -5,7 +5,7 @@ import { Stats } from '../../../shared/models'
 import { options } from '../models/index.js'
 import { trackTime } from '../utils/index.js'
 import { FileService } from './fileService.js'
-const pushProp = 0.15
+
 export class SimulationService {
   private _iterationCount
   private _algoVersion
@@ -23,18 +23,6 @@ export class SimulationService {
     const maps = await FileService.getMaps(this._mapPoolFileName!)
     const statsByMap: Array<{ name: string; stats: Stats }> = []
     const globalStats: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
-    const maxMue = this.#getMaxMue(maps)
-    const penMap: number[] = []
-    const inverseNormalizedValue = (1 - this._riskFactor) * 20
-    for (let i = 0; i <= maxMue; i++) {
-      console.log('Calculating penelization for mue ' + i)
-      if (this._riskFactor == 1) {
-        penMap[i] = 0
-      } else {
-        penMap[i] = 2 * Math.pow(pushProp, i - inverseNormalizedValue)
-      }
-    }
-    penMap[maps[0].length * maps[0][0].length + 15] = 0
 
     for (let mapIndex = 0; mapIndex < maps.length; mapIndex++) {
       console.log('Running simulation on map ' + (mapIndex + 1) + '/' + maps.length)
@@ -42,7 +30,7 @@ export class SimulationService {
       const endPos = this.#getStartOrEndPos(maps[mapIndex], 'goal')
       const statsMap: Stats = { comptime: 0, traveledDistance: 0, pushover: 0, successRate: 0 }
       const { result: path, deltaTime } = trackTime(() =>
-        search(startPos!, endPos!, maps[mapIndex], this._riskFactor, this._algoVersion, undefined, undefined, penMap),
+        search(startPos!, endPos!, maps[mapIndex], this._riskFactor, this._algoVersion),
       )
       for (let i = 0; i < this._iterationCount; i++) {
         console.log('Running simulation iteration ' + (i + 1) + '/' + this._iterationCount + ' on map ' + mapIndex)
@@ -53,10 +41,9 @@ export class SimulationService {
           startPos!,
           endPos!,
           search,
-          pushProp,
+          0.2,
           this._riskFactor,
           this._algoVersion,
-          penMap,
         )
 
         statsMap.pushover += simResult.distTaken / (simResult.distTouched ? simResult.distTouched : 1)
@@ -111,23 +98,5 @@ export class SimulationService {
     })
 
     return averageStats
-  }
-
-  #getMaxMue(grids: Grid[]) {
-    let highest = 0
-    grids.forEach((grid) => {
-      const gridMax = Math.max(
-        ...grid.flat().map((node) => (node.mue == grid.length * grid[0].length + 15 ? 0 : node.mue)),
-      )
-      if (highest < gridMax) {
-        highest = gridMax
-      }
-    })
-    return highest
-  }
-
-  #penalization(robustness: number, w: number) {
-    const alternative = w === 0 ? 0 : 2 * Math.pow(0.2, robustness - w)
-    return alternative
   }
 }
