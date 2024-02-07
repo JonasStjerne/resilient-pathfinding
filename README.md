@@ -17,7 +17,7 @@ multi-destination routing". The research explores the challenges posed by extern
 ## Results
 The research findings demonstrate a significant improvement in success rates when using the risk-based algorithm compared to the traditional A* algorithm. In our simulations, the rate of successful traversal of maps increased from 66.78% in the normal A* to 96.78% in the risk-adapting algorithm. The algorithm intelligently navigates paths to minimize overall risk exposure in diverse auto-generated environments.
 
-Below an example is shown. When a low risk is set the algorithm will avoid dangerous areas and take a longer route.
+Below an example is shown. When a low risk factor is set the algorithm will avoid dangerous areas and take a longer route.
 <p align="center">
   <img width="517" alt="Screenshot 2024-02-07 at 07 09 31" src="https://github.com/JonasStjerne/P7/assets/73853586/19c29ad2-f339-48b3-992c-4be7e1307814">
 </p>
