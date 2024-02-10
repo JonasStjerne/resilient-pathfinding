@@ -4,7 +4,7 @@ This repository contains the code implementation associated with the paper title
 multi-destination routing". The research explores the challenges posed by external factors such as wind and water in dynamic environments. The proposed solution involves an adapted A* algorithm that incorporates risk factors to generate paths balancing distance and safety. The algorithm is user-adjustable, allowing for varying risk preferences.
 
 ## Key Features
-* Adapted A Algorithm: The repository includes the implementation of the adapted A* algorithm designed to handle dynamic environments with external risk factors.
+* Adapted A* Algorithm: The repository includes the implementation of the adapted A* algorithm designed to handle dynamic environments with external risk factors.
 
 * User-Adjustable Risk Factor: The algorithm allows users to adjust the risk factor, enabling customization based on varying risk preferences.
 
